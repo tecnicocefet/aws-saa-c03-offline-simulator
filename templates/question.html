@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="card">
+  <div class="muted">
+    Questão {{ idx+1 }}/{{ total }}
+    <span class="pill">ID {{ q.id }}</span>
+    <span class="pill">tópico: {{ q.topic }}</span>
+    {% for t in q.tags %}<span class="pill">{{ t }}</span>{% endfor %}
+    {% if exam_mode %}<span class="pill">🧪 modo prova</span>{% endif %}
+  </div>
+
+  <h2 style="margin-top:10px;">{{ q.question }}</h2>
+
+  <form method="post" action="/answer" class="choices">
+    {% for k in keys %}
+      <label>
+        <input type="{{ input_type }}" name="ans" value="{{ k }}" />
+        <strong>{{ k }})</strong> {{ q.choices[k] }}
+      </label>
+    {% endfor %}
+    <div style="margin-top:14px;">
+      <button type="submit">Responder</button>
+      <a href="/result" style="margin-left:10px;">Encerrar</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

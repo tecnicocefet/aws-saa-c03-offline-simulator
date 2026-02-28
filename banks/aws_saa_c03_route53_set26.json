@@ -1,0 +1,404 @@
+{
+  "questions": [
+    {
+      "id": "SAA-R53-026-001",
+      "topic": "dns",
+      "question": "Uma aplicação tem endpoints em 3 regiões. O requisito é: enviar usuários sempre para o endpoint com menor latência e remover automaticamente endpoints degradados. Qual configuração do Route 53 atende melhor?",
+      "choices": {
+        "A": "Latency-based routing com health checks por endpoint",
+        "B": "Geolocation routing sem health checks",
+        "C": "Weighted routing sem health checks",
+        "D": "Simple routing com TTL baixo"
+      },
+      "correct": ["A"],
+      "explanation": "Latency-based direciona por menor latência e, com health checks, remove endpoints não saudáveis do DNS automaticamente.",
+      "choice_explanations": {
+        "A": "Correto: latência + detecção de saúde e retirada automática do DNS.",
+        "B": "Errado: geolocation é por localização e sem health checks não evita endpoint degradado.",
+        "C": "Errado: weighted não é por latência; sem health checks pode enviar tráfego para endpoint ruim.",
+        "D": "Errado: simple não tem lógica de latência nem failover automático real."
+      },
+      "tags": ["route53", "dns", "latency", "health-check", "multi-region", "resilience"]
+    },
+    {
+      "id": "SAA-R53-026-002",
+      "topic": "dns",
+      "question": "Você precisa de um padrão ativo-passivo (primário atende tudo; secundário só em falha). Quer failover automático baseado em saúde. O que usar?",
+      "choices": {
+        "A": "Failover routing (Primary/Secondary) com health check",
+        "B": "Weighted 100/0 sem health checks",
+        "C": "Latency routing sem health checks",
+        "D": "Multivalue answer sem health checks"
+      },
+      "correct": ["A"],
+      "explanation": "Failover routing é desenhado para ativo-passivo e funciona com health checks para alternância automática.",
+      "choice_explanations": {
+        "A": "Correto: padrão direto para ativo-passivo com monitoramento de saúde.",
+        "B": "Errado: 100/0 é gambiarra, sem health checks não há failover automático confiável.",
+        "C": "Errado: latência não garante ativo-passivo e sem health checks falha o requisito.",
+        "D": "Errado: multivalue não é failover determinístico e sem health checks é arriscado."
+      },
+      "tags": ["route53", "failover", "ha-dr", "health-check"]
+    },
+    {
+      "id": "SAA-R53-026-003",
+      "topic": "dns",
+      "question": "Você quer fazer canary deployment: 95% do tráfego na versão antiga e 5% na nova, aumentando gradualmente. Qual política Route 53 é mais adequada?",
+      "choices": {
+        "A": "Weighted routing",
+        "B": "Failover routing",
+        "C": "Geolocation routing",
+        "D": "Simple routing"
+      },
+      "correct": ["A"],
+      "explanation": "Weighted routing permite dividir tráfego por percentual e ajustar progressivamente.",
+      "choice_explanations": {
+        "A": "Correto: canary/gradual rollout por percentuais.",
+        "B": "Errado: failover é para ativo-passivo.",
+        "C": "Errado: geolocation é por país/região, não por percentual.",
+        "D": "Errado: simple não faz split de tráfego."
+      },
+      "tags": ["route53", "weighted", "deployment", "canary"]
+    },
+    {
+      "id": "SAA-R53-026-004",
+      "topic": "dns",
+      "question": "Uma empresa tem um domínio e quer encaminhar consultas do subdomínio 'api.example.com' para um ALB e do subdomínio 'static.example.com' para CloudFront. Qual registro Route 53 é o mais apropriado em ambos os casos?",
+      "choices": {
+        "A": "A/AAAA alias para ALB e A/AAAA alias para CloudFront",
+        "B": "CNAME para ALB na zona raiz e A para CloudFront",
+        "C": "A para ALB com IP fixo e CNAME para CloudFront",
+        "D": "TXT records apontando para os endpoints"
+      },
+      "correct": ["A"],
+      "explanation": "Alias records integram com recursos AWS como ALB e CloudFront sem precisar gerenciar IPs e permitem uso em apex também.",
+      "choice_explanations": {
+        "A": "Correto: alias é o padrão AWS para ALB/CloudFront.",
+        "B": "Errado: CNAME não é usado em apex e não é necessário para ALB; alias é melhor.",
+        "C": "Errado: ALB não tem IP fixo; você não deve apontar A para IPs.",
+        "D": "Errado: TXT não resolve nomes."
+      },
+      "tags": ["route53", "alias", "alb", "cloudfront", "dns"]
+    },
+    {
+      "id": "SAA-R53-026-005",
+      "topic": "dns",
+      "question": "Você precisa que o Route 53 detecte falhas de um endpoint HTTPS atrás de um ALB. O time quer que o health check valide um caminho específico '/health' e considere 2 falhas consecutivas como 'unhealthy'. Qual configuração atende?",
+      "choices": {
+        "A": "Health check HTTPS com path /health e failure threshold 2",
+        "B": "TTL baixo no registro sem health check",
+        "C": "Weighted record com 50/50",
+        "D": "Private Hosted Zone com record simples"
+      },
+      "correct": ["A"],
+      "explanation": "Health checks do Route 53 suportam HTTPS e podem validar paths específicos com thresholds configuráveis.",
+      "choice_explanations": {
+        "A": "Correto: valida endpoint e path com threshold.",
+        "B": "Errado: TTL não detecta falha.",
+        "C": "Errado: split não detecta endpoint unhealthy.",
+        "D": "Errado: zona privada não resolve monitoramento/failover por si só."
+      },
+      "tags": ["route53", "health-check", "https", "alb", "resilience"]
+    },
+    {
+      "id": "SAA-R53-026-006",
+      "topic": "dns",
+      "question": "Você usa Private Hosted Zone para nomes internos. Agora o on-prem precisa resolver esses nomes privados. Qual solução correta?",
+      "choices": {
+        "A": "Route 53 Resolver inbound endpoint + encaminhamento do DNS on-prem",
+        "B": "Converter Private Hosted Zone em Public Hosted Zone",
+        "C": "Copiar manualmente os registros para o BIND on-prem diariamente",
+        "D": "Habilitar VPC Peering entre on-prem e Route 53"
+      },
+      "correct": ["A"],
+      "explanation": "Inbound endpoint permite que redes externas (on-prem via VPN/DX) consultem zonas privadas do Route 53 Resolver.",
+      "choice_explanations": {
+        "A": "Correto: padrão para on-prem resolver nomes privados do Route 53.",
+        "B": "Errado: expõe nomes internos na internet.",
+        "C": "Errado: solução frágil e com atraso.",
+        "D": "Errado: peering é VPC-to-VPC e não habilita DNS desse modo."
+      },
+      "tags": ["route53", "resolver", "inbound", "hybrid", "dns"]
+    },
+    {
+      "id": "SAA-R53-026-007",
+      "topic": "dns",
+      "question": "Instâncias em uma VPC precisam resolver nomes de um domínio on-prem (corp.local) usando o DNS do datacenter. Qual solução Route 53 Resolver atende?",
+      "choices": {
+        "A": "Route 53 Resolver outbound endpoint + rule encaminhando corp.local para o DNS on-prem",
+        "B": "Criar Public Hosted Zone corp.local e apontar registros",
+        "C": "Criar Private Hosted Zone corp.local e cadastrar tudo manualmente",
+        "D": "Usar CloudFront para acelerar consultas DNS"
+      },
+      "correct": ["A"],
+      "explanation": "Outbound endpoint + rules encaminham consultas de domínios específicos para resolvers externos via conectividade híbrida.",
+      "choice_explanations": {
+        "A": "Correto: encaminhamento correto para DNS externo.",
+        "B": "Errado: expõe domínio e não resolve integração com DNS on-prem.",
+        "C": "Errado: duplicação manual e risco de inconsistência.",
+        "D": "Errado: CloudFront não é DNS resolver."
+      },
+      "tags": ["route53", "resolver", "outbound", "hybrid", "dns"]
+    },
+    {
+      "id": "SAA-R53-026-008",
+      "topic": "dns",
+      "question": "Você precisa que o Route 53 realize failover para um endpoint secundário apenas se o primário ficar indisponível. Mas o endpoint primário é um CloudFront distribution. Como configurar o health check corretamente?",
+      "choices": {
+        "A": "Health check apontando para um endpoint que represente a saúde real (ex: /health no origin) e usar failover record",
+        "B": "Não é possível usar health check com CloudFront; use only TTL 1",
+        "C": "Use geolocation routing com Brasil/Portugal",
+        "D": "Use multivalue answer para simular failover"
+      },
+      "correct": ["A"],
+      "explanation": "Você pode usar health check em um endpoint monitorável (muitas vezes o origin ou um endpoint de health) e usar failover record no Route 53.",
+      "choice_explanations": {
+        "A": "Correto: health check precisa refletir saúde real do serviço.",
+        "B": "Errado: você pode fazer health check em endpoints HTTP/HTTPS monitoráveis; TTL não substitui failover.",
+        "C": "Errado: geolocation não é failover.",
+        "D": "Errado: multivalue não é failover determinístico."
+      },
+      "tags": ["route53", "cloudfront", "health-check", "failover", "resilience"]
+    },
+    {
+      "id": "SAA-R53-026-009",
+      "topic": "dns",
+      "question": "Uma empresa quer que usuários na Europa sejam direcionados para eu-west-1, mas se o serviço na Europa falhar, devem ir para us-east-1 automaticamente. Qual combinação é mais apropriada?",
+      "choices": {
+        "A": "Geolocation routing com failover records e health checks",
+        "B": "Simple routing com TTL baixo",
+        "C": "Latency routing sem health checks",
+        "D": "Weighted 50/50 sem health checks"
+      },
+      "correct": ["A"],
+      "explanation": "Geolocation direciona por localização, e com health checks + failover você tem fallback automático quando o endpoint preferido falhar.",
+      "choice_explanations": {
+        "A": "Correto: preferências geográficas + failover automático.",
+        "B": "Errado: TTL não garante fallback.",
+        "C": "Errado: sem health checks não há failover; e latência não garante Europa->Europa.",
+        "D": "Errado: split sem health checks pode mandar para endpoint falho."
+      },
+      "tags": ["route53", "geolocation", "failover", "health-check", "multi-region"]
+    },
+    {
+      "id": "SAA-R53-026-010",
+      "topic": "dns",
+      "question": "Você precisa limitar respostas DNS a um conjunto de endpoints saudáveis e retornar vários IPs para distribuir carga sem controle de percentual. Qual política Route 53 se encaixa melhor?",
+      "choices": {
+        "A": "Multivalue answer com health checks",
+        "B": "Failover routing",
+        "C": "Weighted routing",
+        "D": "Geoproximity routing"
+      },
+      "correct": ["A"],
+      "explanation": "Multivalue answer retorna múltiplos valores e pode usar health checks para remover endpoints doentes, sem o controle estrito de percentuais.",
+      "choice_explanations": {
+        "A": "Correto: retorna múltiplos endpoints e pode filtrar por saúde.",
+        "B": "Errado: failover é primário/secundário.",
+        "C": "Errado: weighted controla percentuais (outro objetivo).",
+        "D": "Errado: geoproximity é para roteamento por proximidade/bias."
+      },
+      "tags": ["route53", "multivalue", "health-check", "dns", "resilience"]
+    },
+    {
+      "id": "SAA-R53-026-011",
+      "topic": "dns",
+      "question": "Você tem múltiplas contas AWS e quer centralizar a gestão de DNS em uma conta 'DNS'. Precisa que VPCs de outras contas usem a mesma Private Hosted Zone. O que usar?",
+      "choices": {
+        "A": "Route 53 Private Hosted Zone associada a múltiplas VPCs via autorização/associação cross-account",
+        "B": "Public Hosted Zone para todos os nomes internos",
+        "C": "Copiar registros via Lambda entre contas diariamente",
+        "D": "Criar uma zona privada separada por conta e duplicar registros"
+      },
+      "correct": ["A"],
+      "explanation": "É possível associar PHZ a VPCs de outras contas (com autorização), centralizando administração em uma conta de DNS.",
+      "choice_explanations": {
+        "A": "Correto: centraliza DNS e compartilha com VPCs cross-account.",
+        "B": "Errado: expõe nomes internos na internet.",
+        "C": "Errado: frágil e aumenta drift.",
+        "D": "Errado: duplicação aumenta risco operacional."
+      },
+      "tags": ["route53", "private-hosted-zone", "multi-account", "governance", "dns"]
+    },
+    {
+      "id": "SAA-R53-026-012",
+      "topic": "dns",
+      "question": "Uma aplicação global usa registros Route 53 com TTL alto. Após um failover, alguns usuários continuam indo para o endpoint antigo por vários minutos. Qual explicação e ação mitigadora faz mais sentido?",
+      "choices": {
+        "A": "Caches de DNS respeitam TTL; reduza TTL ou use mecanismos de failover com health checks e TTL adequado",
+        "B": "Route 53 está com bug; reinicie o serviço",
+        "C": "ALB não suporta failover; troque por NLB",
+        "D": "CloudFront ignora TTL e sempre serve do cache"
+      },
+      "correct": ["A"],
+      "explanation": "DNS é cacheado. TTL alto aumenta tempo de propagação/expiração em clientes e resolvers. Ajustar TTL e health checks ajuda.",
+      "choice_explanations": {
+        "A": "Correto: TTL e caches explicam o comportamento; ajustar TTL é a mitigação normal.",
+        "B": "Errado: comportamento esperado de DNS.",
+        "C": "Errado: ALB não tem relação direta com caching de DNS.",
+        "D": "Errado: CloudFront é outro plano; aqui o problema é cache DNS."
+      },
+      "tags": ["route53", "dns", "ttl", "failover", "resilience"]
+    },
+    {
+      "id": "SAA-R53-026-013",
+      "topic": "dns",
+      "question": "Você quer rotear tráfego baseado na proximidade geográfica e aplicar 'bias' para favorecer um datacenter específico em uma região. Qual política do Route 53 atende?",
+      "choices": {
+        "A": "Geoproximity routing",
+        "B": "Geolocation routing",
+        "C": "Latency routing",
+        "D": "Failover routing"
+      },
+      "correct": ["A"],
+      "explanation": "Geoproximity permite rotear por proximidade e aplicar bias para favorecer/afastar tráfego de um endpoint.",
+      "choice_explanations": {
+        "A": "Correto: proximidade + bias.",
+        "B": "Errado: geolocation é por país/continente, não proximidade/bias.",
+        "C": "Errado: latência não dá bias geográfico explícito.",
+        "D": "Errado: failover é ativo-passivo."
+      },
+      "tags": ["route53", "geoproximity", "dns", "routing"]
+    },
+    {
+      "id": "SAA-R53-026-014",
+      "topic": "dns",
+      "question": "Você precisa configurar DNS para um domínio raiz (apex) 'example.com' apontando para um ALB. Qual é a abordagem correta?",
+      "choices": {
+        "A": "A/AAAA alias record apontando para o ALB",
+        "B": "CNAME no apex apontando para o ALB",
+        "C": "A record apontando para IP fixo do ALB",
+        "D": "SRV record apontando para o ALB"
+      },
+      "correct": ["A"],
+      "explanation": "CNAME não é permitido no apex. Alias record é a forma recomendada para apontar apex para ALB.",
+      "choice_explanations": {
+        "A": "Correto: alias resolve apex e não exige IP fixo.",
+        "B": "Errado: CNAME não pode ser usado no apex.",
+        "C": "Errado: ALB não tem IP fixo.",
+        "D": "Errado: SRV não é usado para isso."
+      },
+      "tags": ["route53", "alias", "alb", "dns"]
+    },
+    {
+      "id": "SAA-R53-026-015",
+      "topic": "dns",
+      "question": "Um time quer implementar roteamento por localização do usuário final: Brasil para sa-east-1, EUA para us-east-1, Europa para eu-west-1. Qual política Route 53 é mais apropriada?",
+      "choices": {
+        "A": "Geolocation routing",
+        "B": "Latency routing",
+        "C": "Geoproximity routing",
+        "D": "Weighted routing"
+      },
+      "correct": ["A"],
+      "explanation": "Geolocation faz roteamento por país/continente, ideal para políticas regionais explícitas.",
+      "choice_explanations": {
+        "A": "Correto: roteia por país/continente.",
+        "B": "Errado: latência pode enviar EUA para outra região se latência for menor, não segue regra por país.",
+        "C": "Errado: geoproximity é por proximidade e bias, não por regra rígida de país.",
+        "D": "Errado: weighted é por percentual."
+      },
+      "tags": ["route53", "geolocation", "dns", "multi-region"]
+    },
+    {
+      "id": "SAA-R53-026-016",
+      "topic": "dns",
+      "question": "Uma aplicação precisa de disaster recovery. O time quer DNS failover, mas também quer testes controlados de DR sem afetar todos os usuários (somente um subconjunto). Qual estratégia é mais adequada?",
+      "choices": {
+        "A": "Weighted routing (ex: 99/1) para testar DR + health checks para segurança",
+        "B": "Failover routing apenas; testes sempre vão afetar 100%",
+        "C": "Simple routing e mudar o registro manualmente no dia do teste",
+        "D": "Geolocation routing e mover todos os países"
+      },
+      "correct": ["A"],
+      "explanation": "Weighted permite testar DR com pequena fração do tráfego e ajustar progressivamente.",
+      "choice_explanations": {
+        "A": "Correto: canary de DR com percentual mínimo e health checks.",
+        "B": "Errado: failover não facilita testes de frações sem risco.",
+        "C": "Errado: manual é arriscado e não controlado.",
+        "D": "Errado: geolocation não é para testes percentuais."
+      },
+      "tags": ["route53", "dr", "weighted", "health-check", "ha-dr"]
+    },
+    {
+      "id": "SAA-R53-026-017",
+      "topic": "dns",
+      "question": "Você usa Route 53 health checks. Um endpoint está respondendo 200 OK, mas a aplicação está quebrada (ex: resposta inválida). Você quer que o health check detecte isso. Qual recurso ajuda?",
+      "choices": {
+        "A": "Configurar string matching no health check (HTTP/HTTPS) para validar conteúdo",
+        "B": "Aumentar TTL do registro para reduzir flapping",
+        "C": "Trocar para geolocation routing",
+        "D": "Usar apenas ping ICMP"
+      },
+      "correct": ["A"],
+      "explanation": "Health checks podem validar uma string esperada no body/response, detectando falhas lógicas além do status code.",
+      "choice_explanations": {
+        "A": "Correto: string matching detecta falhas de conteúdo.",
+        "B": "Errado: TTL não detecta falha.",
+        "C": "Errado: roteamento não valida saúde.",
+        "D": "Errado: ICMP não valida app."
+      },
+      "tags": ["route53", "health-check", "monitoring", "resilience"]
+    },
+    {
+      "id": "SAA-R53-026-018",
+      "topic": "dns",
+      "question": "Você quer que aplicações em várias VPCs e contas resolvam 'internal.example.com' de forma consistente, sem duplicar zonas. Qual é a melhor prática?",
+      "choices": {
+        "A": "Uma Private Hosted Zone central e associação às VPCs necessárias (incluindo cross-account)",
+        "B": "Uma Public Hosted Zone e regras de SG para restringir acesso",
+        "C": "Um arquivo hosts em cada instância",
+        "D": "Uma zona privada por VPC e sincronização via scripts"
+      },
+      "correct": ["A"],
+      "explanation": "Centralizar PHZ e associar VPCs reduz duplicação e drift e melhora governança.",
+      "choice_explanations": {
+        "A": "Correto: padrão escalável e governável.",
+        "B": "Errado: público não é para nomes internos.",
+        "C": "Errado: não escala e é frágil.",
+        "D": "Errado: duplicação e sincronização geram drift."
+      },
+      "tags": ["route53", "private-hosted-zone", "multi-account", "governance", "dns"]
+    },
+    {
+      "id": "SAA-R53-026-019",
+      "topic": "dns",
+      "question": "Você precisa configurar o domínio para encaminhar todo tráfego HTTP para HTTPS e usar certificados gerenciados. O endpoint é CloudFront. Qual é a melhor combinação?",
+      "choices": {
+        "A": "CloudFront com ACM (us-east-1) + Redirect HTTP to HTTPS no behavior",
+        "B": "Route 53 com TXT e redirecionamento automático",
+        "C": "NAT Gateway com policy de redirecionamento",
+        "D": "S3 website hosting com SSL nativo"
+      },
+      "correct": ["A"],
+      "explanation": "CloudFront usa ACM para certificados e permite forçar HTTPS. Para CloudFront, o certificado deve estar em us-east-1.",
+      "choice_explanations": {
+        "A": "Correto: padrão CloudFront + ACM + redirect para HTTPS.",
+        "B": "Errado: Route 53 não faz redirect HTTP.",
+        "C": "Errado: NAT não faz redirect HTTP/HTTPS.",
+        "D": "Errado: S3 website endpoint não suporta HTTPS direto; normalmente usa CloudFront."
+      },
+      "tags": ["route53", "cloudfront", "acm", "https", "edge"]
+    },
+    {
+      "id": "SAA-R53-026-020",
+      "topic": "dns",
+      "question": "Você quer que Route 53 só considere um endpoint saudável se, além do health check, um CloudWatch Alarm indicar que a aplicação está OK (ex: erros 5xx baixos). Qual recurso você pode usar?",
+      "choices": {
+        "A": "Health check do Route 53 baseado em CloudWatch Alarm",
+        "B": "TTL alto para reduzir consultas",
+        "C": "Route 53 Resolver outbound endpoint",
+        "D": "Geoproximity com bias"
+      },
+      "correct": ["A"],
+      "explanation": "Route 53 suporta health checks baseados em CloudWatch Alarms, permitindo lógica mais rica de saúde.",
+      "choice_explanations": {
+        "A": "Correto: integra saúde com métricas/alarms.",
+        "B": "Errado: TTL não valida saúde.",
+        "C": "Errado: outbound é para encaminhar DNS para resolvers externos.",
+        "D": "Errado: geoproximity não tem relação com saúde."
+      },
+      "tags": ["route53", "cloudwatch", "health-check", "monitoring", "resilience"]
+    }
+  ]
+}

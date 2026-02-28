@@ -1,0 +1,207 @@
+{
+  "exam": "AWS SAA-C03",
+  "set": "22",
+  "focus": ["performance", "caching", "storage-performance", "scaling", "throughput"],
+  "questions": [
+    {
+      "id": "SAA-22-001",
+      "topic": "performance",
+      "tags": ["elasticache", "caching", "latency", "scaling"],
+      "question": "Uma aplicação web sofre alta latência devido a consultas repetitivas ao banco RDS. Qual solução reduz latência com menor impacto arquitetural?",
+      "choices": {
+        "A": "Aumentar tamanho da instância RDS",
+        "B": "Adicionar Amazon ElastiCache (Redis) como cache",
+        "C": "Migrar para EC2 maior",
+        "D": "Habilitar CloudTrail"
+      },
+      "correct": ["B"],
+      "explanation": "ElastiCache reduz chamadas repetidas ao banco, melhorando latência e escalabilidade.",
+      "choice_explanations": {
+        "A": "Escalar verticalmente aumenta custo.",
+        "B": "Correta: cache reduz carga no banco.",
+        "C": "Compute não resolve gargalo no banco.",
+        "D": "CloudTrail não impacta performance."
+      }
+    },
+    {
+      "id": "SAA-22-002",
+      "topic": "performance",
+      "tags": ["cloudfront", "edge", "latency", "global"],
+      "question": "Usuários globais acessam conteúdo estático hospedado em S3. Como reduzir latência mundialmente?",
+      "choices": {
+        "A": "Aumentar tamanho do bucket",
+        "B": "Usar CloudFront CDN",
+        "C": "Mover bucket para us-east-1",
+        "D": "Habilitar versioning"
+      },
+      "correct": ["B"],
+      "explanation": "CloudFront distribui conteúdo via edge locations reduzindo latência global.",
+      "choice_explanations": {
+        "A": "Tamanho não impacta latência global.",
+        "B": "Correta: CDN melhora entrega global.",
+        "C": "Região única não resolve global.",
+        "D": "Versioning não melhora performance."
+      }
+    },
+    {
+      "id": "SAA-22-003",
+      "topic": "storage",
+      "tags": ["ebs", "io2", "throughput", "iops"],
+      "question": "Uma aplicação exige IOPS previsível e alta performance consistente. Qual tipo de EBS escolher?",
+      "choices": {
+        "A": "gp2",
+        "B": "sc1",
+        "C": "io2",
+        "D": "st1"
+      },
+      "correct": ["C"],
+      "explanation": "io2 fornece IOPS provisionado e performance consistente.",
+      "choice_explanations": {
+        "A": "gp2 é general purpose.",
+        "B": "sc1 é cold HDD.",
+        "C": "Correta: IOPS provisionado.",
+        "D": "st1 é throughput otimizado HDD."
+      }
+    },
+    {
+      "id": "SAA-22-004",
+      "topic": "performance",
+      "tags": ["autoscaling", "scaling", "ec2"],
+      "question": "Uma aplicação sofre picos imprevisíveis de tráfego. Qual abordagem melhora elasticidade?",
+      "choices": {
+        "A": "Escalar manualmente",
+        "B": "Auto Scaling Group baseado em métricas",
+        "C": "Comprar instância maior fixa",
+        "D": "Desabilitar logs"
+      },
+      "correct": ["B"],
+      "explanation": "Auto Scaling ajusta capacidade automaticamente conforme demanda.",
+      "choice_explanations": {
+        "A": "Manual não é elástico.",
+        "B": "Correta: scaling automático.",
+        "C": "Vertical scaling não é elástico.",
+        "D": "Logs não impactam scaling."
+      }
+    },
+    {
+      "id": "SAA-22-005",
+      "topic": "performance",
+      "tags": ["dynamodb", "on-demand", "autoscaling"],
+      "question": "Uma tabela DynamoDB possui carga imprevisível. Qual modo reduz risco de throttling?",
+      "choices": {
+        "A": "Provisioned fixo",
+        "B": "On-Demand capacity mode",
+        "C": "Backup manual",
+        "D": "Global Tables"
+      },
+      "correct": ["B"],
+      "explanation": "On-Demand ajusta automaticamente throughput conforme demanda.",
+      "choice_explanations": {
+        "A": "Pode causar throttling.",
+        "B": "Correta: ajusta dinamicamente.",
+        "C": "Backup não trata throughput.",
+        "D": "Global Tables é multi-region."
+      }
+    },
+    {
+      "id": "SAA-22-006",
+      "topic": "performance",
+      "tags": ["aurora", "read-replica", "scaling"],
+      "question": "Você precisa escalar leitura intensiva em banco relacional com baixa latência. Melhor opção?",
+      "choices": {
+        "A": "Multi-AZ",
+        "B": "Aurora Read Replicas",
+        "C": "Snapshot",
+        "D": "Export to S3"
+      },
+      "correct": ["B"],
+      "explanation": "Read Replicas permitem escalar leitura horizontalmente.",
+      "choice_explanations": {
+        "A": "Multi-AZ é HA, não scaling leitura.",
+        "B": "Correta: replicas escalam leitura.",
+        "C": "Snapshot não ajuda leitura.",
+        "D": "Export não resolve performance."
+      }
+    },
+    {
+      "id": "SAA-22-007",
+      "topic": "performance",
+      "tags": ["lambda", "concurrency", "serverless"],
+      "question": "Uma função Lambda sofre throttling em picos de requisição. Qual ajuste melhora performance?",
+      "choices": {
+        "A": "Aumentar memória da Lambda",
+        "B": "Configurar Reserved Concurrency adequadamente",
+        "C": "Desabilitar logs",
+        "D": "Usar NAT Gateway"
+      },
+      "correct": ["B"],
+      "explanation": "Ajustar concurrency evita throttling e controla capacidade.",
+      "choice_explanations": {
+        "A": "Memória ajuda CPU, mas não controla limite de concorrência.",
+        "B": "Correta: controla paralelismo.",
+        "C": "Logs não afetam concorrência.",
+        "D": "Rede não influencia throttling."
+      }
+    },
+    {
+      "id": "SAA-22-008",
+      "topic": "performance",
+      "tags": ["cloudfront", "origin-shield", "caching"],
+      "question": "Para reduzir carga no origin e melhorar cache hit ratio globalmente, qual recurso usar?",
+      "choices": {
+        "A": "CloudFront Origin Shield",
+        "B": "S3 Glacier",
+        "C": "IAM Policy",
+        "D": "CloudTrail"
+      },
+      "correct": ["A"],
+      "explanation": "Origin Shield adiciona camada extra de cache centralizada.",
+      "choice_explanations": {
+        "A": "Correta: reduz carga no origin.",
+        "B": "Glacier é cold storage.",
+        "C": "Permissão não afeta cache.",
+        "D": "Auditoria não é performance."
+      }
+    },
+    {
+      "id": "SAA-22-009",
+      "topic": "performance",
+      "tags": ["ebs", "throughput-optimized", "hdd"],
+      "question": "Qual tipo de EBS é mais adequado para workloads de throughput alto sequencial?",
+      "choices": {
+        "A": "gp3",
+        "B": "st1",
+        "C": "io2",
+        "D": "sc1"
+      },
+      "correct": ["B"],
+      "explanation": "st1 é otimizado para throughput sequencial.",
+      "choice_explanations": {
+        "A": "gp3 é general purpose.",
+        "B": "Correta: ideal para throughput sequencial.",
+        "C": "io2 é para IOPS provisionado.",
+        "D": "sc1 é cold HDD."
+      }
+    },
+    {
+      "id": "SAA-22-010",
+      "topic": "performance",
+      "tags": ["elb", "alb", "scaling", "high-availability"],
+      "question": "Para distribuir tráfego HTTP/HTTPS entre múltiplas instâncias e escalar automaticamente, qual solução usar?",
+      "choices": {
+        "A": "Classic Load Balancer fixo",
+        "B": "Application Load Balancer + Auto Scaling",
+        "C": "Route 53 apenas",
+        "D": "Elastic IP manual"
+      },
+      "correct": ["B"],
+      "explanation": "ALB integrado com ASG permite distribuição e scaling automático.",
+      "choice_explanations": {
+        "A": "CLB é legado.",
+        "B": "Correta: ALB + ASG é padrão moderno.",
+        "C": "DNS não faz balanceamento interno.",
+        "D": "IP não distribui carga."
+      }
+    }
+  ]
+}

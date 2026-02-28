@@ -1,0 +1,211 @@
+{
+  "meta": {
+    "exam": "AWS SAA-C03",
+    "set": "blindagem_final",
+    "lang": "pt-BR",
+    "level": "hard",
+    "count": 10
+  },
+  "questions": [
+    {
+      "id": "SAA-BF-001",
+      "topic": "backup-restore",
+      "tags": ["backup", "aws-backup", "vault-lock", "governance", "ransomware"],
+      "question": "Uma empresa quer proteção contra ransomware garantindo que backups não possam ser deletados nem alterados, nem mesmo por administradores, por um período de retenção. O ambiente usa AWS Backup. Qual solução atende melhor?",
+      "choices": {
+        "A": "Habilitar MFA Delete no bucket S3 onde os backups são exportados.",
+        "B": "Criar um Backup Vault e ativar AWS Backup Vault Lock com modo Compliance e retenção adequada.",
+        "C": "Usar snapshots manuais do EBS com tags de proteção e IAM deny para DeleteSnapshot.",
+        "D": "Ativar S3 Object Lock em modo Governance no bucket de logs do CloudTrail."
+      },
+      "correct": ["B"],
+      "explanation": "O AWS Backup Vault Lock em modo Compliance cria retenção imutável, impedindo deleção/alteração mesmo por admins, atendendo requisito clássico anti-ransomware. MFA Delete/S3 Object Lock não garante proteção para backups gerenciados pelo AWS Backup da mesma forma.",
+      "choice_explanations": {
+        "A": "MFA Delete é específico de versionamento S3 e não protege o vault de backups do AWS Backup.",
+        "B": "Correta: Vault Lock (Compliance) torna retenção imutável e evita deleção até expirar.",
+        "C": "Snapshots manuais são frágeis e dependem de IAM; requisito pede proteção mesmo contra admins.",
+        "D": "S3 Object Lock em logs do CloudTrail não resolve proteção de backups."
+      }
+    },
+    {
+      "id": "SAA-BF-002",
+      "topic": "dr-pattern",
+      "tags": ["dr", "pilot-light", "warm-standby", "rto", "rpo", "multi-region"],
+      "question": "Um sistema precisa de DR em outra região com RTO ~30 minutos e RPO de poucos minutos. A empresa quer custo moderado, mantendo serviços críticos prontos, mas não o ambiente completo em produção. Qual padrão de DR é mais adequado?",
+      "choices": {
+        "A": "Backup & Restore",
+        "B": "Pilot Light",
+        "C": "Warm Standby",
+        "D": "Multi-site Active-Active"
+      },
+      "correct": ["C"],
+      "explanation": "Warm Standby mantém um ambiente reduzido porém funcional rodando na região de DR, permitindo RTO mais baixo do que Pilot Light e RPO melhor com replicação contínua. Active-Active é caro e Backup/Restore tende a ter RTO/RPO piores.",
+      "choice_explanations": {
+        "A": "Geralmente tem RTO alto (horas) e RPO depende do backup; não bate poucos minutos.",
+        "B": "Pilot Light mantém apenas componentes críticos (ex: DB) e escala no desastre; RTO costuma ser maior que 30 min.",
+        "C": "Correta: Warm Standby já roda uma versão menor do stack, acelerando failover.",
+        "D": "Active-Active entrega melhor RTO/RPO, mas custo alto e operação mais complexa."
+      }
+    },
+    {
+      "id": "SAA-BF-003",
+      "topic": "cloudtrail",
+      "tags": ["cloudtrail", "organizations", "multi-account", "governance", "security"],
+      "question": "Você precisa garantir auditoria centralizada para todos os accounts de uma AWS Organization, incluindo novos accounts automaticamente, armazenando logs em um bucket S3 central. Qual configuração atende melhor?",
+      "choices": {
+        "A": "Criar um trail em cada account manualmente apontando para o mesmo bucket S3.",
+        "B": "Criar um Organization Trail no account de gerenciamento com destino S3 central e aplicar policies necessárias no bucket.",
+        "C": "Ativar CloudWatch Logs em cada account e exportar periodicamente para o S3 central via Lambda.",
+        "D": "Usar AWS Config Aggregator para coletar eventos de API do CloudTrail."
+      },
+      "correct": ["B"],
+      "explanation": "Organization Trail centraliza CloudTrail para todos accounts, incluindo novos automaticamente, com destino a S3 central, que é exatamente o cenário de governança e auditoria multi-account.",
+      "choice_explanations": {
+        "A": "Funciona, mas não inclui novos accounts automaticamente e é operacionalmente frágil.",
+        "B": "Correta: Organization Trail cobre todos os accounts e novos accounts automaticamente.",
+        "C": "Complexo e desnecessário; CloudTrail já entrega logs direto no S3.",
+        "D": "AWS Config não substitui CloudTrail para auditoria de API calls."
+      }
+    },
+    {
+      "id": "SAA-BF-004",
+      "topic": "cloudtrail",
+      "tags": ["cloudtrail", "data-events", "s3", "kms", "cost"],
+      "question": "Um time de segurança precisa auditar quais usuários leram objetos específicos em um bucket S3 crítico. Eles já têm CloudTrail habilitado, mas não conseguem ver eventos de GetObject. O que deve ser feito?",
+      "choices": {
+        "A": "Habilitar CloudTrail Insights no trail.",
+        "B": "Habilitar S3 server access logging no bucket.",
+        "C": "Habilitar CloudTrail Data Events para S3 no bucket/ARN desejado.",
+        "D": "Habilitar AWS Config para o bucket e habilitar configuração contínua."
+      },
+      "correct": ["C"],
+      "explanation": "Eventos de leitura/gravação em objetos S3 (GetObject/PutObject) são Data Events (não Management Events). É necessário ativar Data Events no CloudTrail para o bucket específico. Isso tem custo, então normalmente se filtra por bucket/ARN.",
+      "choice_explanations": {
+        "A": "Insights detecta anomalias, não registra GetObject detalhado.",
+        "B": "Server access logs ajudam, mas o pedido foi especificamente no CloudTrail e por usuário/ação; Data Events é o correto.",
+        "C": "Correta: Data Events capturam GetObject/PutObject com granularidade por objeto.",
+        "D": "Config monitora mudanças de configuração, não acessos a objetos."
+      }
+    },
+    {
+      "id": "SAA-BF-005",
+      "topic": "monitoring",
+      "tags": ["cloudwatch", "alarms", "logs", "root-cause", "asg", "elb"],
+      "question": "Um serviço em EC2 atrás de ALB começa a retornar 5xx intermitente. A CPU média está baixa, mas há picos de latência. Você precisa identificar a causa raiz rapidamente. Qual conjunto de ações é mais efetivo?",
+      "choices": {
+        "A": "Aumentar o tamanho das instâncias e habilitar Auto Scaling por CPU.",
+        "B": "Habilitar ALB access logs, analisar TargetResponseTime/HTTPCode_Target_5XX, e correlacionar com logs de aplicação via CloudWatch Logs.",
+        "C": "Migrar imediatamente para Lambda para eliminar servidores.",
+        "D": "Desabilitar o health check do ALB para reduzir reinicializações."
+      },
+      "correct": ["B"],
+      "explanation": "Para root cause, você precisa observabilidade: métricas do ALB (latência/5xx), access logs e logs da aplicação. Aumentar instância sem diagnóstico é chute e pode mascarar o problema.",
+      "choice_explanations": {
+        "A": "Escalar pode ajudar, mas sem diagnóstico você não confirma a origem dos 5xx/latência.",
+        "B": "Correta: mede no load balancer e correlaciona com logs reais da aplicação.",
+        "C": "Mudança arquitetural grande não é resposta de troubleshooting imediato.",
+        "D": "Desabilitar health check piora, pode manter targets ruins no pool."
+      }
+    },
+    {
+      "id": "SAA-BF-006",
+      "topic": "observability",
+      "tags": ["x-ray", "tracing", "api-gateway", "lambda", "root-cause"],
+      "question": "Uma API serverless (API Gateway + Lambda + DynamoDB) apresenta lentidão esporádica. Métricas de Lambda mostram Duration variável, mas não está claro onde está o gargalo. Qual serviço ajuda a rastrear a latência ponta a ponta?",
+      "choices": {
+        "A": "AWS X-Ray com tracing habilitado no API Gateway e instrumentação na Lambda",
+        "B": "AWS Config com aggregator na organization",
+        "C": "CloudTrail Insights",
+        "D": "Trusted Advisor"
+      },
+      "correct": ["A"],
+      "explanation": "X-Ray oferece tracing distribuído para ver onde a latência ocorre (API Gateway, Lambda, chamadas downstream, DynamoDB).",
+      "choice_explanations": {
+        "A": "Correta: tracing distribuído identifica gargalos e dependências.",
+        "B": "Config é compliance/configuração, não performance request-level.",
+        "C": "Insights é anomalia em chamadas de API, não tracing de request.",
+        "D": "Trusted Advisor é recomendações gerais, não troubleshooting request."
+      }
+    },
+    {
+      "id": "SAA-BF-007",
+      "topic": "cost",
+      "tags": ["cost", "nat-gateway", "vpc-endpoint", "s3", "architecture"],
+      "question": "Instâncias em subnets privadas acessam S3 intensamente para ler e gravar objetos. O custo de NAT Gateway está alto. Qual mudança reduz custo e melhora performance sem expor as subnets?",
+      "choices": {
+        "A": "Mover as instâncias para subnets públicas com Elastic IP.",
+        "B": "Criar um VPC Endpoint Gateway para S3 e ajustar as rotas/policies.",
+        "C": "Trocar NAT Gateway por NAT Instance t3.nano.",
+        "D": "Habilitar CloudFront em frente ao bucket S3."
+      },
+      "correct": ["B"],
+      "explanation": "S3 Gateway Endpoint permite tráfego privado para S3 sem NAT, reduzindo custo e melhorando performance/segurança. NAT Instance pode virar gargalo e exige manutenção.",
+      "choice_explanations": {
+        "A": "Exposição desnecessária e piora segurança.",
+        "B": "Correta: S3 Gateway Endpoint elimina necessidade de NAT para S3.",
+        "C": "Pode reduzir custo, mas aumenta operação e risco, além de throughput limitado.",
+        "D": "CloudFront ajuda cache/edge, não elimina NAT para acessos originados de instâncias privadas."
+      }
+    },
+    {
+      "id": "SAA-BF-008",
+      "topic": "cost",
+      "tags": ["cost", "compute", "savings-plans", "reserved-instances", "ec2"],
+      "question": "Uma empresa tem uso previsível de compute (mistura de EC2, Fargate e Lambda) e quer reduzir custos com compromisso flexível sem amarrar-se a instância específica. O que é mais indicado?",
+      "choices": {
+        "A": "EC2 Reserved Instances Standard",
+        "B": "Compute Savings Plans",
+        "C": "Spot Instances",
+        "D": "S3 Intelligent-Tiering"
+      },
+      "correct": ["B"],
+      "explanation": "Compute Savings Plans aplicam desconto amplo em EC2, Fargate e Lambda com flexibilidade maior do que RI. RIs são mais específicas, Spot é para workloads interrompíveis.",
+      "choice_explanations": {
+        "A": "RIs podem ser boas, mas menos flexíveis e mais atreladas ao EC2/atributos.",
+        "B": "Correta: flexível e cobre EC2/Fargate/Lambda.",
+        "C": "Spot é para cargas tolerantes a interrupção, não “uso previsível” crítico necessariamente.",
+        "D": "Não tem relação com compute."
+      }
+    },
+    {
+      "id": "SAA-BF-009",
+      "topic": "backup-restore",
+      "tags": ["rds", "pitr", "snapshot", "backup", "restore-testing"],
+      "question": "Um banco RDS PostgreSQL precisa de capacidade de restaurar para qualquer ponto nos últimos 7 dias (recuperar de erro humano). Qual recurso atende melhor?",
+      "choices": {
+        "A": "RDS manual snapshots a cada 24h",
+        "B": "RDS Automated Backups com Point-in-Time Recovery (PITR)",
+        "C": "Exportar dumps diários para S3",
+        "D": "Criar Read Replica em outra região"
+      },
+      "correct": ["B"],
+      "explanation": "PITR é fornecido pelos Automated Backups do RDS e permite restore para um ponto específico dentro da janela de retenção. Snapshots manuais não dão granularidade de minutos automaticamente.",
+      "choice_explanations": {
+        "A": "Snapshots manuais geralmente dão pontos discretos (ex: 24h), não contínuo.",
+        "B": "Correta: PITR permite restaurar para ponto específico dentro da janela.",
+        "C": "Dumps são lentos e menos confiáveis para restore rápido/fino.",
+        "D": "Read Replica é para leitura/DR, não para desfazer erro humano com granularidade de PITR."
+      }
+    },
+    {
+      "id": "SAA-BF-010",
+      "topic": "monitoring",
+      "tags": ["cloudtrail", "eventbridge", "security", "automation", "root-cause"],
+      "question": "Você quer detectar rapidamente quando alguém desabilitar um CloudTrail ou alterar configuração crítica de logging, e notificar o time automaticamente. Qual arquitetura é mais apropriada e nativa?",
+      "choices": {
+        "A": "CloudTrail logs no S3 + Athena query diária",
+        "B": "CloudTrail management events + EventBridge rule filtrando StopLogging/UpdateTrail + SNS/Lambda para notificar",
+        "C": "AWS Config rule para EC2 instance type changes",
+        "D": "S3 access logs + CloudWatch Alarm"
+      },
+      "correct": ["B"],
+      "explanation": "Eventos de API (StopLogging/UpdateTrail) aparecem como management events no CloudTrail e podem acionar EventBridge em near real-time, enviando para SNS/Lambda. É um padrão AWS muito cobrado.",
+      "choice_explanations": {
+        "A": "Consulta diária é lenta e não é near real-time.",
+        "B": "Correta: EventBridge + CloudTrail é automação reativa nativa e rápida.",
+        "C": "Config rule não cobre diretamente eventos do CloudTrail desse tipo como detecção imediata.",
+        "D": "S3 access logs não detectam chamadas de API StopLogging."
+      }
+    }
+  ]
+}

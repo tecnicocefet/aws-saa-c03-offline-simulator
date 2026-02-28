@@ -1,0 +1,287 @@
+{
+  "exam": "AWS Certified Solutions Architect - Associate (SAA-C03)",
+  "set": "13",
+  "focus": "Cost Optimization HARD",
+  "questions": [
+    {
+      "id": "SAA-COST-013-01",
+      "topic": "cost",
+      "tags": ["cost", "ec2", "ri", "savings-plans", "on-demand", "spot"],
+      "question": "Uma empresa tem workloads estáveis 24/7 em EC2 para produção (sem mudanças de família/OS esperadas) e workloads variáveis para batch noturno. O time quer reduzir custos sem comprometer disponibilidade. Qual combinação é a MAIS adequada?",
+      "choices": {
+        "A": "Comprar Reserved Instances Standard para produção e usar Spot Instances para o batch noturno com fallback para On-Demand",
+        "B": "Comprar Savings Plans EC2 para produção e usar Dedicated Hosts para o batch noturno",
+        "C": "Mover produção para Spot Instances e batch noturno para On-Demand",
+        "D": "Usar On-Demand para produção e agendar Auto Scaling para o batch noturno"
+      },
+      "correct": ["A"],
+      "explanation": "Para carga estável 24/7, Standard RIs dão maior desconto quando não há necessidade de flexibilidade. Para batch, Spot oferece grandes economias com estratégia de tolerância a interrupção e fallback para On-Demand para garantir conclusão.",
+      "choice_explanations": {
+        "A": "Correta: combina desconto alto em carga estável com economia agressiva no batch e contingência.",
+        "B": "Dedicated Hosts normalmente aumentam custo e só fazem sentido por compliance/licenciamento; não é otimização típica.",
+        "C": "Produção em Spot é arriscado devido a interrupções e não atende disponibilidade previsível.",
+        "D": "On-Demand para produção é a opção mais cara no longo prazo para carga estável."
+      }
+    },
+    {
+      "id": "SAA-COST-013-02",
+      "topic": "cost",
+      "tags": ["cost", "s3", "lifecycle", "glacier", "intelligent-tiering"],
+      "question": "Uma aplicação armazena 200 TB em S3. 80% dos objetos são acessados no máximo uma vez por ano, mas em datas imprevisíveis (picos). O time quer reduzir custos sem risco de atraso de recuperação. Qual opção é a MELHOR?",
+      "choices": {
+        "A": "Mover tudo para S3 Glacier Deep Archive",
+        "B": "Usar S3 Intelligent-Tiering com Archive Instant Access habilitado",
+        "C": "Mover tudo para S3 Standard-IA e habilitar restore automático",
+        "D": "Mover tudo para S3 Glacier Flexible Retrieval"
+      },
+      "correct": ["B"],
+      "explanation": "Intelligent-Tiering é ideal quando o padrão de acesso é imprevisível. Archive Instant Access evita atraso de recuperação, mantendo acesso imediato com custo menor quando objetos ficam frios.",
+      "choice_explanations": {
+        "A": "Deep Archive tem recuperação lenta; não atende ‘sem atraso’.",
+        "B": "Correta: custo otimizado e acesso imediato quando necessário.",
+        "C": "Standard-IA tem custo de recuperação e não resolve imprevisibilidade tão bem quanto Intelligent-Tiering.",
+        "D": "Glacier Flexible Retrieval tem delay de recuperação (minutos a horas)."
+      }
+    },
+    {
+      "id": "SAA-COST-013-03",
+      "topic": "cost",
+      "tags": ["cost", "vpc", "nat-gateway", "vpc-endpoint", "s3", "dynamodb", "data-transfer"],
+      "question": "Instâncias privadas em múltiplas subnets acessam S3 e DynamoDB para downloads frequentes. O NAT Gateway está gerando custos altos. Qual mudança reduz custos e mantém o acesso privado?",
+      "choices": {
+        "A": "Criar VPC Gateway Endpoints para S3 e DynamoDB e remover o tráfego para NAT nesses acessos",
+        "B": "Mover as instâncias para subnet pública para evitar NAT",
+        "C": "Trocar NAT Gateway por NAT Instance em todas as AZs",
+        "D": "Criar um ALB público e encaminhar o tráfego para S3 e DynamoDB"
+      },
+      "correct": ["A"],
+      "explanation": "Gateway Endpoints para S3/DynamoDB evitam tráfego via NAT/Internet e reduzem custos de NAT e data processing, mantendo caminho privado na AWS.",
+      "choice_explanations": {
+        "A": "Correta: reduz custo e mantém privacidade via endpoints.",
+        "B": "Subnets públicas expõem instâncias e muda o modelo de segurança.",
+        "C": "NAT Instance pode ser mais barato em alguns cenários, mas adiciona gestão/HA e não é melhor prática em geral para alto tráfego S3/DDB.",
+        "D": "ALB não é proxy para S3/DynamoDB e não resolve o problema."
+      }
+    },
+    {
+      "id": "SAA-COST-013-04",
+      "topic": "cost",
+      "tags": ["cost", "data-transfer", "multi-az", "architecture", "alb"],
+      "question": "Um serviço web em duas AZs atrás de um ALB está gerando custos inesperados. Ao analisar métricas, percebe-se tráfego alto entre AZs. Qual mudança reduz custos de transferência inter-AZ SEM comprometer alta disponibilidade?",
+      "choices": {
+        "A": "Fixar o ALB para enviar tráfego apenas para targets na mesma AZ do cliente",
+        "B": "Desabilitar cross-zone load balancing no ALB e garantir targets balanceados em ambas as AZs",
+        "C": "Mover tudo para uma única AZ e habilitar snapshots diários",
+        "D": "Substituir ALB por API Gateway privado"
+      },
+      "correct": ["B"],
+      "explanation": "Cross-zone load balancing pode aumentar tráfego inter-AZ dependendo do padrão. Desabilitar (quando aplicável) e manter capacidade por AZ reduz transferência inter-AZ mantendo HA.",
+      "choice_explanations": {
+        "A": "ALB não ‘enxerga’ AZ do cliente de forma a garantir isso; e a lógica não é um recurso típico como proposto.",
+        "B": "Correta: reduz tráfego inter-AZ quando a distribuição por AZ está adequada.",
+        "C": "Uma AZ não atende HA exigida.",
+        "D": "Não é substituição direta e não endereça tráfego entre AZs do mesmo modo."
+      }
+    },
+    {
+      "id": "SAA-COST-013-05",
+      "topic": "cost",
+      "tags": ["cost", "cloudfront", "s3", "data-transfer", "caching"],
+      "question": "Um site global serve arquivos estáticos no S3 e usuários internacionais reclamam de lentidão. A conta de data transfer do S3 aumentou. Qual solução melhora performance e pode REDUZIR custo de transferência?",
+      "choices": {
+        "A": "Habilitar S3 Transfer Acceleration para todos os buckets",
+        "B": "Colocar CloudFront na frente do S3 com cache e origin shield conforme necessidade",
+        "C": "Trocar S3 por EFS e expor via ALB",
+        "D": "Mover o bucket para uma região mais central e forçar todos os usuários a usarem a mesma região"
+      },
+      "correct": ["B"],
+      "explanation": "CloudFront reduz latência com edge caching e pode diminuir requests ao origin e data transfer do origin dependendo do cache-hit ratio.",
+      "choice_explanations": {
+        "A": "Transfer Acceleration pode aumentar custo e não substitui caching global.",
+        "B": "Correta: caching global reduz carga no S3 e melhora latência.",
+        "C": "EFS não é solução para conteúdo estático global e pode piorar custo/performance.",
+        "D": "Pode melhorar para alguns, piorar para outros; não endereça caching."
+      }
+    },
+    {
+      "id": "SAA-COST-013-06",
+      "topic": "cost",
+      "tags": ["cost", "ec2", "autoscaling", "rightsizing", "compute-optimizer"],
+      "question": "Um time percebe que instâncias EC2 estão com CPU média de 8% e memória baixa há meses. Querem reduzir custo sem risco de subdimensionamento. Qual abordagem é MAIS adequada?",
+      "choices": {
+        "A": "Aplicar downsizing agressivo manualmente em produção imediatamente",
+        "B": "Usar AWS Compute Optimizer/CloudWatch para recomendações e testar rightsizing em ambiente de staging antes de aplicar em produção",
+        "C": "Migrar todas as instâncias para Spot Instances",
+        "D": "Desabilitar métricas detalhadas do CloudWatch para reduzir custo"
+      },
+      "correct": ["B"],
+      "explanation": "A forma segura é usar recomendações (Compute Optimizer/CloudWatch), validar em staging e aplicar gradualmente com monitoramento.",
+      "choice_explanations": {
+        "A": "Risco alto de impacto por falta de validação.",
+        "B": "Correta: otimiza com evidência e mitigação de risco.",
+        "C": "Spot para produção pode quebrar disponibilidade.",
+        "D": "Economia marginal e prejudica visibilidade."
+      }
+    },
+    {
+      "id": "SAA-COST-013-07",
+      "topic": "cost",
+      "tags": ["cost", "rds", "aurora", "reserved", "storage", "iops"],
+      "question": "Um banco RDS MySQL em produção tem IOPS provisionada e storage superdimensionado. O time quer reduzir custo mantendo performance. Qual opção é a MELHOR primeira ação?",
+      "choices": {
+        "A": "Reduzir tamanho de instância e storage sem medir impacto",
+        "B": "Analisar métricas (IOPS, CPU, latency) e migrar de io1/io2 para gp3 (se aplicável) ou ajustar IOPS conforme necessidade",
+        "C": "Migrar imediatamente para Aurora Serverless v2 sem testes",
+        "D": "Desabilitar backups automáticos do RDS"
+      },
+      "correct": ["B"],
+      "explanation": "Otimização começa por métricas. Ajustar classe de storage/IOPS (ex: gp3) ou reduzir IOPS provisionada frequentemente gera economia grande sem impactar se bem dimensionado.",
+      "choice_explanations": {
+        "A": "Arriscado e pode degradar produção.",
+        "B": "Correta: otimiza baseado em dados e opções de storage mais custo-efetivas.",
+        "C": "Mudança grande, exige teste e pode mudar comportamento/custo.",
+        "D": "Backups são requisito de resiliência; economia não compensa risco."
+      }
+    },
+    {
+      "id": "SAA-COST-013-08",
+      "topic": "cost",
+      "tags": ["cost", "lambda", "serverless", "provisioned-concurrency", "duration"],
+      "question": "Uma função Lambda tem picos imprevisíveis e está gerando custo alto por duração e memória. O que tende a ser a MELHOR estratégia para reduzir custo mantendo baixa latência?",
+      "choices": {
+        "A": "Aumentar memória sempre reduz custo, independentemente da função",
+        "B": "Otimizar código e ajustar memória para o ponto de menor custo (custo = duração x memória), medindo com ferramentas de tuning",
+        "C": "Habilitar Provisioned Concurrency em 100% do tempo",
+        "D": "Mover a função para EC2 On-Demand"
+      },
+      "correct": ["B"],
+      "explanation": "Em Lambda, custo depende de memória alocada e duração. Ajustar memória pode reduzir duração e custo total. A estratégia correta é medir e otimizar para o ‘sweet spot’.",
+      "choice_explanations": {
+        "A": "Nem sempre; pode reduzir duração mas aumentar custo total.",
+        "B": "Correta: tuning baseado em medição é a melhor prática.",
+        "C": "Provisioned Concurrency aumenta custo quando mantida o tempo todo; use apenas quando necessário.",
+        "D": "EC2 pode ser mais caro/gerenciar mais; não é primeira opção."
+      }
+    },
+    {
+      "id": "SAA-COST-013-09",
+      "topic": "cost",
+      "tags": ["cost", "organizations", "scp", "budgets", "tags", "chargeback"],
+      "question": "Uma empresa multi-account quer controlar custos por time e evitar recursos caros sendo criados fora do padrão. Qual combinação atende melhor governança e otimização?",
+      "choices": {
+        "A": "Usar uma única conta para tudo e organizar por pastas",
+        "B": "Usar AWS Organizations + SCP para bloquear tipos/regiões não permitidas e exigir tags para chargeback + AWS Budgets/alerts",
+        "C": "Permitir qualquer recurso e revisar manualmente no fim do mês",
+        "D": "Usar apenas CloudTrail para auditoria de custo"
+      },
+      "correct": ["B"],
+      "explanation": "Organizations + SCP cria guardrails, tags permitem alocação de custos e Budgets/alerts evitam surpresas. É o pacote clássico de controle de custos em escala.",
+      "choice_explanations": {
+        "A": "Uma conta só vira caos e dificulta governança/isolamento.",
+        "B": "Correta: guardrails + alocação + alertas.",
+        "C": "Reativo e ineficiente.",
+        "D": "CloudTrail não é ferramenta de custo; é auditoria de API calls."
+      }
+    },
+    {
+      "id": "SAA-COST-013-10",
+      "topic": "cost",
+      "tags": ["cost", "cloudwatch", "logs", "retention", "s3", "lifecycle"],
+      "question": "A conta CloudWatch Logs está crescendo rapidamente e gerando custos altos. O time precisa manter logs por 1 ano, mas raramente consulta logs com mais de 30 dias. Qual é a solução MAIS custo-efetiva?",
+      "choices": {
+        "A": "Manter retenção infinita no CloudWatch Logs",
+        "B": "Configurar retenção no CloudWatch Logs para 30 dias e exportar logs para S3 com lifecycle para classes mais baratas",
+        "C": "Desabilitar logs para reduzir custos",
+        "D": "Mover logs para EFS e manter por 1 ano"
+      },
+      "correct": ["B"],
+      "explanation": "CloudWatch Logs é ótimo para consulta recente. Para retenção longa, exportar para S3 e aplicar lifecycle reduz custo, mantendo compliance.",
+      "choice_explanations": {
+        "A": "Caro para longo prazo.",
+        "B": "Correta: prática comum custo-efetiva.",
+        "C": "Quebra requisitos de retenção/auditoria.",
+        "D": "EFS não é ideal para arquivamento de logs e pode sair caro."
+      }
+    },
+    {
+      "id": "SAA-COST-013-11",
+      "topic": "cost",
+      "tags": ["cost", "eip", "ipv4", "nat-gateway", "idle"],
+      "question": "Um time recebe alerta de aumento de custos com endereços IPv4 (EIP). O que normalmente causa isso e qual ação reduz custo?",
+      "choices": {
+        "A": "EIPs sempre são cobrados, mesmo em uso; remover EIPs não muda nada",
+        "B": "EIPs podem ser cobrados quando ocioso/desassociado; liberar EIPs não usados e revisar NAT Gateways/Load Balancers que alocam EIP",
+        "C": "Trocar IPv4 por IPv6 sempre reduz custo para zero",
+        "D": "Usar mais EIPs melhora performance e reduz custo"
+      },
+      "correct": ["B"],
+      "explanation": "Custos de IPv4 normalmente vêm de EIPs ociosos e alocações não necessárias (incluindo por alguns serviços). Limpar ociosos e racionalizar arquiteturas reduz custo.",
+      "choice_explanations": {
+        "A": "Incorreta: cobrança depende do estado/uso e políticas atuais.",
+        "B": "Correta: ação prática típica para reduzir custo.",
+        "C": "IPv6 ajuda, mas nem sempre substitui tudo e não é garantia ‘custo zero’ por si só.",
+        "D": "Não faz sentido: mais EIP tende a aumentar custo."
+      }
+    },
+    {
+      "id": "SAA-COST-013-12",
+      "topic": "cost",
+      "tags": ["cost", "ebs", "snapshots", "backup", "lifecycle"],
+      "question": "Snapshots de EBS estão se acumulando e gerando custo. A empresa precisa de retenção de 35 dias e backups diários. Qual é a MELHOR abordagem?",
+      "choices": {
+        "A": "Excluir todos snapshots antigos manualmente uma vez por ano",
+        "B": "Usar AWS Backup com políticas de retenção e lifecycle para automatizar criação/expiração",
+        "C": "Desabilitar snapshots e confiar em AMIs antigas",
+        "D": "Mover snapshots para EFS para reduzir custo"
+      },
+      "correct": ["B"],
+      "explanation": "AWS Backup permite políticas consistentes, retenção e governança, evitando acúmulo e custos desnecessários.",
+      "choice_explanations": {
+        "A": "Manual e propenso a erro; custo pode explodir até lá.",
+        "B": "Correta: automatiza e atende retenção.",
+        "C": "Risco grande e não atende requisito.",
+        "D": "Snapshots são gerenciados no S3 interno da AWS; não se ‘move’ para EFS."
+      }
+    },
+    {
+      "id": "SAA-COST-013-13",
+      "topic": "cost",
+      "tags": ["cost", "athena", "glue", "s3", "logs", "query"],
+      "question": "Um time precisa consultar logs históricos (1 ano) raramente, mas quer custo mínimo. Qual arquitetura é MAIS adequada?",
+      "choices": {
+        "A": "Guardar logs em EBS e usar grep via EC2 quando precisar",
+        "B": "Guardar logs em S3 com particionamento e consultar via Athena sob demanda",
+        "C": "Guardar logs em CloudWatch Logs com retenção infinita",
+        "D": "Guardar logs em RDS e indexar tudo"
+      },
+      "correct": ["B"],
+      "explanation": "S3 é barato para armazenamento, e Athena é pay-per-query. Particionamento reduz custo de scan. Ideal para acesso raro.",
+      "choice_explanations": {
+        "A": "EBS + EC2 contínuo sai caro para retenção longa.",
+        "B": "Correta: custo baixo e consulta sob demanda.",
+        "C": "CloudWatch infinito tende a ficar caro.",
+        "D": "RDS é caro e complexo para logs."
+      }
+    },
+    {
+      "id": "SAA-COST-013-14",
+      "topic": "cost",
+      "tags": ["cost", "autoscaling", "spot-fleet", "ec2", "capacity"],
+      "question": "Um workload de processamento pode tolerar interrupções e precisa escalar rapidamente. O time quer maximizar economia, mas com boa chance de capacidade disponível. Qual configuração é a MAIS adequada?",
+      "choices": {
+        "A": "Spot Instances com alocação 'lowest price' em um único tipo de instância",
+        "B": "Spot com estratégia diversificada (múltiplas famílias/tamanhos/AZs) e fallback para On-Demand",
+        "C": "Apenas On-Demand com Auto Scaling",
+        "D": "Reserved Instances Convertible para workload intermitente"
+      },
+      "correct": ["B"],
+      "explanation": "Em Spot, diversificar pools aumenta chance de capacity. Fallback garante progresso caso Spot não esteja disponível.",
+      "choice_explanations": {
+        "A": "Pool único aumenta risco de falta/interrupção.",
+        "B": "Correta: melhor prática para disponibilidade em Spot com economia.",
+        "C": "Funciona, mas não maximiza economia.",
+        "D": "Convertible é melhor para flexibilidade em cargas estáveis, não intermitentes."
+      }
+    }
+  ]
+}

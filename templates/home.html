@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="card">
+  <h2>Configuração</h2>
+
+  {% if error %}
+    <p class="bad">Erro: {{ error }}</p>
+  {% endif %}
+
+  <form method="post" action="/start">
+    <label>Escolha um banco (dropdown)</label>
+    <select name="bank_select">
+      {% for b in banks %}
+        <option value="{{ b }}" {% if b == current_file %}selected{% endif %}>{{ b }}</option>
+      {% endfor %}
+    </select>
+
+    <div style="margin-top:12px;">
+      <label>Ou caminho manual (opcional)</label>
+      <input name="bank_path_manual" type="text" placeholder="ex: banks/aws_saa_c03.json" value=""/>
+    </div>
+
+    <div class="row" style="margin-top:12px;">
+      <div>
+        <label>Nº de questões</label>
+        <input name="n" type="number" min="1" value="20" />
+      </div>
+      <div>
+        <label>Embaralhar</label><br/>
+        <label><input name="shuffle" type="checkbox" checked /> Sim</label>
+      </div>
+    </div>
+
+    <div class="row" style="margin-top:12px;">
+      <div>
+        <label>Filtrar por tópico (opcional)</label>
+        <input name="topic" type="text" placeholder="ex: vpc, s3, iam" />
+      </div>
+      <div>
+        <label>Filtrar por tags (opcional, vírgula)</label>
+        <input name="tags" type="text" placeholder="ex: route53,cloudfront,alb" />
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:14px;">
+      <h3 style="margin-top:0;">Modo prova</h3>
+      <label>
+        <input name="exam_mode" type="checkbox" />
+        Ativar modo prova (sem feedback a cada questão)
+      </label>
+
+      <div style="margin-top:10px;">
+        <label>Tempo (minutos)</label>
+        <input name="exam_minutes" type="number" min="1" value="130" />
+        <div class="muted">Padrão 130min (estilo prova). Ajuste como quiser.</div>
+      </div>
+    </div>
+
+    <div style="margin-top:14px;">
+      <button type="submit">Começar</button>
+    </div>
+  </form>
+</div>
+{% endblock %}

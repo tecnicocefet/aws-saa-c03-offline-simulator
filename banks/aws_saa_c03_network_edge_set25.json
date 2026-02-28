@@ -1,0 +1,404 @@
+{
+  "questions": [
+    {
+      "id": "SAA-NET-EDGE-025-001",
+      "topic": "dns",
+      "question": "Uma aplicação global está ativa em duas regiões (us-east-1 e eu-west-1). O requisito é: latência mínima para usuários e failover automático quando uma região falhar. A equipe quer também evitar enviar tráfego para endpoints degradados. Qual configuração do Route 53 atende melhor?",
+      "choices": {
+        "A": "Latency-based routing + health checks nos endpoints de cada região",
+        "B": "Weighted routing 50/50 sem health checks",
+        "C": "Simple routing apontando para um ALB multi-região",
+        "D": "Geolocation routing sem health checks"
+      },
+      "correct": ["A"],
+      "explanation": "Latency-based routing direciona usuários para a região com menor latência e, com health checks, remove automaticamente endpoints não saudáveis do DNS.",
+      "choice_explanations": {
+        "A": "Correto: combina menor latência com remoção automática de endpoints doentes via health checks.",
+        "B": "Errado: weighted sem health check não evita enviar tráfego para endpoint degradado.",
+        "C": "Errado: ALB não é multi-região (é regional).",
+        "D": "Errado: geolocation é por localização, não por latência; sem health checks não garante evitar endpoint ruim."
+      },
+      "tags": ["route53", "dns", "latency", "health-check", "multi-region", "resilience"]
+    },
+    {
+      "id": "SAA-NET-EDGE-025-002",
+      "topic": "dns",
+      "question": "Você precisa implementar um padrão ativo-passivo: região primária atende tudo; a secundária só recebe tráfego quando a primária falhar. O DNS deve fazer failover automaticamente. Qual política do Route 53 é a mais adequada?",
+      "choices": {
+        "A": "Failover routing (Primary/Secondary) com health check",
+        "B": "Weighted routing com pesos 100/0",
+        "C": "Latency routing com TTL alto",
+        "D": "Geoproximity routing com bias"
+      },
+      "correct": ["A"],
+      "explanation": "Failover routing foi feito para ativo-passivo, usando health checks para detectar falha e alternar para o secundário.",
+      "choice_explanations": {
+        "A": "Correto: padrão ativo-passivo oficial com health check.",
+        "B": "Errado: até funciona como gambiarra, mas não é o padrão de failover e pode ter comportamento menos claro/operacional.",
+        "C": "Errado: latência não garante ativo-passivo; TTL alto atrasa troca.",
+        "D": "Errado: geoproximity é por geografia/bias, não por failover."
+      },
+      "tags": ["route53", "dns", "failover", "health-check", "ha-dr"]
+    },
+    {
+      "id": "SAA-NET-EDGE-025-003",
+      "topic": "edge",
+      "question": "Um site estático em S3 precisa ser servido via CloudFront. A empresa quer bloquear acesso direto ao bucket S3 e permitir acesso somente pelo CloudFront. Qual é a abordagem recomendada atualmente?",
+      "choices": {
+        "A": "Usar Origin Access Control (OAC) e policy do bucket permitindo apenas o CloudFront",
+        "B": "Deixar o bucket público e usar signed URLs no CloudFront",
+        "C": "Usar OAI (Origin Access Identity) e manter ACLs abertas",
+        "D": "Usar apenas WAF no CloudFront e manter o bucket público"
+      },
+      "correct": ["A"],
+      "explanation": "OAC é o mecanismo moderno para restringir acesso ao S3 via CloudFront, evitando bucket público e permitindo autorização forte na origem.",
+      "choice_explanations": {
+        "A": "Correto: OAC + bucket policy restringe a origem ao CloudFront.",
+        "B": "Errado: bucket público viola o requisito de bloquear acesso direto.",
+        "C": "Errado: OAI é legado; e 'ACLs abertas' é exatamente o que não se quer.",
+        "D": "Errado: WAF não impede acesso direto ao endpoint do S3 se o bucket estiver público."
+      },
+      "tags": ["cloudfront", "s3", "oac", "security", "edge"]
+    },
+    {
+      "id": "SAA-NET-EDGE-025-004",
+      "topic": "edge",
+      "question": "Uma API atrás de API Gateway precisa reduzir latência global e proteger contra ataques L7. A equipe quer caching de respostas GET por 60 segundos e proteção contra bots. Qual combinação é a mais adequada?",
+      "choices": {
+        "A": "CloudFront na frente do API Gateway + AWS WAF no CloudFront + caching configurado",
+        "B": "Route 53 weighted + Security Groups no API Gateway",
+        "C": "Global Accelerator + NACLs na subnet do API Gateway",
+        "D": "CloudFront na frente do API Gateway sem WAF e sem cache"
+      },
+      "correct": ["A"],
+      "explanation": "CloudFront fornece cache e presença global; WAF no CloudFront protege em L7, inclusive regras gerenciadas e mitigação de bots.",
+      "choice_explanations": {
+        "A": "Correto: cache + WAF no edge, reduzindo latência e ataques.",
+        "B": "Errado: SG não se aplica ao API Gateway e weighted não dá cache.",
+        "C": "Errado: API Gateway não fica em sua VPC para NACL; e GA não é caching L7.",
+        "D": "Errado: sem WAF e cache não atende requisitos."
+      },
+      "tags": ["cloudfront", "apigw", "waf", "cache", "edge", "security"]
+    },
+    {
+      "id": "SAA-NET-EDGE-025-005",
+      "topic": "edge",
+      "question": "Um time reclama que, após publicar uma nova versão do front-end no S3, usuários ainda recebem conteúdo antigo por alguns minutos. Eles querem uma solução controlada, sem baixar o TTL global para zero. O que é mais apropriado?",
+      "choices": {
+        "A": "Invalidation no CloudFront para os objetos alterados (ou usar versionamento de assets com hash no nome)",
+        "B": "Aumentar o TTL do CloudFront para reduzir inconsistência",
+        "C": "Trocar CloudFront por S3 website hosting direto",
+        "D": "Desabilitar o cache do CloudFront para todo o site permanentemente"
+      },
+      "correct": ["A"],
+      "explanation": "Invalidations ou versionamento com hash são práticas comuns para garantir entrega rápida de novos assets sem destruir os ganhos de cache.",
+      "choice_explanations": {
+        "A": "Correto: invalidação seletiva ou cache-busting com hash resolve.",
+        "B": "Errado: piora o problema.",
+        "C": "Errado: perde edge/caching global e segurança.",
+        "D": "Errado: atende consistência mas destrói desempenho/custo; exagero."
+      },
+      "tags": ["cloudfront", "cache", "s3", "edge", "performance"]
+    },
+    {
+      "id": "SAA-NET-EDGE-025-006",
+      "topic": "elb",
+      "question": "Você precisa balancear tráfego HTTP/HTTPS para microsserviços em ECS (Fargate). Precisa de roteamento por path (/api, /admin) e autenticação OIDC no próprio balanceador. Qual load balancer escolher?",
+      "choices": {
+        "A": "ALB (Application Load Balancer)",
+        "B": "NLB (Network Load Balancer)",
+        "C": "CLB (Classic Load Balancer)",
+        "D": "GWLB (Gateway Load Balancer)"
+      },
+      "correct": ["A"],
+      "explanation": "ALB suporta roteamento L7 por host/path e integrações como autenticação OIDC.",
+      "choice_explanations": {
+        "A": "Correto: L7, rules, target groups e auth OIDC.",
+        "B": "Errado: NLB é L4, não faz path-based routing nem OIDC.",
+        "C": "Errado: legado, sem recursos modernos do ALB.",
+        "D": "Errado: GWLB é para appliances/inspeção de tráfego."
+      },
+      "tags": ["alb", "ecs", "fargate", "routing", "security", "elb"]
+    },
+    {
+      "id": "SAA-NET-EDGE-025-007",
+      "topic": "elb",
+      "question": "Um serviço precisa de altíssima performance e preservar o IP de origem do cliente para a aplicação. O tráfego é TCP (não HTTP). Qual opção é mais adequada?",
+      "choices": {
+        "A": "NLB",
+        "B": "ALB",
+        "C": "CloudFront",
+        "D": "API Gateway REST"
+      },
+      "correct": ["A"],
+      "explanation": "NLB é L4, alta performance e geralmente preserva IP de origem (além de suportar TCP/UDP).",
+      "choice_explanations": {
+        "A": "Correto: L4 TCP, alto throughput e preservação de IP.",
+        "B": "Errado: ALB é L7 HTTP/HTTPS.",
+        "C": "Errado: CloudFront é CDN/proxy L7, não balanceador TCP genérico.",
+        "D": "Errado: API Gateway é L7 para APIs, não TCP."
+      },
+      "tags": ["nlb", "elb", "tcp", "performance"]
+    },
+    {
+      "id": "SAA-NET-EDGE-025-008",
+      "topic": "scaling",
+      "question": "Uma aplicação em EC2 atrás de ALB precisa escalar com base no número de requisições por target, mantendo latência estável em picos. Qual política de Auto Scaling é mais indicada?",
+      "choices": {
+        "A": "Target tracking usando métrica ALBRequestCountPerTarget",
+        "B": "Step scaling apenas com CPU > 80%",
+        "C": "Scheduled scaling fixo em horários",
+        "D": "Manual scaling via console quando houver pico"
+      },
+      "correct": ["A"],
+      "explanation": "Target tracking com RequestCountPerTarget costuma refletir melhor carga real em apps web do que apenas CPU.",
+      "choice_explanations": {
+        "A": "Correto: métrica ligada ao tráfego no ALB por target.",
+        "B": "Errado: CPU nem sempre correlaciona com RPS/latência.",
+        "C": "Errado: picos podem ser imprevisíveis.",
+        "D": "Errado: não atende elasticidade e confiabilidade."
+      },
+      "tags": ["autoscaling", "alb", "scaling", "performance", "ec2"]
+    },
+    {
+      "id": "SAA-NET-EDGE-025-009",
+      "topic": "scaling",
+      "question": "Um time quer que um Auto Scaling Group distribua instâncias igualmente entre 3 AZs. Eles também querem minimizar impacto caso uma AZ falhe. Qual configuração ajuda diretamente?",
+      "choices": {
+        "A": "Usar subnets em 3 AZs e habilitar balanceamento cross-zone no ALB quando apropriado",
+        "B": "Colocar todas as instâncias em uma única subnet e usar Route 53 failover",
+        "C": "Desabilitar health checks do ALB para evitar substituições",
+        "D": "Fixar DesiredCapacity alto em uma AZ e baixo nas outras"
+      },
+      "correct": ["A"],
+      "explanation": "Multi-AZ com subnets em várias AZs é o básico; ALB com cross-zone pode ajudar na distribuição de tráfego quando targets são desiguais.",
+      "choice_explanations": {
+        "A": "Correto: multi-AZ real + distribuição de tráfego.",
+        "B": "Errado: single-AZ vira single point of failure.",
+        "C": "Errado: health checks são essenciais para resiliência.",
+        "D": "Errado: anti-padrão, concentra risco."
+      },
+      "tags": ["autoscaling", "alb", "multi-az", "resilience", "ha"]
+    },
+    {
+      "id": "SAA-NET-EDGE-025-010",
+      "topic": "connectivity",
+      "question": "Você precisa conectar um datacenter on-premises a uma VPC com baixa latência e conexão privada consistente. O tráfego é sensível e não deve passar pela internet pública. Qual solução é a mais adequada?",
+      "choices": {
+        "A": "AWS Direct Connect",
+        "B": "Site-to-Site VPN apenas",
+        "C": "VPC Peering",
+        "D": "Internet Gateway com IPs estáticos"
+      },
+      "correct": ["A"],
+      "explanation": "Direct Connect oferece conectividade dedicada privada e previsível, geralmente com melhor latência e consistência que VPN pela internet.",
+      "choice_explanations": {
+        "A": "Correto: link dedicado privado, ideal para baixa latência e consistência.",
+        "B": "Errado: VPN usa internet pública e pode ter variação de latência.",
+        "C": "Errado: peering é VPC-to-VPC, não on-prem.",
+        "D": "Errado: IGW expõe à internet."
+      },
+      "tags": ["direct-connect", "hybrid", "connectivity", "security", "performance"]
+    },
+    {
+      "id": "SAA-NET-EDGE-025-011",
+      "topic": "connectivity",
+      "question": "A empresa tem 12 VPCs em contas diferentes e precisa de conectividade hub-and-spoke entre elas e também com on-prem. Quer evitar malha completa de VPC peering e simplificar roteamento. Qual serviço atende melhor?",
+      "choices": {
+        "A": "Transit Gateway",
+        "B": "VPC Peering entre todas as VPCs",
+        "C": "NAT Gateway em cada VPC",
+        "D": "Route 53 weighted routing"
+      },
+      "correct": ["A"],
+      "explanation": "Transit Gateway centraliza roteamento e conecta múltiplas VPCs e on-prem, evitando peering em malha.",
+      "choice_explanations": {
+        "A": "Correto: hub de roteamento para VPCs e on-prem.",
+        "B": "Errado: escala mal (n*(n-1)/2), difícil operar e propagar rotas.",
+        "C": "Errado: NAT é para saída à internet, não interconexão.",
+        "D": "Errado: DNS não resolve conectividade L3."
+      },
+      "tags": ["tgw", "transit-gateway", "hybrid", "multi-account", "networking"]
+    },
+    {
+      "id": "SAA-NET-EDGE-025-012",
+      "topic": "networking",
+      "question": "Duas VPCs precisam se comunicar de forma privada. Uma delas está em outra conta AWS e outra região. Requisito: conectividade escalável, suporte a múltiplas VPCs futuras e integração com on-prem. Melhor escolha?",
+      "choices": {
+        "A": "Transit Gateway com attachments e, se necessário, peering entre TGWs",
+        "B": "VPC Peering direto entre as duas VPCs e pronto",
+        "C": "CloudFront para rotear tráfego entre VPCs",
+        "D": "IGW + rotas públicas com Security Groups restritivos"
+      },
+      "correct": ["A"],
+      "explanation": "Para crescer e integrar múltiplas VPCs/on-prem, TGW é mais apropriado; TGW peering permite interligar regiões.",
+      "choice_explanations": {
+        "A": "Correto: escalável para múltiplas VPCs, multi-conta, e híbrido.",
+        "B": "Errado: peering atende 2 VPCs, mas escala mal para muitas e não é transitivo.",
+        "C": "Errado: CloudFront não é rede L3 entre VPCs.",
+        "D": "Errado: expor via internet não atende requisito de privado."
+      },
+      "tags": ["tgw", "networking", "multi-region", "multi-account", "hybrid"]
+    },
+    {
+      "id": "SAA-NET-EDGE-025-013",
+      "topic": "networking",
+      "question": "Uma aplicação em subnets privadas precisa acessar S3 sem usar NAT Gateway, mantendo tráfego dentro da rede AWS e reduzindo custo. Qual opção é a melhor?",
+      "choices": {
+        "A": "VPC Endpoint do tipo Gateway para S3",
+        "B": "VPC Endpoint do tipo Interface para S3",
+        "C": "Internet Gateway com rotas e Security Groups",
+        "D": "VPN para a internet via on-prem"
+      },
+      "correct": ["A"],
+      "explanation": "Para S3/DynamoDB, o endpoint Gateway é o padrão mais custo-eficiente e mantém tráfego na rede AWS, sem NAT.",
+      "choice_explanations": {
+        "A": "Correto: gateway endpoint (S3) evita NAT e reduz custo.",
+        "B": "Errado: interface endpoint existe, mas é mais comum/necessário para outros serviços; para S3, gateway é o padrão econômico.",
+        "C": "Errado: IGW exige subnets públicas e não é privado.",
+        "D": "Errado: adiciona complexidade e não é necessário."
+      },
+      "tags": ["vpc-endpoint", "s3", "cost", "networking", "security"]
+    },
+    {
+      "id": "SAA-NET-EDGE-025-014",
+      "topic": "dns",
+      "question": "Você tem workloads em VPC e também on-prem. O on-prem precisa resolver nomes privados hospedados no Route 53 Private Hosted Zone. Qual arquitetura resolve isso de forma correta?",
+      "choices": {
+        "A": "Route 53 Resolver inbound endpoint + regras e encaminhamento do DNS on-prem para o inbound",
+        "B": "Public Hosted Zone para expor registros privados à internet",
+        "C": "Lambda rodando cron para copiar registros do Route 53 para BIND",
+        "D": "VPC Peering entre on-prem e Route 53"
+      },
+      "correct": ["A"],
+      "explanation": "Inbound endpoints do Route 53 Resolver permitem que redes on-prem consultem nomes privados do Route 53 via conectividade híbrida (VPN/DX).",
+      "choice_explanations": {
+        "A": "Correto: inbound endpoint recebe queries do on-prem e resolve zonas privadas.",
+        "B": "Errado: expõe informações e não é privado.",
+        "C": "Errado: solução frágil, sem necessidade e com atraso/risco.",
+        "D": "Errado: peering é VPC-to-VPC, não on-prem-to-Route53; e DNS não funciona assim."
+      },
+      "tags": ["route53", "resolver", "hybrid", "dns", "security"]
+    },
+    {
+      "id": "SAA-NET-EDGE-025-015",
+      "topic": "dns",
+      "question": "Usuários em uma VPC precisam resolver domínios on-prem (ex: corp.local) usando DNS local. Você quer que as instâncias na VPC consultem o DNS on-prem automaticamente. Qual solução Route 53 Resolver atende?",
+      "choices": {
+        "A": "Route 53 Resolver outbound endpoint + rule para encaminhar corp.local para DNS on-prem",
+        "B": "Criar uma Public Hosted Zone corp.local no Route 53",
+        "C": "Criar uma Private Hosted Zone corp.local e adicionar registros manualmente",
+        "D": "Usar CloudFront para resolver DNS mais rápido"
+      },
+      "correct": ["A"],
+      "explanation": "Outbound endpoints permitem que a VPC encaminhe queries específicas para resolvers externos (on-prem) via regras.",
+      "choice_explanations": {
+        "A": "Correto: outbound + rule encaminha para DNS on-prem.",
+        "B": "Errado: expõe namespace interno e não encaminha.",
+        "C": "Errado: duplicação manual e risco de inconsistência.",
+        "D": "Errado: CloudFront não resolve DNS."
+      },
+      "tags": ["route53", "resolver", "outbound", "hybrid", "dns"]
+    },
+    {
+      "id": "SAA-NET-EDGE-025-016",
+      "topic": "edge",
+      "question": "Você precisa restringir acesso ao CloudFront para clientes autenticados, entregando arquivos privados (vídeos). O requisito é que apenas usuários autorizados consigam baixar o conteúdo. Qual mecanismo do CloudFront é mais adequado?",
+      "choices": {
+        "A": "Signed URLs ou Signed Cookies",
+        "B": "Origin Shield",
+        "C": "Aumentar TTL para 24h",
+        "D": "Usar apenas compressão Brotli"
+      },
+      "correct": ["A"],
+      "explanation": "Signed URLs/cookies controlam acesso a conteúdo privado, exigindo assinatura válida para download.",
+      "choice_explanations": {
+        "A": "Correto: controle de acesso por assinatura.",
+        "B": "Errado: Origin Shield melhora cache/hit ratio, não autenticação.",
+        "C": "Errado: TTL é cache, não autorização.",
+        "D": "Errado: compressão não controla acesso."
+      },
+      "tags": ["cloudfront", "security", "signed-url", "edge"]
+    },
+    {
+      "id": "SAA-NET-EDGE-025-017",
+      "topic": "edge",
+      "question": "Uma empresa usa CloudFront com S3 como origem. Eles querem bloquear países específicos e permitir apenas Brasil e Portugal. Além disso, querem mitigar padrões comuns de ataques web. Qual abordagem é mais adequada?",
+      "choices": {
+        "A": "AWS WAF no CloudFront com regras geográficas + managed rules",
+        "B": "Security Group no CloudFront",
+        "C": "NACL no S3 bucket",
+        "D": "IAM policy no usuário final para negar países"
+      },
+      "correct": ["A"],
+      "explanation": "WAF no CloudFront suporta geoblocking e regras gerenciadas para ataques comuns (L7).",
+      "choice_explanations": {
+        "A": "Correto: geoblocking + managed rules no edge.",
+        "B": "Errado: CloudFront não usa SG.",
+        "C": "Errado: S3 não fica em subnets para NACL.",
+        "D": "Errado: IAM é para identidades AWS, não para clientes finais anônimos."
+      },
+      "tags": ["cloudfront", "waf", "security", "edge"]
+    },
+    {
+      "id": "SAA-NET-EDGE-025-018",
+      "topic": "networking",
+      "question": "Você tem duas VPCs conectadas via VPC Peering. A VPC-A tem acesso ao on-prem via VPN. A VPC-B precisa alcançar o on-prem através da VPC-A (tráfego transitivo). O que acontece e qual é a solução correta?",
+      "choices": {
+        "A": "VPC Peering não suporta roteamento transitivo; usar Transit Gateway para permitir trânsito",
+        "B": "VPC Peering suporta trânsito automaticamente; basta adicionar rotas",
+        "C": "Usar Route 53 failover para rotear tráfego transitivo",
+        "D": "Habilitar cross-zone load balancing no ALB para permitir trânsito"
+      },
+      "correct": ["A"],
+      "explanation": "VPC Peering não é transitivo. Para trânsito entre múltiplas redes (VPCs e on-prem), Transit Gateway é o padrão.",
+      "choice_explanations": {
+        "A": "Correto: peering não é transitivo; TGW resolve.",
+        "B": "Errado: peering não permite trânsito por design.",
+        "C": "Errado: DNS não cria conectividade L3.",
+        "D": "Errado: ALB é L7 e não substitui roteamento."
+      },
+      "tags": ["vpc-peering", "tgw", "hybrid", "networking", "connectivity"]
+    },
+    {
+      "id": "SAA-NET-EDGE-025-019",
+      "topic": "networking",
+      "question": "Uma aplicação precisa expor um endpoint interno para consumo apenas dentro da VPC e VPCs conectadas, sem ser público na internet. O serviço é HTTP e deve suportar autenticação no próprio balanceador. Qual solução é mais adequada?",
+      "choices": {
+        "A": "Internal ALB em subnets privadas",
+        "B": "Public ALB com regras WAF",
+        "C": "NLB público com targets em subnets públicas",
+        "D": "CloudFront com origem privada"
+      },
+      "correct": ["A"],
+      "explanation": "Internal ALB não é acessível pela internet e suporta recursos L7 como autenticação OIDC.",
+      "choice_explanations": {
+        "A": "Correto: internal ALB para uso privado.",
+        "B": "Errado: continua público, mesmo com WAF.",
+        "C": "Errado: NLB é L4 e público no exemplo.",
+        "D": "Errado: CloudFront é serviço público edge por natureza."
+      },
+      "tags": ["alb", "networking", "security", "private", "routing"]
+    },
+    {
+      "id": "SAA-NET-EDGE-025-020",
+      "topic": "dns",
+      "question": "Você quer migrar gradualmente 10% do tráfego para uma nova versão do serviço, mantendo 90% na versão antiga, e aumentar aos poucos sem downtime. O DNS deve permitir essa estratégia de forma simples. Qual política Route 53 usar?",
+      "choices": {
+        "A": "Weighted routing com 90/10 e health checks",
+        "B": "Failover routing Primary/Secondary",
+        "C": "Multivalue answer sem health check",
+        "D": "Geolocation routing Brasil/Portugal"
+      },
+      "correct": ["A"],
+      "explanation": "Weighted routing é ideal para canary/gradual rollout via DNS; health checks ajudam a não enviar tráfego para endpoint ruim.",
+      "choice_explanations": {
+        "A": "Correto: canary via DNS com controle de percentual.",
+        "B": "Errado: é para ativo-passivo.",
+        "C": "Errado: multivalue não controla percentual e sem health check é arriscado.",
+        "D": "Errado: geolocation é por região/país, não canary por percentual."
+      },
+      "tags": ["route53", "weighted", "canary", "health-check", "deployment", "resilience"]
+    }
+  ]
+}

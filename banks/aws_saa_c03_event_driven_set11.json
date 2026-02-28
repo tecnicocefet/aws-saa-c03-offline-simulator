@@ -1,0 +1,204 @@
+{
+  "questions": [
+    {
+      "id": "SAA-EVT-141",
+      "topic": "event-driven",
+      "question": "Uma aplicação usa SQS Standard para processar pedidos. O time percebe que alguns pedidos são processados duas vezes. O que explica esse comportamento?",
+      "choices": {
+        "A": "SQS Standard garante exactly-once delivery",
+        "B": "SQS Standard usa modelo at-least-once delivery",
+        "C": "Lambda sempre executa duas vezes",
+        "D": "SQS FIFO é o padrão do serviço"
+      },
+      "correct": ["B"],
+      "explanation": "SQS Standard garante at-least-once delivery, podendo ocorrer duplicação. A aplicação deve ser idempotente.",
+      "choice_explanations": {
+        "A": "❌ Incorrecto. Exactly-once é característica do FIFO com deduplication.",
+        "B": "✅ Modelo padrão do SQS Standard.",
+        "C": "❌ Lambda não executa duplicado por padrão; depende do trigger.",
+        "D": "❌ Standard é o padrão, não FIFO."
+      },
+      "tags": ["sqs", "delivery", "idempotency"]
+    },
+    {
+      "id": "SAA-EVT-142",
+      "topic": "event-driven",
+      "question": "Você precisa garantir ordem estrita de processamento por cliente em uma fila. Qual solução usar?",
+      "choices": {
+        "A": "SQS Standard",
+        "B": "SQS FIFO com MessageGroupId",
+        "C": "SNS Standard",
+        "D": "EventBridge"
+      },
+      "correct": ["B"],
+      "explanation": "SQS FIFO garante ordenação dentro de um MessageGroupId.",
+      "choice_explanations": {
+        "A": "❌ Standard não garante ordem.",
+        "B": "✅ FIFO garante ordenação por grupo.",
+        "C": "❌ SNS não garante ordem.",
+        "D": "❌ EventBridge não garante ordem estrita."
+      },
+      "tags": ["sqs", "fifo", "ordering"]
+    },
+    {
+      "id": "SAA-EVT-143",
+      "topic": "event-driven",
+      "question": "Uma função Lambda acionada por SQS falha repetidamente para algumas mensagens. Você quer isolar essas mensagens após N tentativas. O que configurar?",
+      "choices": {
+        "A": "Increase memory",
+        "B": "Dead Letter Queue (DLQ)",
+        "C": "Disable retries",
+        "D": "Increase visibility timeout apenas"
+      },
+      "correct": ["B"],
+      "explanation": "DLQ captura mensagens após exceder maxReceiveCount.",
+      "choice_explanations": {
+        "A": "❌ Não resolve erro lógico.",
+        "B": "✅ Isola mensagens problemáticas.",
+        "C": "❌ Pode causar perda silenciosa.",
+        "D": "❌ Não resolve erro permanente."
+      },
+      "tags": ["dlq", "lambda", "sqs", "error-handling"]
+    },
+    {
+      "id": "SAA-EVT-144",
+      "topic": "event-driven",
+      "question": "Você quer enviar o mesmo evento para múltiplos microserviços desacoplados. Qual padrão usar?",
+      "choices": {
+        "A": "SQS único",
+        "B": "SNS com múltiplas filas SQS (fanout)",
+        "C": "EC2 multicast",
+        "D": "API Gateway apenas"
+      },
+      "correct": ["B"],
+      "explanation": "SNS permite fanout para múltiplos destinos (SQS, Lambda, HTTP).",
+      "choice_explanations": {
+        "A": "❌ SQS não faz fanout nativo.",
+        "B": "✅ Padrão pub/sub clássico.",
+        "C": "❌ Não aplicável.",
+        "D": "❌ Não é pub/sub."
+      },
+      "tags": ["sns", "fanout", "pubsub"]
+    },
+    {
+      "id": "SAA-EVT-145",
+      "topic": "event-driven",
+      "question": "Você precisa rotear eventos com base em padrões (ex: tipo de evento) sem acoplamento forte entre serviços. Qual serviço usar?",
+      "choices": {
+        "A": "SQS",
+        "B": "EventBridge",
+        "C": "NAT Gateway",
+        "D": "Auto Scaling"
+      },
+      "correct": ["B"],
+      "explanation": "EventBridge permite roteamento baseado em padrões e desacoplamento entre produtores e consumidores.",
+      "choice_explanations": {
+        "A": "❌ Fila simples.",
+        "B": "✅ Event bus com rules e pattern matching.",
+        "C": "❌ Rede.",
+        "D": "❌ Escala."
+      },
+      "tags": ["eventbridge", "routing", "event-driven"]
+    },
+    {
+      "id": "SAA-EVT-146",
+      "topic": "event-driven",
+      "question": "Qual parâmetro controla quanto tempo uma mensagem fica invisível após ser recebida por um consumidor SQS?",
+      "choices": {
+        "A": "Retention Period",
+        "B": "Visibility Timeout",
+        "C": "Delay Queue",
+        "D": "Batch Size"
+      },
+      "correct": ["B"],
+      "explanation": "Visibility Timeout impede que outras instâncias processem a mesma mensagem durante o período definido.",
+      "choice_explanations": {
+        "A": "❌ Define retenção total.",
+        "B": "✅ Controle de invisibilidade após consumo.",
+        "C": "❌ Atraso inicial.",
+        "D": "❌ Número de mensagens por lote."
+      },
+      "tags": ["sqs", "visibility-timeout"]
+    },
+    {
+      "id": "SAA-EVT-147",
+      "topic": "event-driven",
+      "question": "Uma aplicação precisa orquestrar múltiplas Lambdas com decisões condicionais e retries controlados. Qual serviço usar?",
+      "choices": {
+        "A": "SNS",
+        "B": "Step Functions",
+        "C": "SQS",
+        "D": "CloudFront"
+      },
+      "correct": ["B"],
+      "explanation": "Step Functions fornece orquestração com estados, branching e retries.",
+      "choice_explanations": {
+        "A": "❌ Pub/sub.",
+        "B": "✅ Orquestração gerenciada.",
+        "C": "❌ Fila.",
+        "D": "❌ CDN."
+      },
+      "tags": ["step-functions", "orchestration"]
+    },
+    {
+      "id": "SAA-EVT-148",
+      "topic": "event-driven",
+      "question": "Você quer que eventos de uma conta AWS acionem recursos em outra conta de forma segura e desacoplada. Qual serviço facilita isso nativamente?",
+      "choices": {
+        "A": "EventBridge com event bus cross-account",
+        "B": "S3 Public Bucket",
+        "C": "IAM user compartilhado",
+        "D": "Security Group aberto"
+      },
+      "correct": ["A"],
+      "explanation": "EventBridge suporta envio de eventos entre contas com políticas apropriadas.",
+      "choice_explanations": {
+        "A": "✅ Cross-account nativo.",
+        "B": "❌ Inseguro.",
+        "C": "❌ Anti-pattern.",
+        "D": "❌ Não resolve."
+      },
+      "tags": ["eventbridge", "cross-account"]
+    },
+    {
+      "id": "SAA-EVT-149",
+      "topic": "event-driven",
+      "question": "Você quer reduzir invocações desnecessárias de Lambda quando apenas certos tipos de eventos importam. O que usar?",
+      "choices": {
+        "A": "Filtragem no código apenas",
+        "B": "EventBridge rule com event pattern",
+        "C": "NAT Gateway",
+        "D": "EC2 cron"
+      },
+      "correct": ["B"],
+      "explanation": "EventBridge pode filtrar eventos antes de acionar o target.",
+      "choice_explanations": {
+        "A": "❌ Ineficiente e gera custo desnecessário.",
+        "B": "✅ Filtragem no nível do event bus.",
+        "C": "❌ Rede.",
+        "D": "❌ Não relacionado."
+      },
+      "tags": ["eventbridge", "filtering"]
+    },
+    {
+      "id": "SAA-EVT-150",
+      "topic": "event-driven",
+      "question": "Uma aplicação exige exatamente uma vez de processamento e ordem garantida. Qual combinação é mais adequada?",
+      "choices": {
+        "A": "SQS Standard + Lambda",
+        "B": "SNS Standard",
+        "C": "SQS FIFO com deduplication",
+        "D": "EventBridge default bus"
+      },
+      "correct": ["C"],
+      "explanation": "SQS FIFO com deduplication ID oferece exactly-once processing (dentro dos limites do serviço).",
+      "choice_explanations": {
+        "A": "❌ Standard é at-least-once.",
+        "B": "❌ Não garante ordem/exactly-once.",
+        "C": "✅ FIFO + dedup atende requisito.",
+        "D": "❌ Não garante exatamente uma vez."
+      },
+      "tags": ["sqs", "fifo", "exactly-once"]
+    }
+  ]
+}

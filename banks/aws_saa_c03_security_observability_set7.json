@@ -1,0 +1,204 @@
+{
+  "questions": [
+    {
+      "id": "SAA-SEC-101",
+      "topic": "security",
+      "question": "Uma empresa quer detectar atividades suspeitas (ex: chamadas incomuns de API, tentativas de credential stuffing em chaves) em contas AWS, com alertas automáticos. Qual serviço é o mais adequado?",
+      "choices": {
+        "A": "AWS Config",
+        "B": "Amazon GuardDuty",
+        "C": "AWS CloudTrail apenas",
+        "D": "AWS Systems Manager"
+      },
+      "correct": ["B"],
+      "explanation": "GuardDuty faz detecção inteligente de ameaças analisando CloudTrail, VPC Flow Logs e DNS logs (entre outros), gerando findings e integrando com alertas/automação.",
+      "choice_explanations": {
+        "A": "❌ Config é compliance/configuração, não detecção inteligente de ameaças.",
+        "B": "✅ GuardDuty é o serviço certo para threat detection gerenciado.",
+        "C": "❌ CloudTrail registra eventos, mas não faz detecção/alerta inteligente por si só.",
+        "D": "❌ SSM é gestão operacional (patch, run command), não threat detection."
+      },
+      "tags": ["guardduty", "cloudtrail", "security-monitoring"]
+    },
+    {
+      "id": "SAA-SEC-102",
+      "topic": "security",
+      "question": "Você precisa registrar todas as chamadas de API em uma conta AWS e manter evidência auditável. Qual combinação é a base correta?",
+      "choices": {
+        "A": "CloudWatch Metrics + SNS",
+        "B": "CloudTrail + armazenamento no S3 (com políticas de retenção/imutabilidade)",
+        "C": "AWS Config + Systems Manager",
+        "D": "VPC Flow Logs + CloudFront"
+      },
+      "correct": ["B"],
+      "explanation": "CloudTrail registra eventos de API. Armazenar no S3 é o padrão, e você pode reforçar com controles como Object Lock/retention, KMS e políticas de bucket.",
+      "choice_explanations": {
+        "A": "❌ Métricas não são trilha de auditoria de chamadas de API.",
+        "B": "✅ CloudTrail + S3 é o fundamento de auditoria.",
+        "C": "❌ Config é inventário/compliance, não log de API.",
+        "D": "❌ Flow Logs é tráfego de rede, não chamadas de API."
+      },
+      "tags": ["cloudtrail", "s3", "audit", "compliance"]
+    },
+    {
+      "id": "SAA-SEC-103",
+      "topic": "security",
+      "question": "Você precisa impedir que um bucket S3 seja tornado público por engano em qualquer momento. Qual recurso é mais direto para isso?",
+      "choices": {
+        "A": "S3 Block Public Access",
+        "B": "Versioning no S3",
+        "C": "Transfer Acceleration",
+        "D": "CloudFront Origin Access Control (OAC)"
+      },
+      "correct": ["A"],
+      "explanation": "S3 Block Public Access bloqueia configurações públicas no bucket e/ou na conta, reduzindo risco de exposição acidental.",
+      "choice_explanations": {
+        "A": "✅ É o controle de segurança específico para bloquear acesso público.",
+        "B": "❌ Versioning protege contra deleções/alterações, não público/privado.",
+        "C": "❌ Performance, não segurança de exposição.",
+        "D": "❌ Ajuda em cenários com CloudFront, mas não impede public exposure sozinho."
+      },
+      "tags": ["s3", "block-public-access", "security"]
+    },
+    {
+      "id": "SAA-SEC-104",
+      "topic": "security",
+      "question": "Um time quer garantir que toda criptografia em repouso em S3 e EBS use chaves gerenciadas pelo cliente e com rotação/controle de acesso. Qual escolha atende melhor?",
+      "choices": {
+        "A": "SSE-S3 (chaves gerenciadas pela AWS)",
+        "B": "SSE-KMS com CMK (customer managed key)",
+        "C": "Criptografar apenas no lado do cliente e não usar KMS",
+        "D": "Desabilitar criptografia e usar somente TLS"
+      },
+      "correct": ["B"],
+      "explanation": "SSE-KMS com CMK dá controle de permissões, auditoria e gestão/rotação de chaves via KMS.",
+      "choice_explanations": {
+        "A": "❌ SSE-S3 não dá o mesmo nível de controle do cliente.",
+        "B": "✅ Melhor prática para controle forte e auditorável.",
+        "C": "❌ Possível, mas perde governança central, auditoria e integração padrão.",
+        "D": "❌ TLS não protege dados em repouso."
+      },
+      "tags": ["kms", "s3", "ebs", "encryption"]
+    },
+    {
+      "id": "SAA-OBS-105",
+      "topic": "observability",
+      "question": "Uma aplicação distribuída (API + Lambdas + filas) precisa rastrear uma requisição fim-a-fim para achar gargalos e erros por serviço. Qual serviço AWS é mais adequado?",
+      "choices": {
+        "A": "CloudWatch Alarms",
+        "B": "AWS X-Ray",
+        "C": "S3 Access Logs",
+        "D": "AWS Config"
+      },
+      "correct": ["B"],
+      "explanation": "X-Ray permite distributed tracing, mostrando latência e dependências entre componentes.",
+      "choice_explanations": {
+        "A": "❌ Alarmes detectam sintomas, não rastreiam jornada end-to-end.",
+        "B": "✅ Tracing distribuído é o foco do X-Ray.",
+        "C": "❌ Logs do S3 são específicos e não rastreiam serviços.",
+        "D": "❌ Config é compliance/configuração."
+      },
+      "tags": ["x-ray", "tracing", "observability"]
+    },
+    {
+      "id": "SAA-OBS-106",
+      "topic": "observability",
+      "question": "Você quer criar alarmes quando a taxa de erros 5xx do ALB aumentar acima do normal. Qual combinação é mais correta?",
+      "choices": {
+        "A": "CloudWatch Metrics do ALB + CloudWatch Alarm",
+        "B": "CloudTrail + IAM",
+        "C": "AWS Config + SNS",
+        "D": "S3 + Athena"
+      },
+      "correct": ["A"],
+      "explanation": "ALB publica métricas no CloudWatch. Alarmes do CloudWatch disparam com base nessas métricas e podem notificar via SNS/ações.",
+      "choice_explanations": {
+        "A": "✅ É o caminho padrão para alertar por métricas.",
+        "B": "❌ CloudTrail não é para métricas de HTTP errors.",
+        "C": "❌ Config não mede 5xx.",
+        "D": "❌ Pode analisar logs, mas não é o melhor para alarme em tempo quase real."
+      },
+      "tags": ["cloudwatch", "alb", "alarms"]
+    },
+    {
+      "id": "SAA-SEC-107",
+      "topic": "security",
+      "question": "Você precisa aplicar políticas de segurança contra ataques comuns (SQLi, XSS) em uma aplicação HTTP atrás de ALB/CloudFront. Qual serviço deve ser usado?",
+      "choices": {
+        "A": "AWS WAF",
+        "B": "Security Group",
+        "C": "NACL",
+        "D": "Amazon Inspector"
+      },
+      "correct": ["A"],
+      "explanation": "AWS WAF protege aplicações web com regras gerenciadas e customizadas para padrões como SQLi/XSS, rate limiting etc.",
+      "choice_explanations": {
+        "A": "✅ Proteção L7 (HTTP) é do WAF.",
+        "B": "❌ SG é L3/L4, não entende SQLi/XSS.",
+        "C": "❌ NACL é L3/L4.",
+        "D": "❌ Inspector é vulnerabilidade de hosts/imagens, não WAF L7."
+      },
+      "tags": ["waf", "cloudfront", "alb", "security"]
+    },
+    {
+      "id": "SAA-SEC-108",
+      "topic": "security",
+      "question": "Você quer evitar que credenciais de acesso longo (access keys) sejam a forma padrão de acesso. Para workloads na AWS (EC2/Lambda/ECS), qual é a melhor prática?",
+      "choices": {
+        "A": "Criar IAM user com access keys e distribuir no código",
+        "B": "Usar IAM Roles e credenciais temporárias",
+        "C": "Salvar access keys no S3 com criptografia",
+        "D": "Salvar keys no EC2 User Data"
+      },
+      "correct": ["B"],
+      "explanation": "IAM Roles fornecem credenciais temporárias e rotacionadas automaticamente via STS, evitando segredos estáticos em código.",
+      "choice_explanations": {
+        "A": "❌ Anti-pattern (segredo estático).",
+        "B": "✅ Padrão recomendado pela AWS.",
+        "C": "❌ Ainda é segredo estático e arriscado.",
+        "D": "❌ User Data é facilmente exposto e não é cofre de segredos."
+      },
+      "tags": ["iam", "roles", "sts", "best-practice"]
+    },
+    {
+      "id": "SAA-OBS-109",
+      "topic": "observability",
+      "question": "Você quer centralizar logs de várias contas AWS e manter retenção/auditoria centralizada. Qual abordagem é mais comum?",
+      "choices": {
+        "A": "Cada conta mantém logs localmente sem agregação",
+        "B": "CloudTrail/CloudWatch Logs enviados para uma conta central de logging (S3/Logs)",
+        "C": "Apenas alarmes no CloudWatch",
+        "D": "Somente VPC Flow Logs"
+      },
+      "correct": ["B"],
+      "explanation": "Centralizar logging em uma conta dedicada é padrão (org/landing zone), facilitando auditoria e governança.",
+      "choice_explanations": {
+        "A": "❌ Perde governança e auditoria.",
+        "B": "✅ Padrão recomendado em ambientes multi-conta.",
+        "C": "❌ Alarmes não substituem logs.",
+        "D": "❌ Flow Logs são só rede."
+      },
+      "tags": ["multi-account", "cloudtrail", "logging", "governance"]
+    },
+    {
+      "id": "SAA-SEC-110",
+      "topic": "security",
+      "question": "Você precisa detectar configurações fora do padrão (ex: SG permitindo 0.0.0.0/0 em portas sensíveis) e disparar remediação automática. Qual combinação faz mais sentido?",
+      "choices": {
+        "A": "AWS Config Rules + EventBridge/Lambda para remediação",
+        "B": "CloudFront + WAF",
+        "C": "S3 + Glacier",
+        "D": "EC2 Auto Scaling"
+      },
+      "correct": ["A"],
+      "explanation": "AWS Config avalia conformidade e pode acionar automação (EventBridge/Lambda/SSM) para remediar violações.",
+      "choice_explanations": {
+        "A": "✅ Compliance + remediação automatizada.",
+        "B": "❌ Segurança web, não compliance de infra.",
+        "C": "❌ Storage.",
+        "D": "❌ Escalabilidade, não compliance."
+      },
+      "tags": ["aws-config", "eventbridge", "remediation", "security"]
+    }
+  ]
+}

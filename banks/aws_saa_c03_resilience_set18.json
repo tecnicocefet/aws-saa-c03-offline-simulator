@@ -1,0 +1,207 @@
+{
+  "exam": "AWS SAA-C03",
+  "set": "18",
+  "focus": ["resilience", "backup", "dr-patterns", "multi-region", "rto-rpo"],
+  "questions": [
+    {
+      "id": "SAA-18-001",
+      "topic": "hadr",
+      "tags": ["rto", "rpo", "dr-pattern", "multi-region", "resilience"],
+      "question": "Uma aplicação crítica exige RTO < 5 minutos e RPO próximo de zero entre duas regiões. Qual arquitetura atende melhor?",
+      "choices": {
+        "A": "Backup diário no S3 com restore manual",
+        "B": "Pilot Light com restore sob demanda",
+        "C": "Active-Active multi-region com Route 53 health checks e replicação contínua",
+        "D": "Snapshots semanais automatizados"
+      },
+      "correct": ["C"],
+      "explanation": "RTO < 5 minutos e RPO próximo de zero exigem arquitetura ativa em múltiplas regiões com replicação contínua.",
+      "choice_explanations": {
+        "A": "Backup diário gera RPO alto.",
+        "B": "Pilot light tem RTO maior.",
+        "C": "Correta: arquitetura ativa em ambas regiões reduz RTO e RPO drasticamente.",
+        "D": "Snapshots semanais não atendem requisitos críticos."
+      }
+    },
+    {
+      "id": "SAA-18-002",
+      "topic": "backup-restore",
+      "tags": ["aws-backup", "rds", "governance", "multi-account"],
+      "question": "Você precisa padronizar políticas de backup para RDS e EFS em múltiplas contas. Qual serviço centraliza isso com governança?",
+      "choices": {
+        "A": "Snapshots manuais por conta",
+        "B": "AWS Backup com policies aplicadas via Organizations",
+        "C": "Script Lambda em cada conta",
+        "D": "Exportar banco para CSV periodicamente"
+      },
+      "correct": ["B"],
+      "explanation": "AWS Backup permite aplicar políticas centralizadas inclusive via Organizations.",
+      "choice_explanations": {
+        "A": "Não escala.",
+        "B": "Correta: centraliza políticas de backup multi-conta.",
+        "C": "Operacional e sujeito a falhas.",
+        "D": "Não é estratégia adequada de backup."
+      }
+    },
+    {
+      "id": "SAA-18-003",
+      "topic": "rds",
+      "tags": ["multi-az", "failover", "ha", "rds"],
+      "question": "Qual recurso do RDS melhora alta disponibilidade dentro da mesma região com failover automático?",
+      "choices": {
+        "A": "Read Replica em outra região",
+        "B": "Multi-AZ deployment",
+        "C": "Backup manual diário",
+        "D": "Export snapshot para S3"
+      },
+      "correct": ["B"],
+      "explanation": "Multi-AZ fornece failover automático síncrono dentro da mesma região.",
+      "choice_explanations": {
+        "A": "Replica melhora leitura e DR, não HA automática primária.",
+        "B": "Correta: Multi-AZ garante HA regional.",
+        "C": "Backup não garante HA.",
+        "D": "Export não é HA."
+      }
+    },
+    {
+      "id": "SAA-18-004",
+      "topic": "s3",
+      "tags": ["cross-region-replication", "rpo", "resilience", "multi-region"],
+      "question": "Para reduzir RPO entre regiões para objetos S3 críticos, qual recurso deve ser usado?",
+      "choices": {
+        "A": "Lifecycle policy",
+        "B": "Cross-Region Replication (CRR)",
+        "C": "S3 Standard-IA",
+        "D": "S3 Batch Operations"
+      },
+      "correct": ["B"],
+      "explanation": "CRR replica objetos automaticamente para outra região reduzindo RPO.",
+      "choice_explanations": {
+        "A": "Lifecycle não replica entre regiões.",
+        "B": "Correta: CRR replica automaticamente.",
+        "C": "Classe de storage não trata DR.",
+        "D": "Batch não é contínuo."
+      }
+    },
+    {
+      "id": "SAA-18-005",
+      "topic": "hadr",
+      "tags": ["pilot-light", "warm-standby", "cost", "rto"],
+      "question": "Uma empresa quer equilíbrio entre custo e tempo de recuperação (RTO ~ 1 hora). Qual padrão é mais adequado?",
+      "choices": {
+        "A": "Backup e restore manual",
+        "B": "Pilot Light",
+        "C": "Warm Standby",
+        "D": "Active-Active"
+      },
+      "correct": ["C"],
+      "explanation": "Warm Standby mantém infraestrutura parcialmente ativa reduzindo RTO sem custo total de active-active.",
+      "choice_explanations": {
+        "A": "RTO alto.",
+        "B": "Pilot light pode exigir mais tempo para escalar.",
+        "C": "Correta: equilíbrio entre custo e tempo de recuperação.",
+        "D": "Mais caro que necessário."
+      }
+    },
+    {
+      "id": "SAA-18-006",
+      "topic": "dns",
+      "tags": ["route53", "health-check", "failover", "resilience"],
+      "question": "Qual recurso do Route 53 permite failover automático entre regiões?",
+      "choices": {
+        "A": "Simple routing",
+        "B": "Latency routing",
+        "C": "Failover routing policy com health checks",
+        "D": "Geolocation routing"
+      },
+      "correct": ["C"],
+      "explanation": "Failover routing usa health checks para redirecionar tráfego automaticamente.",
+      "choice_explanations": {
+        "A": "Não detecta falha.",
+        "B": "Baseado em latência, não saúde.",
+        "C": "Correta: health checks permitem failover automático.",
+        "D": "Baseado em localização."
+      }
+    },
+    {
+      "id": "SAA-18-007",
+      "topic": "efs-fsx",
+      "tags": ["efs", "replication", "multi-region", "resilience"],
+      "question": "Você precisa replicar dados de EFS para outra região com mínima intervenção manual. Melhor abordagem?",
+      "choices": {
+        "A": "Download e upload manual",
+        "B": "EFS replication",
+        "C": "Snapshot manual mensal",
+        "D": "Exportar para Glacier"
+      },
+      "correct": ["B"],
+      "explanation": "EFS replication replica automaticamente para outra região.",
+      "choice_explanations": {
+        "A": "Manual não escala.",
+        "B": "Correta: replicação automática.",
+        "C": "Snapshot manual não reduz RPO adequadamente.",
+        "D": "Glacier não é replicação ativa."
+      }
+    },
+    {
+      "id": "SAA-18-008",
+      "topic": "dynamodb",
+      "tags": ["global-tables", "multi-region", "rpo", "resilience"],
+      "question": "Qual recurso do DynamoDB permite replicação multi-region ativa-ativa?",
+      "choices": {
+        "A": "DynamoDB Streams",
+        "B": "Global Tables",
+        "C": "On-demand mode",
+        "D": "Backup on demand"
+      },
+      "correct": ["B"],
+      "explanation": "Global Tables permite replicação ativa-ativa multi-region com baixa latência.",
+      "choice_explanations": {
+        "A": "Streams ajuda integração, não replicação multi-region automática.",
+        "B": "Correta: Global Tables é ativa-ativa.",
+        "C": "Modo de capacidade não trata DR.",
+        "D": "Backup não é replicação contínua."
+      }
+    },
+    {
+      "id": "SAA-18-009",
+      "topic": "aurora",
+      "tags": ["aurora-global-database", "multi-region", "rto", "rpo"],
+      "question": "Qual recurso do Aurora reduz RPO e RTO em cenário multi-region?",
+      "choices": {
+        "A": "Aurora Global Database",
+        "B": "Aurora Serverless",
+        "C": "Manual snapshot",
+        "D": "Export to S3"
+      },
+      "correct": ["A"],
+      "explanation": "Aurora Global Database replica storage em nível de cluster com latência mínima.",
+      "choice_explanations": {
+        "A": "Correta: replicação de storage entre regiões.",
+        "B": "Serverless não é foco de DR.",
+        "C": "Snapshot não é contínuo.",
+        "D": "Export não é HA."
+      }
+    },
+    {
+      "id": "SAA-18-010",
+      "topic": "backup",
+      "tags": ["immutable", "s3-object-lock", "compliance", "resilience"],
+      "question": "Para tornar backups imutáveis contra ransomware, qual recurso usar?",
+      "choices": {
+        "A": "S3 versioning apenas",
+        "B": "S3 Object Lock em modo Compliance",
+        "C": "Lifecycle para IA",
+        "D": "Disable DeleteObject"
+      },
+      "correct": ["B"],
+      "explanation": "Object Lock em modo compliance impede deleção até expirar retenção.",
+      "choice_explanations": {
+        "A": "Versioning ajuda mas não impede deleção maliciosa de versões.",
+        "B": "Correta: WORM real.",
+        "C": "Classe de storage não trata imutabilidade.",
+        "D": "Pode ser contornado."
+      }
+    }
+  ]
+}

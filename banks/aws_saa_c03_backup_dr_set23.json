@@ -1,0 +1,107 @@
+{
+  "exam": "AWS SAA-C03",
+  "set": "23",
+  "focus": ["backup", "dr-patterns", "rto", "rpo", "aws-backup"],
+  "questions": [
+    {
+      "id": "SAA-23-001",
+      "topic": "backup-restore",
+      "tags": ["aws-backup", "cross-region", "compliance"],
+      "question": "Uma empresa precisa centralizar backups de múltiplas contas AWS com retenção imutável por 7 anos. Qual solução atende melhor?",
+      "choices": {
+        "A": "Snapshots manuais por conta",
+        "B": "AWS Backup com backup vault lock e políticas organizacionais",
+        "C": "Copiar snapshots via script",
+        "D": "Exportar dados para S3 padrão"
+      },
+      "correct": ["B"],
+      "explanation": "AWS Backup integrado ao Organizations permite centralização e Vault Lock garante imutabilidade.",
+      "choice_explanations": {
+        "A": "Manual não escala nem garante governança.",
+        "B": "Correta: centralização + compliance.",
+        "C": "Script não garante retenção imutável.",
+        "D": "Não cobre todos serviços."
+      }
+    },
+    {
+      "id": "SAA-23-002",
+      "topic": "dr-pattern",
+      "tags": ["rto", "rpo", "pilot-light"],
+      "question": "RTO de 1 hora e RPO de 15 minutos com custo reduzido. Qual estratégia?",
+      "choices": {
+        "A": "Backup & Restore",
+        "B": "Pilot Light",
+        "C": "Active-Active",
+        "D": "Warm Standby completo"
+      },
+      "correct": ["B"],
+      "explanation": "Pilot Light mantém componentes críticos ativos e permite recuperação mais rápida com custo menor que warm standby.",
+      "choice_explanations": {
+        "A": "RTO maior.",
+        "B": "Correta: equilíbrio custo/tempo.",
+        "C": "Muito caro.",
+        "D": "Mais caro que necessário."
+      }
+    },
+    {
+      "id": "SAA-23-003",
+      "topic": "hadr",
+      "tags": ["active-active", "multi-region"],
+      "question": "RTO próximo de zero e RPO zero são obrigatórios. Melhor arquitetura?",
+      "choices": {
+        "A": "Backup diário",
+        "B": "Warm Standby",
+        "C": "Active-Active multi-region",
+        "D": "Snapshots semanais"
+      },
+      "correct": ["C"],
+      "explanation": "Active-Active mantém ambas regiões ativas, minimizando RTO e RPO.",
+      "choice_explanations": {
+        "A": "RTO alto.",
+        "B": "Não garante RPO zero.",
+        "C": "Correta.",
+        "D": "Inaceitável para RPO zero."
+      }
+    },
+    {
+      "id": "SAA-23-004",
+      "topic": "backup-restore",
+      "tags": ["rds", "cross-region", "disaster-recovery"],
+      "question": "Como proteger um RDS contra falha regional completa?",
+      "choices": {
+        "A": "Multi-AZ apenas",
+        "B": "Read Replica em outra região",
+        "C": "Aumentar storage",
+        "D": "Snapshot local"
+      },
+      "correct": ["B"],
+      "explanation": "Read Replica cross-region permite failover regional.",
+      "choice_explanations": {
+        "A": "Multi-AZ não protege contra falha regional.",
+        "B": "Correta.",
+        "C": "Não resolve DR.",
+        "D": "Snapshot não é imediato."
+      }
+    },
+    {
+      "id": "SAA-23-005",
+      "topic": "backup",
+      "tags": ["efs", "aws-backup"],
+      "question": "Qual serviço permite backup automático de EFS sem scripts?",
+      "choices": {
+        "A": "EBS snapshot",
+        "B": "AWS Backup",
+        "C": "CloudTrail",
+        "D": "IAM"
+      },
+      "correct": ["B"],
+      "explanation": "AWS Backup suporta EFS nativamente.",
+      "choice_explanations": {
+        "A": "EBS não é EFS.",
+        "B": "Correta.",
+        "C": "Auditoria.",
+        "D": "Permissão."
+      }
+    }
+  ]
+}

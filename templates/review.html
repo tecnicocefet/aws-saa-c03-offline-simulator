@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="card">
+  <h2>Revisão das erradas</h2>
+
+  {% for q in wrong_questions %}
+    <div style="margin-bottom: 26px; padding-bottom: 18px; border-bottom: 1px solid #eee;">
+      <div class="muted">
+        <span class="pill">ID {{ q.id }}</span>
+        <span class="pill">tópico: {{ q.topic }}</span>
+        {% for t in q.tags %}<span class="pill">{{ t }}</span>{% endfor %}
+      </div>
+
+      <h3 style="margin-top:10px;">{{ q.question }}</h3>
+      <p><strong>Correta:</strong> {{ ", ".join(q.correct) }}</p>
+
+      {% if q.explanation %}
+        <div class="explain">
+          <p>{{ q.explanation }}</p>
+        </div>
+      {% endif %}
+
+      <div class="explain">
+        <h4>Por alternativa</h4>
+        <ul>
+          {% for k in keys %}
+            <li>
+              <strong>{{ k }})</strong> {{ q.choices[k] }}
+              {% if k in q.correct %}<span class="pill">✅ correta</span>{% endif %}
+              <div class="muted" style="margin-top:4px;">
+                {{ q.choice_explanations.get(k, "") or "(sem explicação cadastrada)" }}
+              </div>
+            </li>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
+  {% endfor %}
+
+  <div style="margin-top: 14px;">
+    <a href="/result"><button>Voltar ao resultado</button></a>
+    <a href="/" style="margin-left:10px;">Nova sessão</a>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,204 @@
+{
+  "questions": [
+    {
+      "id": "SAA-NET-121",
+      "topic": "networking",
+      "question": "Uma empresa possui 20 VPCs em uma mesma região que precisam se comunicar entre si. A solução deve ser escalável e evitar malha completa de peerings. Qual é a melhor opção?",
+      "choices": {
+        "A": "Criar VPC Peering entre todas as VPCs",
+        "B": "Usar AWS Transit Gateway",
+        "C": "Usar NAT Gateway",
+        "D": "Criar VPN entre VPCs"
+      },
+      "correct": ["B"],
+      "explanation": "Transit Gateway simplifica conectividade hub-and-spoke entre múltiplas VPCs, evitando malha completa de peerings.",
+      "choice_explanations": {
+        "A": "❌ Escala mal (malha N²).",
+        "B": "✅ Arquitetura escalável para múltiplas VPCs.",
+        "C": "❌ NAT é para saída internet.",
+        "D": "❌ VPN não é usada entre VPCs AWS."
+      },
+      "tags": ["transit-gateway", "vpc", "scalability"]
+    },
+    {
+      "id": "SAA-NET-122",
+      "topic": "networking",
+      "question": "Uma empresa quer conexão privada dedicada entre seu data center on-premises e AWS com latência estável e alta largura de banda. Qual serviço usar?",
+      "choices": {
+        "A": "Site-to-Site VPN",
+        "B": "AWS Direct Connect",
+        "C": "VPC Peering",
+        "D": "Internet Gateway"
+      },
+      "correct": ["B"],
+      "explanation": "Direct Connect fornece conexão dedicada privada, com latência previsível e maior throughput.",
+      "choice_explanations": {
+        "A": "❌ VPN usa internet pública.",
+        "B": "✅ Conexão privada dedicada.",
+        "C": "❌ Peering é VPC-VPC.",
+        "D": "❌ IGW é para internet."
+      },
+      "tags": ["direct-connect", "hybrid", "on-prem"]
+    },
+    {
+      "id": "SAA-NET-123",
+      "topic": "networking",
+      "question": "Uma empresa usa Direct Connect, mas precisa de redundância automática caso o link DX falhe. Qual é a melhor prática?",
+      "choices": {
+        "A": "Configurar VPN Site-to-Site como backup",
+        "B": "Criar segundo IGW",
+        "C": "Criar NAT Gateway extra",
+        "D": "Usar S3 replication"
+      },
+      "correct": ["A"],
+      "explanation": "VPN como backup do Direct Connect é prática comum para resiliência híbrida.",
+      "choice_explanations": {
+        "A": "✅ Padrão de redundância DX.",
+        "B": "❌ IGW não resolve conexão on-prem.",
+        "C": "❌ NAT não conecta on-prem.",
+        "D": "❌ Irrelevante."
+      },
+      "tags": ["direct-connect", "vpn", "redundancy"]
+    },
+    {
+      "id": "SAA-NET-124",
+      "topic": "networking",
+      "question": "Você quer permitir acesso privado de uma VPC ao S3 sem usar internet ou NAT Gateway. Qual recurso usar?",
+      "choices": {
+        "A": "Interface Endpoint",
+        "B": "Gateway VPC Endpoint para S3",
+        "C": "Internet Gateway",
+        "D": "VPC Peering"
+      },
+      "correct": ["B"],
+      "explanation": "Gateway Endpoint para S3 permite acesso privado ao S3 sem passar pela internet.",
+      "choice_explanations": {
+        "A": "❌ Interface endpoint não é usado para S3 padrão.",
+        "B": "✅ Correto para S3/DynamoDB.",
+        "C": "❌ Usa internet.",
+        "D": "❌ Não conecta à AWS service."
+      },
+      "tags": ["vpc-endpoint", "s3", "private-access"]
+    },
+    {
+      "id": "SAA-NET-125",
+      "topic": "networking",
+      "question": "Uma empresa quer expor um serviço privado de uma VPC para outra conta AWS, sem abrir para internet. Qual serviço usar?",
+      "choices": {
+        "A": "VPC Peering",
+        "B": "AWS PrivateLink",
+        "C": "Public ALB",
+        "D": "NAT Gateway"
+      },
+      "correct": ["B"],
+      "explanation": "PrivateLink permite expor serviços privados entre contas sem exposição pública.",
+      "choice_explanations": {
+        "A": "❌ Peering dá conectividade total, não serviço específico.",
+        "B": "✅ Exposição controlada e privada.",
+        "C": "❌ Público.",
+        "D": "❌ Não serve para isso."
+      },
+      "tags": ["privatelink", "multi-account", "security"]
+    },
+    {
+      "id": "SAA-NET-126",
+      "topic": "networking",
+      "question": "VPC A está conectada à VPC B via peering. VPC B está conectada à VPC C via peering. Por que VPC A não consegue acessar VPC C?",
+      "choices": {
+        "A": "Limite de rotas",
+        "B": "VPC Peering não suporta transitive routing",
+        "C": "Security Group bloqueia automaticamente",
+        "D": "Subnet pública obrigatória"
+      },
+      "correct": ["B"],
+      "explanation": "VPC Peering não suporta roteamento transitivo.",
+      "choice_explanations": {
+        "A": "❌ Não é o motivo principal.",
+        "B": "✅ Sem transitividade.",
+        "C": "❌ Não é automático.",
+        "D": "❌ Irrelevante."
+      },
+      "tags": ["vpc-peering", "routing"]
+    },
+    {
+      "id": "SAA-NET-127",
+      "topic": "networking",
+      "question": "Uma empresa precisa integrar múltiplas VPCs e múltiplos data centers on-prem em arquitetura hub-and-spoke. Qual solução centraliza melhor?",
+      "choices": {
+        "A": "Transit Gateway",
+        "B": "VPC Peering",
+        "C": "Multiple IGWs",
+        "D": "CloudFront"
+      },
+      "correct": ["A"],
+      "explanation": "Transit Gateway atua como hub central para VPCs e conexões híbridas.",
+      "choice_explanations": {
+        "A": "✅ Hub-and-spoke ideal.",
+        "B": "❌ Não escala bem.",
+        "C": "❌ Não conecta on-prem.",
+        "D": "❌ CDN."
+      },
+      "tags": ["transit-gateway", "hybrid"]
+    },
+    {
+      "id": "SAA-NET-128",
+      "topic": "networking",
+      "question": "Você precisa resolver nomes DNS privados da VPC a partir do data center on-prem. Qual abordagem usar?",
+      "choices": {
+        "A": "Route 53 Resolver inbound endpoint",
+        "B": "CloudFront",
+        "C": "Elastic IP",
+        "D": "Security Group rule"
+      },
+      "correct": ["A"],
+      "explanation": "Route 53 Resolver inbound endpoints permitem resolução DNS híbrida.",
+      "choice_explanations": {
+        "A": "✅ DNS híbrido correto.",
+        "B": "❌ CDN.",
+        "C": "❌ IP público.",
+        "D": "❌ Não resolve DNS."
+      },
+      "tags": ["route53", "dns", "hybrid"]
+    },
+    {
+      "id": "SAA-NET-129",
+      "topic": "networking",
+      "question": "Você quer reduzir custo de NAT Gateway para acessar serviços AWS privados (S3, DynamoDB). Qual estratégia é melhor?",
+      "choices": {
+        "A": "Usar VPC Endpoints",
+        "B": "Criar mais NAT Gateways",
+        "C": "Usar IGW",
+        "D": "Desativar logs"
+      },
+      "correct": ["A"],
+      "explanation": "VPC Endpoints eliminam tráfego via NAT para serviços AWS suportados.",
+      "choice_explanations": {
+        "A": "✅ Reduz custo NAT.",
+        "B": "❌ Aumenta custo.",
+        "C": "❌ Internet pública.",
+        "D": "❌ Irrelevante."
+      },
+      "tags": ["nat-gateway", "cost-optimization", "vpc-endpoint"]
+    },
+    {
+      "id": "SAA-NET-130",
+      "topic": "networking",
+      "question": "Qual recurso permite compartilhar subnets entre contas AWS mantendo isolamento administrativo?",
+      "choices": {
+        "A": "VPC Peering",
+        "B": "AWS RAM (Resource Access Manager)",
+        "C": "CloudTrail",
+        "D": "Elastic IP sharing"
+      },
+      "correct": ["B"],
+      "explanation": "AWS RAM permite compartilhar subnets e outros recursos entre contas.",
+      "choice_explanations": {
+        "A": "❌ Não compartilha subnet diretamente.",
+        "B": "✅ Recurso correto para compartilhamento.",
+        "C": "❌ Auditoria.",
+        "D": "❌ Não existe como conceito formal."
+      },
+      "tags": ["ram", "multi-account", "networking"]
+    }
+  ]
+}

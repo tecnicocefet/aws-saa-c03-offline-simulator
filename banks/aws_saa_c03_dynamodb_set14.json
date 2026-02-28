@@ -1,0 +1,291 @@
+{
+  "meta": {
+    "exam": "AWS SAA-C03",
+    "set": 14,
+    "topic": "dynamodb",
+    "difficulty": "hard",
+    "questions": 20
+  },
+  "questions": [
+    {
+      "id": "SAA-DDB-014-001",
+      "topic": "dynamodb",
+      "tags": ["partition-key","hot-partition","write-heavy"],
+      "question": "Uma aplicação IoT grava milhões de eventos por minuto usando deviceId como partition key. Alguns devices geram tráfego muito maior que outros, causando throttling. Qual é a melhor solução arquitetural?",
+      "choices": {
+        "A": "Aumentar RCUs e WCUs globalmente",
+        "B": "Migrar para On-Demand",
+        "C": "Adicionar sufixo aleatório à partition key (sharding lógico)",
+        "D": "Criar um GSI com deviceId"
+      },
+      "correct": ["C"],
+      "explanation": "O problema é hot partition. Sharding lógico distribui gravações entre múltiplas partições físicas."
+    },
+    {
+      "id": "SAA-DDB-014-002",
+      "topic": "dynamodb",
+      "tags": ["gsi","query","index"],
+      "question": "Você precisa consultar pedidos por customerId e status, ordenando por data. A tabela base usa orderId como PK. Qual solução é mais eficiente?",
+      "choices": {
+        "A": "LSI com status",
+        "B": "GSI com customerId#status como PK e createdAt como SK",
+        "C": "Scan com filtro",
+        "D": "Nova tabela duplicada"
+      },
+      "correct": ["B"],
+      "explanation": "Modelar a PK do GSI como customerId#status permite Query seletiva e eficiente."
+    },
+    {
+      "id": "SAA-DDB-014-003",
+      "topic": "dynamodb",
+      "tags": ["transactions","atomic"],
+      "question": "Uma aplicação financeira precisa atualizar múltiplos itens de forma atômica. Qual recurso usar?",
+      "choices": {
+        "A": "BatchWriteItem",
+        "B": "TransactWriteItems",
+        "C": "Streams",
+        "D": "Scan + Put"
+      },
+      "correct": ["B"],
+      "explanation": "TransactWriteItems fornece atomicidade ACID."
+    },
+    {
+      "id": "SAA-DDB-014-004",
+      "topic": "dynamodb",
+      "tags": ["global-tables","multi-region","dr"],
+      "question": "Uma aplicação global precisa de escrita ativa-ativa em duas regiões com failover automático. Qual solução usar?",
+      "choices": {
+        "A": "Backup manual",
+        "B": "Global Tables",
+        "C": "DAX",
+        "D": "Aurora"
+      },
+      "correct": ["B"],
+      "explanation": "Global Tables permite replicação ativa-ativa multi-região."
+    },
+    {
+      "id": "SAA-DDB-014-005",
+      "topic": "dynamodb",
+      "tags": ["ttl","cost"],
+      "question": "Sessões devem expirar automaticamente após 1 hora. Melhor abordagem?",
+      "choices": {
+        "A": "Lambda para deletar",
+        "B": "TTL",
+        "C": "Scan periódico",
+        "D": "Nova tabela"
+      },
+      "correct": ["B"],
+      "explanation": "TTL remove itens expirados automaticamente."
+    },
+    {
+      "id": "SAA-DDB-014-006",
+      "topic": "dynamodb",
+      "tags": ["on-demand","capacity"],
+      "question": "Workload imprevisível com longos períodos ociosos. Melhor modelo?",
+      "choices": {
+        "A": "Provisionado fixo",
+        "B": "On-Demand",
+        "C": "RCU máximo",
+        "D": "DAX"
+      },
+      "correct": ["B"],
+      "explanation": "On-Demand escala automaticamente e cobra por uso."
+    },
+    {
+      "id": "SAA-DDB-014-007",
+      "topic": "dynamodb",
+      "tags": ["streams","lambda"],
+      "question": "Disparar Lambda a cada update na tabela. Qual recurso usar?",
+      "choices": {
+        "A": "CloudWatch Logs",
+        "B": "Streams",
+        "C": "TTL",
+        "D": "GSI"
+      },
+      "correct": ["B"],
+      "explanation": "Streams captura mudanças e pode acionar Lambda."
+    },
+    {
+      "id": "SAA-DDB-014-008",
+      "topic": "dynamodb",
+      "tags": ["dax","performance"],
+      "question": "Aplicação precisa leitura <1ms para itens populares. Melhor solução?",
+      "choices": {
+        "A": "Aumentar RCU",
+        "B": "DAX",
+        "C": "Nova tabela",
+        "D": "Aurora"
+      },
+      "correct": ["B"],
+      "explanation": "DAX é cache in-memory para DynamoDB."
+    },
+    {
+      "id": "SAA-DDB-014-009",
+      "topic": "dynamodb",
+      "tags": ["pitr","backup"],
+      "question": "Recuperar tabela para estado de 30 minutos atrás. Melhor recurso?",
+      "choices": {
+        "A": "Backup manual",
+        "B": "PITR",
+        "C": "Export S3",
+        "D": "Streams"
+      },
+      "correct": ["B"],
+      "explanation": "Point-in-Time Recovery permite restauração contínua."
+    },
+    {
+      "id": "SAA-DDB-014-010",
+      "topic": "dynamodb",
+      "tags": ["kms","encryption"],
+      "question": "Compliance exige chaves gerenciadas pelo cliente. Qual opção?",
+      "choices": {
+        "A": "AWS owned key",
+        "B": "KMS CMK",
+        "C": "Sem criptografia",
+        "D": "SSE-S3"
+      },
+      "correct": ["B"],
+      "explanation": "Customer Managed Key atende requisito de controle."
+    },
+    {
+      "id": "SAA-DDB-014-011",
+      "topic": "dynamodb",
+      "tags": ["query","scan","cost"],
+      "question": "Consultar por intervalo de datas usando sort key timestamp. Melhor abordagem?",
+      "choices": {
+        "A": "Scan",
+        "B": "Query com BETWEEN",
+        "C": "Nova tabela",
+        "D": "Export Athena"
+      },
+      "correct": ["B"],
+      "explanation": "Query com sort key é eficiente."
+    },
+    {
+      "id": "SAA-DDB-014-012",
+      "topic": "dynamodb",
+      "tags": ["conditional-write","idempotency"],
+      "question": "Evitar duplicidade em retries de API. Melhor técnica?",
+      "choices": {
+        "A": "Scan antes",
+        "B": "ConditionExpression attribute_not_exists",
+        "C": "Streams",
+        "D": "Backup"
+      },
+      "correct": ["B"],
+      "explanation": "Escrita condicional garante idempotência."
+    },
+    {
+      "id": "SAA-DDB-014-013",
+      "topic": "dynamodb",
+      "tags": ["autoscaling"],
+      "question": "Provisionado com picos previsíveis diários. Melhor solução?",
+      "choices": {
+        "A": "On-Demand",
+        "B": "Auto Scaling",
+        "C": "Capacidade fixa alta",
+        "D": "DAX"
+      },
+      "correct": ["B"],
+      "explanation": "Auto Scaling ajusta conforme demanda."
+    },
+    {
+      "id": "SAA-DDB-014-014",
+      "topic": "dynamodb",
+      "tags": ["vpc-endpoint","private"],
+      "question": "Lambda em VPC precisa acessar DynamoDB sem NAT. Melhor solução?",
+      "choices": {
+        "A": "Gateway Endpoint",
+        "B": "NAT",
+        "C": "Internet Gateway",
+        "D": "Interface Endpoint"
+      },
+      "correct": ["A"],
+      "explanation": "Gateway Endpoint permite acesso privado."
+    },
+    {
+      "id": "SAA-DDB-014-015",
+      "topic": "dynamodb",
+      "tags": ["consistency"],
+      "question": "Sistema exige leitura imediatamente consistente após gravação. Qual usar?",
+      "choices": {
+        "A": "Eventual",
+        "B": "Strongly Consistent",
+        "C": "GSI",
+        "D": "Streams"
+      },
+      "correct": ["B"],
+      "explanation": "Strongly Consistent garante leitura imediata."
+    },
+    {
+      "id": "SAA-DDB-014-016",
+      "topic": "dynamodb",
+      "tags": ["cost","storage"],
+      "question": "Dados raramente acessados mas precisam permanecer online. Melhor estratégia?",
+      "choices": {
+        "A": "Export S3",
+        "B": "On-Demand",
+        "C": "Reducing RCUs",
+        "D": "Nada mudar"
+      },
+      "correct": ["C"],
+      "explanation": "Ajustar capacidade reduz custo mantendo disponibilidade."
+    },
+    {
+      "id": "SAA-DDB-014-017",
+      "topic": "dynamodb",
+      "tags": ["gsi","performance"],
+      "question": "Filtro por atributo não chave está consumindo muitos RCUs. Melhor solução?",
+      "choices": {
+        "A": "Scan",
+        "B": "Criar GSI adequado",
+        "C": "Exportar",
+        "D": "Duplicar tabela"
+      },
+      "correct": ["B"],
+      "explanation": "GSI evita leitura desnecessária."
+    },
+    {
+      "id": "SAA-DDB-014-018",
+      "topic": "dynamodb",
+      "tags": ["global-tables","conflict"],
+      "question": "Como DynamoDB resolve conflito em Global Tables?",
+      "choices": {
+        "A": "Primeiro vence",
+        "B": "Última gravação vence",
+        "C": "Erro automático",
+        "D": "Manual"
+      },
+      "correct": ["B"],
+      "explanation": "Last writer wins."
+    },
+    {
+      "id": "SAA-DDB-014-019",
+      "topic": "dynamodb",
+      "tags": ["throughput"],
+      "question": "Itens de 8KB usando strong read consomem quantos RCUs?",
+      "choices": {
+        "A": "1",
+        "B": "2",
+        "C": "4",
+        "D": "8"
+      },
+      "correct": ["C"],
+      "explanation": "Strong read: 4KB por RCU. 8KB = 2 blocos, strong = 2x2 = 4."
+    },
+    {
+      "id": "SAA-DDB-014-020",
+      "topic": "dynamodb",
+      "tags": ["write-capacity"],
+      "question": "Itens de 2KB consomem quantos WCUs por gravação?",
+      "choices": {
+        "A": "1",
+        "B": "2",
+        "C": "4",
+        "D": "0.5"
+      },
+      "correct": ["B"],
+      "explanation": "1 WCU = 1KB por write. 2KB = 2 WCUs."
+    }
+  ]
+}

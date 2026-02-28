@@ -1,0 +1,404 @@
+{
+  "questions": [
+    {
+      "id": "SAA-IAM-041",
+      "topic": "iam",
+      "question": "Uma equipe quer garantir que NENHUM usuário IAM possa desabilitar o CloudTrail, mesmo que tenha permissões amplas. Qual é a forma mais forte e centralizada de impor isso em uma conta AWS?",
+      "choices": {
+        "A": "Adicionar uma policy inline de negação em cada usuário",
+        "B": "Usar uma permission boundary em cada role e user",
+        "C": "Aplicar um Service Control Policy (SCP) na OU/conta para negar cloudtrail:StopLogging e cloudtrail:DeleteTrail",
+        "D": "Usar somente MFA para ações críticas"
+      },
+      "correct": ["C"],
+      "explanation": "SCP (AWS Organizations) é o controle mais centralizado e forte para bloquear ações, independentemente das permissões IAM dentro da conta.",
+      "choice_explanations": {
+        "A": "❌ Não é centralizado, difícil manter e pode ser contornado por outras identidades.",
+        "B": "❌ Boundary limita permissões máximas, mas exige padronização em todas identidades e não é tão central quanto SCP.",
+        "C": "✅ SCP bloqueia mesmo para admins dentro da conta (exceto a conta de gerenciamento dependendo do cenário).",
+        "D": "❌ MFA aumenta segurança, mas não impede tecnicamente a ação."
+      },
+      "tags": ["iam", "organizations", "scp", "cloudtrail", "security"]
+    },
+    {
+      "id": "SAA-IAM-042",
+      "topic": "iam",
+      "question": "Um time quer permitir que desenvolvedores criem roles IAM para Lambda, mas impedir que criem roles com permissões administrativas. Qual recurso IAM é MAIS adequado para limitar permissões máximas das roles criadas?",
+      "choices": {
+        "A": "Security Group",
+        "B": "Permission Boundary",
+        "C": "MFA obrigatório",
+        "D": "CloudTrail Lake"
+      },
+      "correct": ["B"],
+      "explanation": "Permission Boundary define o teto máximo de permissões que uma role/user pode ter, inclusive em permissões futuras.",
+      "choice_explanations": {
+        "A": "❌ SG não controla permissões IAM.",
+        "B": "✅ Boundary limita permissões máximas; mesmo se anexarem policy ampla, não passa do boundary.",
+        "C": "❌ MFA não limita escopo de permissões.",
+        "D": "❌ Auditoria não previne."
+      },
+      "tags": ["iam", "permission-boundary", "least-privilege"]
+    },
+    {
+      "id": "SAA-IAM-043",
+      "topic": "iam",
+      "question": "Uma aplicação em EC2 precisa acessar S3. Qual abordagem elimina o uso de access keys no disco e segue melhores práticas?",
+      "choices": {
+        "A": "Armazenar access key em /etc/profile e exportar como variável de ambiente",
+        "B": "Usar AWS Secrets Manager para guardar access keys e rotacionar semanalmente",
+        "C": "Associar uma IAM Role à instância (Instance Profile) com permissões necessárias",
+        "D": "Criar um usuário IAM e anexar AdministratorAccess"
+      },
+      "correct": ["C"],
+      "explanation": "IAM Role para EC2 fornece credenciais temporárias via metadata e evita chaves estáticas.",
+      "choice_explanations": {
+        "A": "❌ Inseguro: chaves estáticas em disco/ambiente.",
+        "B": "❌ Melhor que disco, mas ainda usa chaves estáticas desnecessárias para EC2.",
+        "C": "✅ Best practice: credenciais temporárias via role.",
+        "D": "❌ Excesso de privilégio e chaves estáticas."
+      },
+      "tags": ["iam", "ec2", "instance-profile", "s3", "security"]
+    },
+    {
+      "id": "SAA-IAM-044",
+      "topic": "kms",
+      "question": "Você precisa que uma aplicação em outra conta AWS use uma CMK (KMS key) para criptografar dados. Qual combinação é necessária para permitir isso?",
+      "choices": {
+        "A": "Apenas adicionar permissões no IAM policy da role da outra conta",
+        "B": "Apenas adicionar a outra conta como trusted entity na role",
+        "C": "Permitir na Key Policy (ou via grants) E permitir no IAM policy da identidade na outra conta",
+        "D": "Colocar a key em uma subnet pública"
+      },
+      "correct": ["C"],
+      "explanation": "KMS exige autorização dupla: key policy/grant permite uso da chave e IAM policy da identidade permite chamar ações KMS.",
+      "choice_explanations": {
+        "A": "❌ IAM sozinho não concede uso se key policy não permitir.",
+        "B": "❌ Trust relationship não substitui key policy.",
+        "C": "✅ Necessário: key policy/grant + IAM permission.",
+        "D": "❌ Sem sentido: KMS não depende de subnet."
+      },
+      "tags": ["kms", "key-policy", "cross-account", "security"]
+    },
+    {
+      "id": "SAA-IAM-045",
+      "topic": "kms",
+      "question": "Um time quer garantir que objetos no S3 sejam criptografados sempre com SSE-KMS usando uma chave específica. Qual é a forma mais apropriada de impor isso?",
+      "choices": {
+        "A": "Confiar que a aplicação sempre envia x-amz-server-side-encryption",
+        "B": "Adicionar uma bucket policy negando PutObject se não houver SSE-KMS e se a chave não for a esperada",
+        "C": "Habilitar versioning no bucket",
+        "D": "Criar um Security Group para o bucket"
+      },
+      "correct": ["B"],
+      "explanation": "Bucket policy com condição de negação garante enforcement de SSE-KMS e chave específica no upload.",
+      "choice_explanations": {
+        "A": "❌ Não é enforcement, é confiança.",
+        "B": "✅ Policy de negação é enforcement real.",
+        "C": "❌ Versioning não força criptografia.",
+        "D": "❌ S3 não usa SG."
+      },
+      "tags": ["s3", "kms", "encryption", "bucket-policy"]
+    },
+    {
+      "id": "SAA-IAM-046",
+      "topic": "iam",
+      "question": "Você quer permitir que um usuário assuma uma role em outra conta usando AWS STS. Qual elemento define QUEM pode assumir a role?",
+      "choices": {
+        "A": "A policy de permissões anexada ao usuário (permissions policy)",
+        "B": "A trust policy (role trust relationship) na role de destino",
+        "C": "O Security Group da subnet da role",
+        "D": "A bucket policy do S3"
+      },
+      "correct": ["B"],
+      "explanation": "A trust policy define o principal confiável que pode executar sts:AssumeRole na role.",
+      "choice_explanations": {
+        "A": "❌ Usuário precisa de permissão para chamar AssumeRole, mas quem aceita é a trust policy.",
+        "B": "✅ Trust relationship controla quem pode assumir.",
+        "C": "❌ SG não tem relação com IAM.",
+        "D": "❌ Irrelevante."
+      },
+      "tags": ["iam", "sts", "assumerole", "cross-account"]
+    },
+    {
+      "id": "SAA-IAM-047",
+      "topic": "iam",
+      "question": "Sua empresa exige MFA para deletar buckets S3. Qual abordagem IAM é a mais alinhada ao controle de acesso?",
+      "choices": {
+        "A": "Ativar MFA Delete no S3 e pronto",
+        "B": "Criar policy IAM com Condition exigindo aws:MultiFactorAuthPresent = true para s3:DeleteBucket",
+        "C": "Ativar KMS no bucket",
+        "D": "Usar CloudFront com OAC"
+      },
+      "correct": ["B"],
+      "explanation": "Condition em IAM policy (ou bucket policy) pode exigir MFA para ações específicas. MFA Delete existe para versioning/objetos em alguns cenários, mas não cobre o requisito geral de deletar bucket do jeito esperado.",
+      "choice_explanations": {
+        "A": "❌ MFA Delete não é a forma geral de exigir MFA para DeleteBucket.",
+        "B": "✅ Condition aws:MultiFactorAuthPresent é o padrão para exigir MFA.",
+        "C": "❌ Criptografia não exige MFA.",
+        "D": "❌ CloudFront não controla DeleteBucket."
+      },
+      "tags": ["iam", "mfa", "s3", "conditions"]
+    },
+    {
+      "id": "SAA-IAM-048",
+      "topic": "iam",
+      "question": "Um dev anexou uma policy 'Allow s3:*' a uma role, mas a role ainda NÃO consegue listar buckets. Existe um SCP na conta. Qual causa provável?",
+      "choices": {
+        "A": "SCP pode estar negando s3:ListAllMyBuckets ou s3:ListBucket, limitando permissões efetivas",
+        "B": "SCP dá permissões extras e está faltando",
+        "C": "Trust policy está errada (não afeta uso de S3)",
+        "D": "S3 exige que a role esteja em subnet pública"
+      },
+      "correct": ["A"],
+      "explanation": "SCP pode negar ações e reduz permissões efetivas, mesmo com allow no IAM.",
+      "choice_explanations": {
+        "A": "✅ SCP pode negar e bloquear ações.",
+        "B": "❌ SCP não concede permissões, apenas limita.",
+        "C": "❌ Trust policy controla assumir a role; se já está usando a role, o problema é permissão efetiva.",
+        "D": "❌ Não existe isso."
+      },
+      "tags": ["iam", "organizations", "scp", "effective-permissions", "s3"]
+    },
+    {
+      "id": "SAA-IAM-049",
+      "topic": "kms",
+      "question": "Um time quer permitir criptografia KMS somente quando a requisição vem de um serviço específico (por exemplo, apenas via S3). Como impor isso?",
+      "choices": {
+        "A": "Usar Condition na key policy com kms:ViaService",
+        "B": "Usar Security Group no KMS",
+        "C": "Usar Route Table para bloquear",
+        "D": "Usar CloudTrail para alertar depois"
+      },
+      "correct": ["A"],
+      "explanation": "kms:ViaService permite restringir uso da chave a requisições que chegam por um serviço AWS específico.",
+      "choice_explanations": {
+        "A": "✅ Condition kms:ViaService é apropriada.",
+        "B": "❌ KMS não usa SG.",
+        "C": "❌ Rede não controla política KMS.",
+        "D": "❌ Auditoria não previne."
+      },
+      "tags": ["kms", "key-policy", "conditions", "viaservice"]
+    },
+    {
+      "id": "SAA-IAM-050",
+      "topic": "iam",
+      "question": "Você precisa dar acesso temporário a um consultor para administrar recursos por 48 horas, sem criar usuário permanente. Qual opção é mais alinhada?",
+      "choices": {
+        "A": "Criar um usuário IAM e deletar depois",
+        "B": "Criar uma role assumível via STS com ExternalId e credenciais temporárias (session), com expiração",
+        "C": "Compartilhar access keys do admin",
+        "D": "Adicionar o consultor no root account"
+      },
+      "correct": ["B"],
+      "explanation": "Acesso temporário via AssumeRole/STS com external ID é padrão para terceiros e reduz risco de credenciais long-lived.",
+      "choice_explanations": {
+        "A": "❌ Funciona, mas é menos seguro/limpo que STS temporário.",
+        "B": "✅ Padrão para terceiros: role + STS + ExternalId.",
+        "C": "❌ Extremamente inseguro.",
+        "D": "❌ Root nunca."
+      },
+      "tags": ["iam", "sts", "externalid", "temporary-access", "security"]
+    },
+    {
+      "id": "SAA-IAM-051",
+      "topic": "iam",
+      "question": "Uma policy IAM permite 's3:GetObject' em 'arn:aws:s3:::meu-bucket/*', mas o usuário recebe AccessDenied. O bucket está em outra conta. Qual item frequentemente falta?",
+      "choices": {
+        "A": "Bucket policy (ou ACL) permitindo o principal dessa conta acessar o bucket/objetos",
+        "B": "Adicionar IGW na VPC",
+        "C": "Adicionar MFA no usuário",
+        "D": "Habilitar versioning"
+      },
+      "correct": ["A"],
+      "explanation": "Para acesso cross-account ao S3, geralmente precisa de bucket policy permitindo o principal além da IAM policy do principal.",
+      "choice_explanations": {
+        "A": "✅ Necessário: bucket policy permitir o principal.",
+        "B": "❌ Não tem relação.",
+        "C": "❌ MFA não resolve permissão.",
+        "D": "❌ Versioning não resolve permissão."
+      },
+      "tags": ["iam", "s3", "cross-account", "bucket-policy"]
+    },
+    {
+      "id": "SAA-IAM-052",
+      "topic": "kms",
+      "question": "Você quer habilitar criptografia EBS com KMS para instâncias novas. Qual afirmação é correta?",
+      "choices": {
+        "A": "EBS criptografado exige que o volume esteja em subnet pública",
+        "B": "Se uma snapshot não criptografada for copiada para snapshot criptografada, a nova snapshot pode ser usada para criar volumes criptografados",
+        "C": "Não é possível criptografar snapshots existentes",
+        "D": "KMS key policy não afeta EBS"
+      },
+      "correct": ["B"],
+      "explanation": "Você pode copiar snapshot e habilitar criptografia no processo, gerando snapshot criptografada que origina volumes criptografados.",
+      "choice_explanations": {
+        "A": "❌ Sem relação.",
+        "B": "✅ Processo padrão: copy snapshot + encrypt.",
+        "C": "❌ Dá para criptografar via cópia.",
+        "D": "❌ Key policy impacta acesso ao uso da chave."
+      },
+      "tags": ["kms", "ebs", "encryption", "snapshot"]
+    },
+    {
+      "id": "SAA-IAM-053",
+      "topic": "iam",
+      "question": "Um time quer impedir que qualquer pessoa crie access keys para usuários IAM (evitar long-lived). Qual abordagem é mais forte em nível de organização?",
+      "choices": {
+        "A": "Treinar o time para não criar chaves",
+        "B": "SCP negando iam:CreateAccessKey",
+        "C": "CloudWatch Alarm para alertar",
+        "D": "Habilitar KMS"
+      },
+      "correct": ["B"],
+      "explanation": "SCP pode negar a ação de criação de access key em todas as contas/OU, impondo controle preventivo.",
+      "choice_explanations": {
+        "A": "❌ Processo não é controle preventivo.",
+        "B": "✅ SCP impede tecnicamente.",
+        "C": "❌ Detecta depois, não impede.",
+        "D": "❌ Irrelevante."
+      },
+      "tags": ["iam", "organizations", "scp", "access-keys", "security"]
+    },
+    {
+      "id": "SAA-IAM-054",
+      "topic": "iam",
+      "question": "Você precisa permitir que uma role acesse apenas objetos S3 com um prefixo específico (por exemplo, /financeiro/). Qual recurso em policy ajuda a restringir isso?",
+      "choices": {
+        "A": "Resource ARN com prefixo, como arn:aws:s3:::bucket/financeiro/*",
+        "B": "Apenas usar tags no EC2",
+        "C": "Usar VPC route table",
+        "D": "Usar CloudTrail"
+      },
+      "correct": ["A"],
+      "explanation": "S3 suporta restrição por prefixo através do ARN de recurso para objetos.",
+      "choice_explanations": {
+        "A": "✅ Restrição por ARN/prefixo é direta.",
+        "B": "❌ Tags EC2 não controlam S3.",
+        "C": "❌ Rotas não controlam permissões.",
+        "D": "❌ Auditoria não restringe."
+      },
+      "tags": ["iam", "s3", "least-privilege", "resource-arn"]
+    },
+    {
+      "id": "SAA-IAM-055",
+      "topic": "iam",
+      "question": "Uma empresa quer usar ABAC (controle por tags) para permitir acesso a recursos somente quando a tag do principal combina com a do recurso. Qual item é essencial nessa abordagem?",
+      "choices": {
+        "A": "Usar Condition com aws:PrincipalTag e tags do recurso",
+        "B": "Usar somente ACLs",
+        "C": "Usar root account para tudo",
+        "D": "Desabilitar CloudTrail"
+      },
+      "correct": ["A"],
+      "explanation": "ABAC em IAM usa conditions com tags do principal (aws:PrincipalTag) e tags do recurso (aws:ResourceTag) para autorizar.",
+      "choice_explanations": {
+        "A": "✅ Base do ABAC.",
+        "B": "❌ ACL não cobre a maioria dos serviços modernos e é limitado.",
+        "C": "❌ Péssima prática.",
+        "D": "❌ Totalmente errado."
+      },
+      "tags": ["iam", "abac", "tags", "conditions", "security"]
+    },
+    {
+      "id": "SAA-IAM-056",
+      "topic": "kms",
+      "question": "Você quer limitar o uso de uma KMS key apenas para criptografia (Encrypt) e impedir Decrypt exceto para um serviço específico. Onde aplicar esse controle?",
+      "choices": {
+        "A": "Somente em Security Group",
+        "B": "Em key policy (e/ou grants) com permissões e conditions apropriadas",
+        "C": "Na route table da subnet",
+        "D": "No console do S3"
+      },
+      "correct": ["B"],
+      "explanation": "KMS autorização e restrições (Encrypt/Decrypt) são controladas em key policy e grants, incluindo conditions.",
+      "choice_explanations": {
+        "A": "❌ KMS não usa SG.",
+        "B": "✅ Key policy/grants são o lugar certo.",
+        "C": "❌ Rede não impõe política KMS.",
+        "D": "❌ S3 não controla Decrypt genérico."
+      },
+      "tags": ["kms", "key-policy", "grants", "least-privilege"]
+    },
+    {
+      "id": "SAA-IAM-057",
+      "topic": "iam",
+      "question": "Uma role possui permissões para acessar DynamoDB, mas ao chamar a API, recebe AccessDenied. O administrador suspeita de 'explicit deny'. Qual regra é verdadeira sobre avaliação de políticas IAM?",
+      "choices": {
+        "A": "Allow sempre vence Deny",
+        "B": "Explicit Deny sempre vence qualquer Allow",
+        "C": "Policies anexadas ao usuário não são avaliadas",
+        "D": "SCP nunca influencia permissões"
+      },
+      "correct": ["B"],
+      "explanation": "Na avaliação IAM, um Explicit Deny em qualquer policy aplicável sempre vence Allows.",
+      "choice_explanations": {
+        "A": "❌ Errado.",
+        "B": "✅ Regra central do IAM.",
+        "C": "❌ São avaliadas sim.",
+        "D": "❌ SCP pode limitar permissões efetivas."
+      },
+      "tags": ["iam", "policy-evaluation", "explicit-deny", "security"]
+    },
+    {
+      "id": "SAA-IAM-058",
+      "topic": "iam",
+      "question": "Um time quer permitir que apenas requests vindas de um IP corporativo acessem o console e APIs para certas ações. Qual condição IAM é mais apropriada?",
+      "choices": {
+        "A": "aws:SourceIp",
+        "B": "kms:ViaService",
+        "C": "ec2:InstanceType",
+        "D": "s3:prefix"
+      },
+      "correct": ["A"],
+      "explanation": "aws:SourceIp permite restringir chamadas por IP de origem em policies (quando aplicável).",
+      "choice_explanations": {
+        "A": "✅ Condição clássica para restrição por IP.",
+        "B": "❌ KMS específico.",
+        "C": "❌ EC2 específico.",
+        "D": "❌ S3 específico."
+      },
+      "tags": ["iam", "conditions", "sourceip", "security"]
+    },
+    {
+      "id": "SAA-IAM-059",
+      "topic": "kms",
+      "question": "Uma empresa quer rotação automática de chaves para uma KMS CMK gerenciada pelo cliente. Qual afirmação é correta?",
+      "choices": {
+        "A": "Rotação automática não existe no KMS",
+        "B": "Rotação automática pode ser habilitada para chaves simétricas gerenciadas pelo cliente",
+        "C": "Rotação automática só existe para chaves assimétricas",
+        "D": "Rotação automática apaga dados antigos"
+      },
+      "correct": ["B"],
+      "explanation": "KMS permite habilitar rotação anual automática para chaves simétricas gerenciadas pelo cliente (CMKs).",
+      "choice_explanations": {
+        "A": "❌ Existe.",
+        "B": "✅ Correto para CMKs simétricas.",
+        "C": "❌ Não é a regra geral.",
+        "D": "❌ Não apaga dados; versões antigas continuam para decrypt."
+      },
+      "tags": ["kms", "rotation", "cmk", "security"]
+    },
+    {
+      "id": "SAA-IAM-060",
+      "topic": "iam",
+      "question": "Você quer que uma aplicação só possa chamar APIs AWS se as requests estiverem assinadas usando credenciais de uma role específica (assumida). Qual conceito viabiliza isso sem chaves long-lived?",
+      "choices": {
+        "A": "AssumeRole com STS e credenciais temporárias",
+        "B": "Criar access keys e embutir no código",
+        "C": "Usar S3 presigned URLs para tudo",
+        "D": "Usar somente CloudTrail"
+      },
+      "correct": ["A"],
+      "explanation": "STS AssumeRole fornece credenciais temporárias para assinar requests (SigV4) sem chaves permanentes no código.",
+      "choice_explanations": {
+        "A": "✅ Padrão seguro.",
+        "B": "❌ Chaves estáticas no código são má prática.",
+        "C": "❌ Presigned URL é específico para S3.",
+        "D": "❌ Auditoria não autentica requests."
+      },
+      "tags": ["iam", "sts", "assumerole", "sigv4", "security"]
+    }
+  ]
+}

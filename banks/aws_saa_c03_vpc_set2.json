@@ -1,0 +1,404 @@
+{
+  "questions": [
+    {
+      "id": "SAA-VPC-021",
+      "topic": "vpc",
+      "question": "Uma aplicação em subnets privadas precisa acessar um serviço AWS público (por exemplo, S3) sem usar Internet Gateway e sem expor tráfego à internet. A empresa também quer reduzir custo de NAT. Qual solução é mais adequada?",
+      "choices": {
+        "A": "Criar um NAT Gateway em cada AZ e rotear 0.0.0.0/0 para ele",
+        "B": "Criar um VPC Endpoint do tipo Gateway para S3 e atualizar as rotas das subnets privadas",
+        "C": "Criar um VPC Endpoint do tipo Interface para S3 e desativar DNS",
+        "D": "Habilitar VPC Peering com a AWS e usar rotas públicas"
+      },
+      "correct": ["B"],
+      "explanation": "Para S3 e DynamoDB, o VPC Endpoint do tipo Gateway permite acesso privado sem IGW e sem NAT, reduzindo custo e mantendo tráfego na rede da AWS.",
+      "choice_explanations": {
+        "A": "❌ NAT resolve, mas usa internet (via IGW) e aumenta custo, além de não ser necessário para S3.",
+        "B": "✅ Gateway Endpoint para S3 evita NAT/IGW e mantém tráfego privado.",
+        "C": "❌ S3 pode usar Interface Endpoint em alguns cenários, mas o padrão mais barato e direto para S3 é Gateway Endpoint.",
+        "D": "❌ Peering não é “com a AWS” e não resolve acesso privado a serviço público."
+      },
+      "tags": ["vpc", "s3", "endpoint", "gateway-endpoint", "private-subnet"]
+    },
+    {
+      "id": "SAA-VPC-022",
+      "topic": "vpc",
+      "question": "Você precisa que instâncias em subnets privadas acessem a internet para baixar updates. A arquitetura deve ser altamente disponível em duas AZs. Qual desenho é o mais correto?",
+      "choices": {
+        "A": "Um NAT Instance único em uma subnet pública e rotas privadas apontando para ele",
+        "B": "Um NAT Gateway por AZ e cada subnet privada roteando 0.0.0.0/0 para o NAT Gateway da mesma AZ",
+        "C": "Um Internet Gateway por AZ e cada subnet privada apontando para o IGW",
+        "D": "Colocar as instâncias em subnets públicas e usar Security Group para bloquear entrada"
+      },
+      "correct": ["B"],
+      "explanation": "NAT Gateway é serviço gerenciado e recomendado; para HA, use um por AZ e rotas por AZ para evitar dependência cross-AZ.",
+      "choice_explanations": {
+        "A": "❌ NAT instance é mais operacional e é SPOF se único.",
+        "B": "✅ Melhor prática: NAT GW por AZ + rotas por AZ.",
+        "C": "❌ IGW não é destino de rota para subnet privada (instância precisa de IP público e rota direta).",
+        "D": "❌ Isso vira subnet pública e muda o modelo de segurança/ataque."
+      },
+      "tags": ["vpc", "nat-gateway", "ha", "private-subnet", "routing"]
+    },
+    {
+      "id": "SAA-VPC-023",
+      "topic": "vpc",
+      "question": "Um time bloqueou tráfego HTTP (80) entre duas instâncias na mesma subnet. Os Security Groups permitem 80. O Network ACL permite 80 inbound, mas não há regra específica para ephemeral ports outbound. Qual a causa mais provável?",
+      "choices": {
+        "A": "Security Groups são stateless e exigem regra de retorno",
+        "B": "NACL é stateless e precisa permitir o tráfego de retorno (ephemeral ports) também",
+        "C": "Route Table está incorreta porque está faltando rota local",
+        "D": "A subnet precisa ser pública para permitir tráfego interno"
+      },
+      "correct": ["B"],
+      "explanation": "NACL é stateless. Você precisa permitir inbound e outbound, inclusive portas efêmeras para retorno de conexões.",
+      "choice_explanations": {
+        "A": "❌ SG é stateful, não precisa regra explícita de retorno.",
+        "B": "✅ NACL é stateless e requer regras de ida e volta.",
+        "C": "❌ Rota local existe automaticamente para CIDR da VPC.",
+        "D": "❌ Tráfego interno não exige subnet pública."
+      },
+      "tags": ["vpc", "nacl", "security-group", "stateless", "ephemeral-ports"]
+    },
+    {
+      "id": "SAA-VPC-024",
+      "topic": "vpc",
+      "question": "Você precisa conectar duas VPCs em regiões diferentes. Requisito: tráfego privado, baixa complexidade, sem transitive routing. Qual opção é mais apropriada?",
+      "choices": {
+        "A": "VPC Peering",
+        "B": "Transit Gateway com peering entre TGWs",
+        "C": "VPN Site-to-Site via internet",
+        "D": "Diretamente anexar IGW em ambas e rotear pela internet"
+      },
+      "correct": ["A"],
+      "explanation": "VPC Peering é simples e oferece conectividade privada entre VPCs (inclusive inter-region) sem roteamento transitivo.",
+      "choice_explanations": {
+        "A": "✅ Simples, privado, sem transitive routing.",
+        "B": "❌ TGW é ótimo para transitive routing e muitos spokes, mas é mais complexo e caro que o necessário aqui.",
+        "C": "❌ Funciona, mas usa internet e adiciona overhead de VPN.",
+        "D": "❌ Tráfego pela internet não atende requisito de privado."
+      },
+      "tags": ["vpc", "peering", "inter-region", "connectivity"]
+    },
+    {
+      "id": "SAA-VPC-025",
+      "topic": "vpc",
+      "question": "Um time implementou VPC Peering e esperava que a VPC A acessasse a VPC C via VPC B (A<->B e B<->C). Mas A não consegue falar com C. Por quê?",
+      "choices": {
+        "A": "VPC Peering não suporta DNS",
+        "B": "VPC Peering não suporta roteamento transitivo",
+        "C": "Falta Internet Gateway na VPC B",
+        "D": "Security Groups não funcionam com peering"
+      },
+      "correct": ["B"],
+      "explanation": "VPC Peering não permite transitive routing. Para isso, use Transit Gateway ou outra solução hub-and-spoke.",
+      "choice_explanations": {
+        "A": "❌ DNS pode ser configurado, mas não é o problema principal.",
+        "B": "✅ Sem roteamento transitivo em peering.",
+        "C": "❌ IGW não é necessário para tráfego privado entre VPCs.",
+        "D": "❌ SG funciona normalmente; a limitação é roteamento."
+      },
+      "tags": ["vpc", "peering", "transitive-routing", "tgw"]
+    },
+    {
+      "id": "SAA-VPC-026",
+      "topic": "vpc",
+      "question": "Você quer expor um serviço interno (NLB) para múltiplas VPCs e contas, evitando peering em malha. Qual recurso é mais apropriado?",
+      "choices": {
+        "A": "VPC Endpoint Service (PrivateLink) com Interface Endpoints nos consumidores",
+        "B": "Criar um Internet-facing ALB e restringir por IP",
+        "C": "VPC Peering entre todas as VPCs",
+        "D": "Colocar o serviço atrás de CloudFront"
+      },
+      "correct": ["A"],
+      "explanation": "PrivateLink permite publicar um serviço via Endpoint Service e consumir via Interface Endpoints de forma privada e escalável entre contas/VPCs.",
+      "choice_explanations": {
+        "A": "✅ Padrão correto para serviço privado compartilhado em escala.",
+        "B": "❌ Isso expõe à internet e depende de allowlist.",
+        "C": "❌ Malha de peering cresce rápido e vira dor de cabeça.",
+        "D": "❌ CloudFront é para HTTP/HTTPS público, não para acesso privado VPC-a-VPC."
+      },
+      "tags": ["vpc", "privatelink", "endpoint-service", "nlb", "multi-account"]
+    },
+    {
+      "id": "SAA-VPC-027",
+      "topic": "vpc",
+      "question": "Uma instância em subnet pública não tem internet, mesmo com rota 0.0.0.0/0 para IGW. Qual condição adicional é necessária para saída à internet?",
+      "choices": {
+        "A": "Ter um Elastic IP associado ao IGW",
+        "B": "A instância precisa de IP público (ou Elastic IP) e SG permitindo outbound",
+        "C": "A subnet precisa ter NACL negando inbound para ficar mais segura",
+        "D": "Adicionar endpoint de S3"
+      },
+      "correct": ["B"],
+      "explanation": "Para acesso à internet via IGW, a instância precisa ter IP público (ou EIP) e rota para IGW. SG outbound por padrão permite, mas pode ser restringido.",
+      "choice_explanations": {
+        "A": "❌ IGW não recebe EIP.",
+        "B": "✅ Sem IP público/EIP, o IGW não consegue NATear a instância.",
+        "C": "❌ NACL não “habilita” internet.",
+        "D": "❌ Endpoint S3 não dá internet geral."
+      },
+      "tags": ["vpc", "public-subnet", "igw", "public-ip"]
+    },
+    {
+      "id": "SAA-VPC-028",
+      "topic": "vpc",
+      "question": "Você habilitou Interface Endpoint para um serviço AWS. As instâncias ainda resolvem o hostname público e saem via NAT. O que pode faltar para usar o endpoint de forma transparente?",
+      "choices": {
+        "A": "Desativar Security Groups das instâncias",
+        "B": "Habilitar Private DNS no endpoint e garantir DNS hostnames/support na VPC",
+        "C": "Adicionar rota 0.0.0.0/0 para o endpoint",
+        "D": "Criar um Internet Gateway extra"
+      },
+      "correct": ["B"],
+      "explanation": "Interface endpoints dependem de DNS privado para resolver o hostname padrão do serviço para o IP privado do endpoint.",
+      "choice_explanations": {
+        "A": "❌ Não tem relação.",
+        "B": "✅ Private DNS + DNS support/hostnames habilitados.",
+        "C": "❌ Interface endpoint não é destino de route table como gateway endpoint.",
+        "D": "❌ IGW não resolve isso."
+      },
+      "tags": ["vpc", "interface-endpoint", "privatedns", "dns"]
+    },
+    {
+      "id": "SAA-VPC-029",
+      "topic": "vpc",
+      "question": "Uma empresa quer inspeção centralizada de tráfego entre VPCs (east-west) e conectividade híbrida. Qual serviço simplifica transitive routing e anexos múltiplos?",
+      "choices": {
+        "A": "VPC Peering",
+        "B": "Transit Gateway",
+        "C": "Internet Gateway",
+        "D": "S3 Gateway Endpoint"
+      },
+      "correct": ["B"],
+      "explanation": "Transit Gateway fornece hub-and-spoke com roteamento transitivo para múltiplas VPCs e VPN/Direct Connect, ideal para rede centralizada.",
+      "choice_explanations": {
+        "A": "❌ Peering não oferece transitive routing e fica complexo em escala.",
+        "B": "✅ TGW é desenhado para esse caso.",
+        "C": "❌ IGW é só internet.",
+        "D": "❌ Endpoint S3 é específico para S3."
+      },
+      "tags": ["vpc", "tgw", "hub-spoke", "hybrid", "inspection"]
+    },
+    {
+      "id": "SAA-VPC-030",
+      "topic": "vpc",
+      "question": "Você precisa permitir que on-prem acesse uma VPC via VPN, mas restringir acesso apenas a algumas subnets. Onde você aplica o controle mais direto?",
+      "choices": {
+        "A": "No Internet Gateway",
+        "B": "No Security Group/NACL das subnets/instâncias + rotas específicas",
+        "C": "No VPC CIDR, reduzindo o /16 para /24",
+        "D": "No Route 53 somente"
+      },
+      "correct": ["B"],
+      "explanation": "Controle de acesso é feito por SG/NACL e rotas. IGW não participa de VPN. Route 53 não controla rede.",
+      "choice_explanations": {
+        "A": "❌ IGW é para internet, não VPN.",
+        "B": "✅ Segmentação com rotas e controles L3/L4.",
+        "C": "❌ CIDR não é ACL.",
+        "D": "❌ DNS não substitui controle de rede."
+      },
+      "tags": ["vpc", "vpn", "security", "routing", "segmentation"]
+    },
+    {
+      "id": "SAA-VPC-031",
+      "topic": "vpc",
+      "question": "Uma aplicação precisa resolver nomes privados (Private Hosted Zone) a partir de on-prem via VPN. Qual é a solução mais apropriada?",
+      "choices": {
+        "A": "Criar registros públicos no Route 53",
+        "B": "Usar Route 53 Resolver inbound endpoint e apontar o DNS on-prem para ele",
+        "C": "Habilitar CloudFront para DNS",
+        "D": "Usar VPC Peering com on-prem"
+      },
+      "correct": ["B"],
+      "explanation": "Route 53 Resolver inbound endpoint permite consultas DNS vindas de on-prem para resolver nomes privados da VPC/PHZ.",
+      "choice_explanations": {
+        "A": "❌ Expor nomes privados publicamente não é desejado.",
+        "B": "✅ Padrão correto para DNS híbrido.",
+        "C": "❌ CloudFront não é DNS recursivo.",
+        "D": "❌ Peering é VPC-VPC, não on-prem."
+      },
+      "tags": ["route53", "resolver", "dns", "hybrid", "phz"]
+    },
+    {
+      "id": "SAA-VPC-032",
+      "topic": "vpc",
+      "question": "Em uma VPC, você tem duas subnets privadas em AZs diferentes. Uma instância precisa falar com a outra via IP privado. Qual requisito de roteamento é necessário?",
+      "choices": {
+        "A": "Adicionar rota explícita para o CIDR da VPC apontando para o IGW",
+        "B": "Nenhuma rota extra: o route local (local) para o CIDR da VPC já permite",
+        "C": "Adicionar NAT Gateway entre as subnets",
+        "D": "Colocar ambas em subnet pública"
+      },
+      "correct": ["B"],
+      "explanation": "Toda route table tem a rota local (local) para o CIDR da VPC automaticamente, permitindo comunicação interna (sujeito a SG/NACL).",
+      "choice_explanations": {
+        "A": "❌ IGW não é para tráfego interno.",
+        "B": "✅ Rota local já existe.",
+        "C": "❌ NAT é para internet, não para tráfego interno.",
+        "D": "❌ Não é necessário para comunicação privada."
+      },
+      "tags": ["vpc", "routing", "local-route", "subnet"]
+    },
+    {
+      "id": "SAA-VPC-033",
+      "topic": "vpc",
+      "question": "Um time criou um Gateway Endpoint para S3, mas as instâncias ainda não acessam o bucket. O endpoint está criado. Qual é um motivo comum?",
+      "choices": {
+        "A": "Gateway endpoint exige Security Group",
+        "B": "A route table das subnets privadas não está associada ao endpoint",
+        "C": "É necessário criar um Internet Gateway adicional",
+        "D": "S3 só funciona via Interface Endpoint"
+      },
+      "correct": ["B"],
+      "explanation": "Gateway Endpoint funciona via route table. Se a subnet usa outra route table que não tem o endpoint, o tráfego não passa por ele.",
+      "choice_explanations": {
+        "A": "❌ Gateway endpoint não usa SG.",
+        "B": "✅ Erro clássico: route table errada.",
+        "C": "❌ Não precisa IGW para S3 com endpoint.",
+        "D": "❌ S3 funciona com Gateway Endpoint (padrão recomendado)."
+      },
+      "tags": ["s3", "endpoint", "gateway-endpoint", "route-table"]
+    },
+    {
+      "id": "SAA-VPC-034",
+      "topic": "vpc",
+      "question": "Uma aplicação usa um endpoint privado (PrivateLink). O time quer restringir quais principals/contas podem consumir o serviço. Onde isso é controlado principalmente?",
+      "choices": {
+        "A": "No NACL da subnet do consumidor",
+        "B": "Na policy do VPC Endpoint Service e permissões de aceitação",
+        "C": "No Internet Gateway",
+        "D": "No bucket policy do S3"
+      },
+      "correct": ["B"],
+      "explanation": "PrivateLink controla acesso via Endpoint Service (allow principals) e processo de aceitação/whitelist por conta/VPC endpoint.",
+      "choice_explanations": {
+        "A": "❌ NACL controla portas, não autorização de consumo entre contas.",
+        "B": "✅ Endpoint Service policy/acceptance é o controle certo.",
+        "C": "❌ IGW não entra no caminho.",
+        "D": "❌ Irrelevante aqui."
+      },
+      "tags": ["privatelink", "endpoint-service", "security", "multi-account"]
+    },
+    {
+      "id": "SAA-VPC-035",
+      "topic": "vpc",
+      "question": "Você precisa que uma instância em subnet privada receba conexões iniciadas da internet, mas sem tornar a instância pública. Qual solução faz sentido?",
+      "choices": {
+        "A": "Associar IP público à instância e manter subnet privada",
+        "B": "Colocar a instância atrás de um ALB/NLB em subnets públicas e manter targets em subnets privadas",
+        "C": "Adicionar rota 0.0.0.0/0 para IGW na subnet privada",
+        "D": "Criar um NAT Gateway e encaminhar inbound por ele"
+      },
+      "correct": ["B"],
+      "explanation": "Para receber tráfego da internet mantendo instâncias privadas, use load balancer em subnets públicas apontando para targets privados.",
+      "choice_explanations": {
+        "A": "❌ IP público torna a instância acessível diretamente (e subnet “privada” perde sentido).",
+        "B": "✅ Padrão correto: LB público + targets privados.",
+        "C": "❌ Rota para IGW em subnet privada + IP público = vira pública.",
+        "D": "❌ NAT não aceita conexões iniciadas da internet para targets privados."
+      },
+      "tags": ["vpc", "alb", "nlb", "private-subnet", "ingress"]
+    },
+    {
+      "id": "SAA-VPC-036",
+      "topic": "vpc",
+      "question": "Uma empresa quer bloquear exfiltração de dados para qualquer destino na internet, mas ainda permitir acesso a S3 e DynamoDB a partir de subnets privadas. Qual abordagem é a mais alinhada?",
+      "choices": {
+        "A": "Remover NAT Gateway e usar apenas VPC endpoints para S3/DynamoDB",
+        "B": "Manter NAT Gateway e colocar regras permissivas em SG",
+        "C": "Adicionar IGW e usar apenas NACL",
+        "D": "Mover tudo para subnets públicas e usar WAF"
+      },
+      "correct": ["A"],
+      "explanation": "Se a exigência é bloquear saída para internet, remova NAT/IGW para essas subnets e use endpoints privados para serviços necessários (S3/DynamoDB).",
+      "choice_explanations": {
+        "A": "✅ Remove caminho para internet e mantém acesso privado a serviços específicos.",
+        "B": "❌ NAT mantém saída para internet (mesmo que você tente controlar, é mais arriscado).",
+        "C": "❌ IGW aumenta exposição; NACL não é firewall de aplicação.",
+        "D": "❌ Totalmente contra a ideia de restringir exfiltração."
+      },
+      "tags": ["vpc", "endpoint", "egress-control", "s3", "dynamodb"]
+    },
+    {
+      "id": "SAA-VPC-037",
+      "topic": "vpc",
+      "question": "Um time precisa acessar um serviço AWS que não suporta Gateway Endpoint. Eles querem acesso privado sem passar pela internet. Qual é a opção padrão?",
+      "choices": {
+        "A": "Interface Endpoint (AWS PrivateLink) para o serviço",
+        "B": "Gateway Endpoint",
+        "C": "Internet Gateway com rota específica /32",
+        "D": "CloudFront com signed URLs"
+      },
+      "correct": ["A"],
+      "explanation": "Para a maioria dos serviços AWS, a opção é Interface Endpoint (PrivateLink), que cria ENIs privados na VPC.",
+      "choice_explanations": {
+        "A": "✅ PrivateLink/Interface endpoints atendem serviços que não têm gateway endpoint.",
+        "B": "❌ Gateway endpoint é só S3 e DynamoDB.",
+        "C": "❌ IGW não é acesso privado.",
+        "D": "❌ CloudFront não resolve conectividade privada a APIs AWS internas."
+      },
+      "tags": ["vpc", "interface-endpoint", "privatelink", "private-access"]
+    },
+    {
+      "id": "SAA-VPC-038",
+      "topic": "vpc",
+      "question": "Você quer reduzir latência e custo de tráfego inter-AZ para workloads em subnets privadas. Qual prática é recomendada quando possível?",
+      "choices": {
+        "A": "Sempre rotear tráfego para uma AZ central",
+        "B": "Manter recursos dependentes (ex: instância e NAT) na mesma AZ e usar roteamento por AZ",
+        "C": "Usar apenas uma subnet para toda a VPC",
+        "D": "Desativar Multi-AZ para evitar tráfego entre AZs"
+      },
+      "correct": ["B"],
+      "explanation": "Evitar dependências cross-AZ (como subnet privada usando NAT em outra AZ) reduz custo de data transfer e melhora resiliência.",
+      "choice_explanations": {
+        "A": "❌ Centraliza e aumenta custo/risco.",
+        "B": "✅ Rotas por AZ são prática recomendada.",
+        "C": "❌ Single subnet reduz HA.",
+        "D": "❌ Você perde disponibilidade, não é solução."
+      },
+      "tags": ["vpc", "az", "routing", "cost-optimization", "nat"]
+    },
+    {
+      "id": "SAA-VPC-039",
+      "topic": "vpc",
+      "question": "Um time habilitou VPC Flow Logs para investigar tráfego. Eles precisam consultar rapidamente padrões e gerar alertas. Qual destino facilita análise e consultas?",
+      "choices": {
+        "A": "Enviar Flow Logs para S3 apenas e abrir manualmente com editor",
+        "B": "Enviar Flow Logs para CloudWatch Logs e usar Insights/metric filters",
+        "C": "Enviar Flow Logs para um bucket público para facilitar acesso",
+        "D": "Flow Logs não podem ser habilitados em subnets privadas"
+      },
+      "correct": ["B"],
+      "explanation": "CloudWatch Logs permite consultas (Logs Insights) e alertas via metric filters/alarms, ótimo para investigação rápida.",
+      "choice_explanations": {
+        "A": "❌ Dá, mas é menos ágil para consulta e alertas.",
+        "B": "✅ Melhor para investigação e alertas rápidos.",
+        "C": "❌ Inseguro.",
+        "D": "❌ Podem ser habilitados em VPC/subnet/ENI."
+      },
+      "tags": ["vpc", "flow-logs", "cloudwatch", "security", "troubleshooting"]
+    },
+    {
+      "id": "SAA-VPC-040",
+      "topic": "vpc",
+      "question": "Você precisa permitir que uma aplicação em uma VPC acesse um endpoint público de parceiro via IP fixo, mas quer controlar saída e permitir apenas aquele destino. Qual abordagem é mais apropriada?",
+      "choices": {
+        "A": "Permitir 0.0.0.0/0 no Security Group outbound e confiar",
+        "B": "Usar NAT Gateway e controlar egress via Network Firewall/rota + regras (ou proxy controlado) para apenas o destino permitido",
+        "C": "Criar VPC Peering com o parceiro",
+        "D": "Usar S3 Gateway Endpoint"
+      },
+      "correct": ["B"],
+      "explanation": "Controle de egress para destino específico normalmente exige camada de firewall/proxy e roteamento controlado; NAT sozinho não impõe allowlist fina por destino sem ajuda.",
+      "choice_explanations": {
+        "A": "❌ Permissivo demais.",
+        "B": "✅ Modelo correto: egress controlado via firewall/proxy + NAT.",
+        "C": "❌ Peering não existe com rede do parceiro fora da AWS assim, e ainda seria complexo/limitado.",
+        "D": "❌ Endpoint S3 não tem relação."
+      },
+      "tags": ["vpc", "egress", "nat", "network-firewall", "security"]
+    }
+  ]
+}

@@ -1,0 +1,207 @@
+{
+  "exam": "AWS SAA-C03",
+  "set": "20",
+  "focus": ["eventbridge", "sqs", "sns", "async-patterns", "decoupling", "failure-handling"],
+  "questions": [
+    {
+      "id": "SAA-20-001",
+      "topic": "event-driven",
+      "tags": ["eventbridge", "decoupling", "serverless", "integration"],
+      "question": "Uma aplicação precisa reagir a eventos de múltiplos serviços AWS e também de aplicações customizadas. Qual serviço centraliza roteamento baseado em regras?",
+      "choices": {
+        "A": "SNS",
+        "B": "EventBridge",
+        "C": "SQS",
+        "D": "Kinesis Data Streams"
+      },
+      "correct": ["B"],
+      "explanation": "EventBridge permite roteamento baseado em regras para eventos AWS e customizados.",
+      "choice_explanations": {
+        "A": "SNS é pub/sub simples, sem roteamento avançado por regras complexas.",
+        "B": "Correta: EventBridge centraliza eventos e roteamento baseado em filtros.",
+        "C": "SQS é fila, não roteador.",
+        "D": "Kinesis é para streaming, não roteamento de eventos administrativos."
+      }
+    },
+    {
+      "id": "SAA-20-002",
+      "topic": "event-driven",
+      "tags": ["sqs", "dlq", "resilience", "failure-handling"],
+      "question": "Uma Lambda consome mensagens de uma fila SQS. Algumas mensagens falham repetidamente. Qual mecanismo evita bloqueio permanente da fila?",
+      "choices": {
+        "A": "Habilitar versioning",
+        "B": "Configurar Dead Letter Queue (DLQ)",
+        "C": "Aumentar timeout da Lambda indefinidamente",
+        "D": "Remover retries"
+      },
+      "correct": ["B"],
+      "explanation": "DLQ captura mensagens após número máximo de tentativas, evitando bloqueio.",
+      "choice_explanations": {
+        "A": "Versioning não se aplica.",
+        "B": "Correta: DLQ isola mensagens problemáticas.",
+        "C": "Não resolve falha lógica.",
+        "D": "Sem retry pode perder mensagens."
+      }
+    },
+    {
+      "id": "SAA-20-003",
+      "topic": "event-driven",
+      "tags": ["sns", "fanout", "integration", "async"],
+      "question": "Você precisa enviar o mesmo evento para múltiplos consumidores independentes (email, Lambda e SQS). Qual padrão usar?",
+      "choices": {
+        "A": "SQS FIFO",
+        "B": "SNS topic com múltiplas subscriptions",
+        "C": "Lambda direto para cada serviço",
+        "D": "API Gateway"
+      },
+      "correct": ["B"],
+      "explanation": "SNS permite fan-out para múltiplos endpoints simultaneamente.",
+      "choice_explanations": {
+        "A": "FIFO não trata múltiplos destinos.",
+        "B": "Correta: padrão fan-out.",
+        "C": "Acopla lógica.",
+        "D": "API Gateway não é mecanismo de fan-out."
+      }
+    },
+    {
+      "id": "SAA-20-004",
+      "topic": "event-driven",
+      "tags": ["eventbridge", "cross-account", "multi-account", "integration"],
+      "question": "Você precisa enviar eventos de uma conta para outra dentro da mesma organização. Qual solução é recomendada?",
+      "choices": {
+        "A": "Copiar logs manualmente",
+        "B": "EventBridge com event bus compartilhado entre contas",
+        "C": "Abrir bucket público",
+        "D": "Criar usuário IAM e compartilhar chave"
+      },
+      "correct": ["B"],
+      "explanation": "EventBridge permite envio cross-account usando event bus compartilhado.",
+      "choice_explanations": {
+        "A": "Manual não escala.",
+        "B": "Correta: EventBridge suporta cross-account.",
+        "C": "Inseguro.",
+        "D": "Não é padrão seguro."
+      }
+    },
+    {
+      "id": "SAA-20-005",
+      "topic": "event-driven",
+      "tags": ["sqs", "fifo", "ordering", "exactly-once"],
+      "question": "Uma aplicação exige processamento na ordem exata e sem duplicação. Qual opção usar?",
+      "choices": {
+        "A": "SQS Standard",
+        "B": "SQS FIFO",
+        "C": "SNS Standard",
+        "D": "EventBridge"
+      },
+      "correct": ["B"],
+      "explanation": "SQS FIFO garante ordem e deduplicação.",
+      "choice_explanations": {
+        "A": "Standard pode ter duplicação e ordem não garantida.",
+        "B": "Correta: FIFO garante ordem e deduplicação.",
+        "C": "SNS não garante ordem.",
+        "D": "EventBridge não garante processamento sequencial."
+      }
+    },
+    {
+      "id": "SAA-20-006",
+      "topic": "event-driven",
+      "tags": ["lambda", "idempotency", "resilience"],
+      "question": "Uma Lambda pode receber o mesmo evento mais de uma vez. Qual prática reduz impacto de duplicidade?",
+      "choices": {
+        "A": "Ignorar duplicações",
+        "B": "Implementar idempotência no código",
+        "C": "Aumentar memória",
+        "D": "Usar NAT Gateway"
+      },
+      "correct": ["B"],
+      "explanation": "Processamento idempotente evita efeitos colaterais em eventos duplicados.",
+      "choice_explanations": {
+        "A": "Não garante consistência.",
+        "B": "Correta: idempotência é prática essencial.",
+        "C": "Memória não resolve duplicação.",
+        "D": "Rede não é relevante."
+      }
+    },
+    {
+      "id": "SAA-20-007",
+      "topic": "event-driven",
+      "tags": ["eventbridge", "filtering", "cost-optimization"],
+      "question": "Você deseja enviar eventos apenas quando o status for 'FAILED'. Qual recurso permite isso sem código adicional?",
+      "choices": {
+        "A": "Lambda filter manual",
+        "B": "EventBridge rule pattern filtering",
+        "C": "SQS Delay Queue",
+        "D": "SNS raw message delivery"
+      },
+      "correct": ["B"],
+      "explanation": "EventBridge permite filtrar eventos por padrão JSON.",
+      "choice_explanations": {
+        "A": "Adiciona código desnecessário.",
+        "B": "Correta: filtro nativo no rule pattern.",
+        "C": "Delay não filtra.",
+        "D": "Não é filtro."
+      }
+    },
+    {
+      "id": "SAA-20-008",
+      "topic": "event-driven",
+      "tags": ["sqs", "visibility-timeout", "resilience"],
+      "question": "Se uma aplicação demora para processar mensagem SQS, qual configuração evita que a mensagem seja entregue novamente antes do fim do processamento?",
+      "choices": {
+        "A": "Increase retention period",
+        "B": "Adjust visibility timeout",
+        "C": "Enable encryption",
+        "D": "Use SNS"
+      },
+      "correct": ["B"],
+      "explanation": "Visibility timeout impede reprocessamento até tempo expirar.",
+      "choice_explanations": {
+        "A": "Retention não controla visibilidade temporária.",
+        "B": "Correta: controla reentrega durante processamento.",
+        "C": "Criptografia não influencia reentrega.",
+        "D": "SNS não resolve."
+      }
+    },
+    {
+      "id": "SAA-20-009",
+      "topic": "event-driven",
+      "tags": ["eventbridge", "retry-policy", "dlq"],
+      "question": "Um destino EventBridge falha intermitentemente. Como evitar perda de eventos?",
+      "choices": {
+        "A": "Desabilitar o destino",
+        "B": "Configurar retry policy e DLQ no rule target",
+        "C": "Ignorar falhas",
+        "D": "Reiniciar EventBridge"
+      },
+      "correct": ["B"],
+      "explanation": "EventBridge suporta retries e DLQ para destinos falhos.",
+      "choice_explanations": {
+        "A": "Perde eventos.",
+        "B": "Correta: retries + DLQ garantem durabilidade.",
+        "C": "Não confiável.",
+        "D": "Não resolve."
+      }
+    },
+    {
+      "id": "SAA-20-010",
+      "topic": "event-driven",
+      "tags": ["async", "decoupling", "resilience", "architecture"],
+      "question": "Qual benefício principal da arquitetura assíncrona baseada em filas?",
+      "choices": {
+        "A": "Menor latência sempre",
+        "B": "Acoplamento forte entre serviços",
+        "C": "Maior resiliência e desacoplamento",
+        "D": "Eliminação de necessidade de monitoramento"
+      },
+      "correct": ["C"],
+      "explanation": "Arquitetura assíncrona aumenta resiliência e desacopla serviços.",
+      "choice_explanations": {
+        "A": "Nem sempre menor latência.",
+        "B": "É o oposto.",
+        "C": "Correta: desacoplamento aumenta tolerância a falhas.",
+        "D": "Monitoramento continua necessário."
+      }
+    }
+  ]
+}

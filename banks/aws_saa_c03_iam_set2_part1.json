@@ -1,0 +1,111 @@
+{
+  "meta": {
+    "exam": "AWS SAA-C03",
+    "language": "pt-BR",
+    "difficulty": "hard",
+    "set": "IAM-2-part1",
+    "focus": ["iam", "policies", "sts", "cross-account", "permission-boundary"]
+  },
+  "questions": [
+    {
+      "id": "SAA-IAM-201",
+      "topic": "iam",
+      "tags": ["iam", "policy-evaluation"],
+      "question": "Um usuário IAM pertence a dois grupos. Um grupo permite s3:* em um bucket específico e o outro grupo possui uma política explícita de Deny para s3:DeleteObject no mesmo bucket. O que acontece quando o usuário tenta deletar um objeto?",
+      "choices": {
+        "A": "A ação é permitida porque Allow tem precedência",
+        "B": "A ação é negada porque Explicit Deny sempre vence",
+        "C": "A ação é permitida se o bucket policy permitir",
+        "D": "Depende da ordem das políticas anexadas"
+      },
+      "correct": ["B"],
+      "explanation": "Na avaliação de políticas IAM, um Explicit Deny sempre prevalece sobre qualquer Allow.",
+      "choice_explanations": {
+        "A": "Incorreta. Allow nunca vence Explicit Deny.",
+        "B": "Correta. Explicit Deny tem prioridade máxima.",
+        "C": "Incorreta. Mesmo que o bucket permita, Explicit Deny bloqueia.",
+        "D": "Incorreta. A ordem das políticas não altera a lógica de avaliação."
+      }
+    },
+    {
+      "id": "SAA-IAM-202",
+      "topic": "iam",
+      "tags": ["sts", "assume-role", "cross-account"],
+      "question": "Uma conta central precisa acessar recursos em outra conta sem criar usuários IAM duplicados. Qual abordagem é recomendada?",
+      "choices": {
+        "A": "Criar usuário IAM idêntico na conta destino",
+        "B": "Usar AssumeRole (STS) com trust policy configurada",
+        "C": "Compartilhar credenciais root entre contas",
+        "D": "Criar VPC peering entre contas"
+      },
+      "correct": ["B"],
+      "explanation": "AssumeRole com STS fornece credenciais temporárias e auditáveis para acesso cross-account.",
+      "choice_explanations": {
+        "A": "Incorreta. Não é escalável nem seguro.",
+        "B": "Correta. É o padrão recomendado.",
+        "C": "Incorreta. Root nunca deve ser compartilhado.",
+        "D": "Incorreta. VPC peering não resolve identidade."
+      }
+    },
+    {
+      "id": "SAA-IAM-203",
+      "topic": "iam",
+      "tags": ["permission-boundary"],
+      "question": "Uma empresa quer permitir que desenvolvedores criem roles IAM, mas limitar permissões máximas que essas roles podem ter. Qual recurso usar?",
+      "choices": {
+        "A": "IAM Group",
+        "B": "Service Control Policy",
+        "C": "Permission Boundary",
+        "D": "Inline Policy"
+      },
+      "correct": ["C"],
+      "explanation": "Permission Boundaries definem o limite máximo de permissões que uma role ou usuário pode receber.",
+      "choice_explanations": {
+        "A": "Incorreta. Grupo não limita permissões máximas criadas.",
+        "B": "Incorreta. SCP atua no nível de conta, não em entidade individual.",
+        "C": "Correta. Permission Boundary impõe limite máximo.",
+        "D": "Incorreta. Inline policy apenas adiciona permissões."
+      }
+    },
+    {
+      "id": "SAA-IAM-204",
+      "topic": "iam",
+      "tags": ["policy-evaluation", "resource-policy"],
+      "question": "Um bucket S3 possui bucket policy permitindo acesso a uma role específica. A role não possui nenhuma policy anexada. A role consegue acessar o bucket?",
+      "choices": {
+        "A": "Sim, porque a bucket policy concede permissão",
+        "B": "Não, porque a role precisa ter Allow explícito também",
+        "C": "Somente se houver SCP permitindo",
+        "D": "Depende da região do bucket"
+      },
+      "correct": ["A"],
+      "explanation": "Políticas baseadas em recurso (como bucket policy) podem conceder acesso mesmo se a identidade não tiver policy própria.",
+      "choice_explanations": {
+        "A": "Correta. Resource-based policy pode conceder acesso.",
+        "B": "Incorreta. Não é necessário Allow na identity se o recurso conceder.",
+        "C": "Incorreta. SCP só bloqueia se houver deny.",
+        "D": "Incorreta. Região não influencia a lógica de autorização."
+      }
+    },
+    {
+      "id": "SAA-IAM-205",
+      "topic": "iam",
+      "tags": ["iam", "best-practices"],
+      "question": "Qual é a melhor prática para conceder acesso temporário a desenvolvedores para tarefas administrativas?",
+      "choices": {
+        "A": "Criar usuário IAM com acesso AdministratorAccess permanente",
+        "B": "Compartilhar usuário root temporariamente",
+        "C": "Criar role administrativa e permitir AssumeRole com MFA",
+        "D": "Criar Access Keys e apagar depois manualmente"
+      },
+      "correct": ["C"],
+      "explanation": "AssumeRole com MFA fornece acesso temporário e auditável seguindo princípio do menor privilégio.",
+      "choice_explanations": {
+        "A": "Incorreta. Privilégio excessivo permanente.",
+        "B": "Incorreta. Root nunca deve ser compartilhado.",
+        "C": "Correta. Role + MFA + sessão temporária é prática recomendada.",
+        "D": "Incorreta. Access keys fixas são menos seguras."
+      }
+    }
+  ]
+}

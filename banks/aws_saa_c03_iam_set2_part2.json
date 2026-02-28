@@ -1,0 +1,207 @@
+{
+  "version": "1.0",
+  "exam": "AWS-SAA-C03",
+  "language": "pt-BR",
+  "questions": [
+    {
+      "id": "SAA-IAM-011",
+      "topic": "sts",
+      "tags": ["sts", "assume-role", "external-id", "cross-account", "vendor"],
+      "question": "Uma empresa (Conta A) contrata um fornecedor SaaS (Conta B) que precisa assumir uma role na Conta A para coletar métricas. A empresa quer mitigar o risco de 'confused deputy'. Qual medida é mais apropriada?",
+      "choices": {
+        "A": "Adicionar aws:SourceIp na trust policy permitindo apenas o IP do fornecedor.",
+        "B": "Exigir ExternalId na trust policy e no fluxo de AssumeRole.",
+        "C": "Criar um usuário IAM com access key e enviar ao fornecedor.",
+        "D": "Habilitar MFA obrigatório para a role assumida."
+      },
+      "correct": ["B"],
+      "explanation": "O uso de ExternalId na trust policy é a abordagem recomendada para mitigar confused deputy em cenários de fornecedor assumindo role cross-account.",
+      "choice_explanations": {
+        "A": "Errado. SourceIp pode ajudar, mas não é a mitigação padrão do confused deputy (e o fornecedor pode variar IP).",
+        "B": "Certo. ExternalId é desenhado para esse cenário.",
+        "C": "Errado. Keys de longo prazo são má prática e não mitigam confused deputy.",
+        "D": "Errado. MFA pode ser útil para humanos, mas não resolve o problema do fornecedor/serviço."
+      }
+    },
+    {
+      "id": "SAA-IAM-012",
+      "topic": "sts",
+      "tags": ["sts", "assume-role", "role-chaining", "session-duration"],
+      "question": "Uma aplicação assume RoleA e, a partir dela, assume RoleB (role chaining). Ela começa a falhar por expiração de sessão. Qual afirmação é mais correta sobre role chaining?",
+      "choices": {
+        "A": "Role chaining permite sessões ilimitadas desde que o token seja renovado automaticamente.",
+        "B": "O tempo de sessão máximo efetivo pode ser limitado e encadeamentos podem reduzir flexibilidade; é melhor evitar chaining quando possível.",
+        "C": "Role chaining aumenta a duração máxima para 24 horas automaticamente.",
+        "D": "Role chaining não é suportado na AWS."
+      },
+      "correct": ["B"],
+      "explanation": "Role chaining é suportado, mas pode impor limites práticos e complexidade (expiração/renovação). Em arquiteturas, costuma ser melhor reduzir chaining e usar desenho de papéis mais direto.",
+      "choice_explanations": {
+        "A": "Errado. Não há 'ilimitado' e a renovação depende do fluxo do app.",
+        "B": "Certo. Encadeamento aumenta complexidade e pode limitar o tempo útil da sessão.",
+        "C": "Errado. Não existe aumento automático para 24 horas por chaining.",
+        "D": "Errado. É suportado."
+      }
+    },
+    {
+      "id": "SAA-IAM-013",
+      "topic": "kms",
+      "tags": ["kms", "s3", "replication", "cross-region", "cmk"],
+      "question": "Você habilita replicação do S3 entre regiões para um bucket com SSE-KMS (CMK gerenciada pelo cliente). A replicação falha. Qual é a causa mais provável?",
+      "choices": {
+        "A": "S3 Replication não suporta SSE-KMS.",
+        "B": "A role de replicação não possui permissões kms:Decrypt na chave origem e kms:Encrypt na chave destino (e/ou key policy não permite).",
+        "C": "É necessário habilitar VPC peering entre as regiões.",
+        "D": "SSE-KMS exige que o bucket seja público para replicar."
+      },
+      "correct": ["B"],
+      "explanation": "Para replicar objetos SSE-KMS, a role de replicação precisa permissões de KMS na origem/destino, e as key policies também devem permitir essas ações.",
+      "choice_explanations": {
+        "A": "Errado. Suporta, mas requer permissões adicionais.",
+        "B": "Certo. Permissões e key policy são o motivo clássico de falha.",
+        "C": "Errado. Replicação S3 é gerenciada, não depende de peering.",
+        "D": "Errado. Publicidade do bucket não tem relação."
+      }
+    },
+    {
+      "id": "SAA-IAM-014",
+      "topic": "iam",
+      "tags": ["iam", "conditions", "secure-transport", "s3"],
+      "question": "Você quer garantir que qualquer acesso ao S3 use HTTPS. Qual condição IAM/S3 é a forma padrão de impor isso?",
+      "choices": {
+        "A": "aws:SecureTransport = true em uma policy (por exemplo, bucket policy).",
+        "B": "aws:RequestedRegion = us-east-1.",
+        "C": "aws:UserAgent contém 'Mozilla'.",
+        "D": "aws:MultiFactorAuthPresent = true."
+      },
+      "correct": ["A"],
+      "explanation": "A condição aws:SecureTransport permite negar requisições que não usem TLS/HTTPS.",
+      "choice_explanations": {
+        "A": "Certo. É o padrão: negar quando SecureTransport for false.",
+        "B": "Errado. Região não força HTTPS.",
+        "C": "Errado. UserAgent não é controle de transporte seguro.",
+        "D": "Errado. MFA não garante HTTPS."
+      }
+    },
+    {
+      "id": "SAA-IAM-015",
+      "topic": "iam",
+      "tags": ["scp", "organizations", "guardrails", "region-restriction"],
+      "question": "Uma organização quer bloquear a criação de recursos fora de duas regiões aprovadas. Qual abordagem é mais adequada?",
+      "choices": {
+        "A": "Aplicar SCP negando ações quando aws:RequestedRegion não for uma das regiões permitidas.",
+        "B": "Usar bucket policy em todos os buckets.",
+        "C": "Criar Security Groups padronizados.",
+        "D": "Usar IAM permission boundary em todos os usuários."
+      },
+      "correct": ["A"],
+      "explanation": "SCP é o mecanismo de 'guardrail' em AWS Organizations para restringir ações em contas/OU, incluindo restrição por região via condition keys.",
+      "choice_explanations": {
+        "A": "Certo. SCP é o controle certo em nível organizacional.",
+        "B": "Errado. Isso só cobre S3, não 'recursos' em geral.",
+        "C": "Errado. SG é rede.",
+        "D": "Errado. Boundary ajuda, mas SCP é o guardrail mais abrangente para contas/OU."
+      }
+    },
+    {
+      "id": "SAA-IAM-016",
+      "topic": "sts",
+      "tags": ["sts", "session-policy", "least-privilege", "temporary"],
+      "question": "Você quer que uma role normalmente tenha permissões amplas, mas em um fluxo específico deseja reduzir permissões temporariamente durante o AssumeRole. Qual recurso atende melhor?",
+      "choices": {
+        "A": "Session policy (policy de sessão) passada no AssumeRole para restringir permissões efetivas.",
+        "B": "Editar a policy da role e reverter após o uso.",
+        "C": "Trocar a trust policy para negar e depois permitir novamente.",
+        "D": "Usar Security Token Service apenas para aumentar permissões."
+      },
+      "correct": ["A"],
+      "explanation": "Session policies permitem restringir (nunca ampliar além do máximo da role) as permissões da sessão assumida.",
+      "choice_explanations": {
+        "A": "Certo. É o recurso desenhado para isso.",
+        "B": "Errado. Mudança permanente/operacionalmente arriscada.",
+        "C": "Errado. Trust policy controla quem assume, não escopo fino da sessão.",
+        "D": "Errado. STS não serve para aumentar além do permitido; sessão pode reduzir, não ampliar."
+      }
+    },
+    {
+      "id": "SAA-IAM-017",
+      "topic": "kms",
+      "tags": ["kms", "key-policy", "lockout", "best-practice"],
+      "question": "Um time quer editar a key policy de uma CMK e remover tudo, deixando apenas a role de um aplicativo. O que pode acontecer e qual é a melhor prática?",
+      "choices": {
+        "A": "Nada; key policy não afeta acesso.",
+        "B": "Pode ocorrer 'lockout' administrativo; mantenha um principal administrativo (ex: root da conta ou role admin) na key policy.",
+        "C": "A CMK automaticamente herdará permissões do IAM e não há risco.",
+        "D": "A chave vira AWS Managed automaticamente."
+      },
+      "correct": ["B"],
+      "explanation": "KMS é fortemente controlado por key policy. Remover administradores pode causar perda de controle sobre a chave (lockout).",
+      "choice_explanations": {
+        "A": "Errado. Key policy é crítica para controle.",
+        "B": "Certo. Sempre mantenha admin na key policy.",
+        "C": "Errado. IAM sozinho não garante controle sobre CMK sem key policy apropriada.",
+        "D": "Errado. Não existe essa conversão automática."
+      }
+    },
+    {
+      "id": "SAA-IAM-018",
+      "topic": "iam",
+      "tags": ["resource-policy", "lambda", "invocation", "cross-account"],
+      "question": "Uma função Lambda na Conta A precisa ser invocada por um serviço na Conta B. Qual mecanismo é necessário para permitir a invocação cross-account?",
+      "choices": {
+        "A": "Anexar uma policy IAM na Conta B permitindo lambda:InvokeFunction.",
+        "B": "Adicionar uma resource-based policy na Lambda (lambda:AddPermission) permitindo o principal da Conta B.",
+        "C": "Criar VPC peering entre contas.",
+        "D": "Ativar CloudTrail em ambas as contas."
+      },
+      "correct": ["B"],
+      "explanation": "Invocação cross-account de Lambda exige permissionamento no recurso (resource-based policy) via AddPermission.",
+      "choice_explanations": {
+        "A": "Errado. Identity policy é insuficiente sem permissionamento no recurso Lambda.",
+        "B": "Certo. Lambda precisa permitir explicitamente o principal externo.",
+        "C": "Errado. Peering é rede, não autorização.",
+        "D": "Errado. CloudTrail é auditoria."
+      }
+    },
+    {
+      "id": "SAA-IAM-019",
+      "topic": "iam",
+      "tags": ["policy-evaluation", "allow", "deny", "permissions"],
+      "question": "Um usuário tem uma policy permitindo ec2:DescribeInstances. Ele também pertence a um grupo com uma policy que nega ec2:DescribeInstances. Qual é o resultado final?",
+      "choices": {
+        "A": "Permitido, porque permissões do usuário prevalecem sobre grupo.",
+        "B": "Negado, porque explicit deny em qualquer policy aplicada vence.",
+        "C": "Permitido se a ação for somente leitura.",
+        "D": "Depende se o usuário está com MFA."
+      },
+      "correct": ["B"],
+      "explanation": "Explicit deny em qualquer policy aplicável vence qualquer allow, independente de vir de usuário ou grupo.",
+      "choice_explanations": {
+        "A": "Errado. Não existe 'precedência' por tipo assim; deny vence.",
+        "B": "Certo. Explicit deny sempre prevalece.",
+        "C": "Errado. Somente leitura não ignora deny.",
+        "D": "Errado. MFA não muda a precedência deny > allow."
+      }
+    },
+    {
+      "id": "SAA-IAM-020",
+      "topic": "iam",
+      "tags": ["conditions", "tags", "abac", "governance"],
+      "question": "Uma empresa quer usar ABAC (Attribute-Based Access Control) para permitir que equipes acessem apenas recursos com a tag Team igual à tag Team do principal IAM. Qual abordagem é mais apropriada?",
+      "choices": {
+        "A": "Usar condition com aws:PrincipalTag/Team e comparar com aws:ResourceTag/Team.",
+        "B": "Criar uma role por recurso e anexar policy manualmente.",
+        "C": "Usar somente Security Groups com nomes padronizados.",
+        "D": "Habilitar MFA e confiar nisso."
+      },
+      "correct": ["A"],
+      "explanation": "ABAC em AWS usa tags no principal e no recurso e conditions para comparar, permitindo escala e governança.",
+      "choice_explanations": {
+        "A": "Certo. É o padrão de ABAC: PrincipalTag vs ResourceTag.",
+        "B": "Errado. Não escala e vira manutenção infinita.",
+        "C": "Errado. SG não controla autorização geral a recursos.",
+        "D": "Errado. MFA é autenticação, não autorização por atributos."
+      }
+    }
+  ]
+}

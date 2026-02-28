@@ -1,0 +1,407 @@
+{
+  "exam": "AWS SAA-C03",
+  "set": "17",
+  "focus": ["organizations", "multi-account", "governance", "scp", "control-tower", "cross-account", "central-logging"],
+  "questions": [
+    {
+      "id": "SAA-17-001",
+      "topic": "organizations",
+      "tags": ["organizations", "scp", "governance", "multi-account", "security"],
+      "question": "Uma empresa usa AWS Organizations com várias contas. O time de segurança quer impedir definitivamente que qualquer conta crie usuários IAM (iam:CreateUser), mesmo que alguém tenha permissões de administrador na conta. Qual é a melhor abordagem?",
+      "choices": {
+        "A": "Criar uma policy IAM gerenciada e anexar em todos os usuários e roles nas contas",
+        "B": "Usar Service Control Policy (SCP) com Deny explícito para iam:CreateUser aplicado na OU apropriada",
+        "C": "Usar Permission Boundary em todos os usuários e roles para negar iam:CreateUser",
+        "D": "Usar AWS Config Rule para detectar e reverter automaticamente a criação de usuários IAM"
+      },
+      "correct": ["B"],
+      "explanation": "SCP define o limite máximo de permissões em contas/OU, e um Deny explícito em SCP não pode ser sobrescrito por permissões na conta. É o controle correto para impedir ações mesmo com admin.",
+      "choice_explanations": {
+        "A": "Não garante cobertura total e pode ser removida/evitada dependendo de permissões.",
+        "B": "Correta: SCP com Deny explícito bloqueia a ação em nível Organizations.",
+        "C": "Permission boundary é útil, mas exige padronização e pode falhar se recursos existirem sem boundary; não é o limite máximo global como SCP.",
+        "D": "Config detecta depois. Não evita a criação, só reage."
+      }
+    },
+    {
+      "id": "SAA-17-002",
+      "topic": "organizations",
+      "tags": ["organizations", "control-tower", "landing-zone", "governance"],
+      "question": "Você precisa padronizar uma arquitetura multi-conta rapidamente, com contas separadas para logs, auditoria e workloads, além de guardrails pré-configurados. Qual serviço acelera isso com melhores práticas?",
+      "choices": {
+        "A": "AWS Control Tower",
+        "B": "AWS Config Aggregator",
+        "C": "AWS IAM Identity Center (SSO)",
+        "D": "AWS Trusted Advisor"
+      },
+      "correct": ["A"],
+      "explanation": "Control Tower cria uma landing zone com contas base (log archive/audit), guardrails e automação para governança multi-conta.",
+      "choice_explanations": {
+        "A": "Correta: entrega landing zone e guardrails.",
+        "B": "Agrega compliance/config, mas não cria landing zone nem guardrails.",
+        "C": "Ajuda no acesso, mas não monta a governança e estrutura de contas.",
+        "D": "Recomendações, não provisionamento/estrutura."
+      }
+    },
+    {
+      "id": "SAA-17-003",
+      "topic": "iam",
+      "tags": ["cross-account", "sts", "role", "organizations", "security"],
+      "question": "Um time de auditoria na conta Audit precisa acessar logs S3 na conta LogArchive de forma segura e temporária, sem chaves longas. Qual solução é mais adequada?",
+      "choices": {
+        "A": "Criar um usuário IAM na conta LogArchive e compartilhar access keys com o time de auditoria",
+        "B": "Criar role na conta LogArchive com trust policy permitindo assume-role pela conta Audit via STS",
+        "C": "Criar um bucket policy permitindo acesso público somente para o prefixo de logs",
+        "D": "Habilitar ACLs no bucket e adicionar o time de auditoria como grantee"
+      },
+      "correct": ["B"],
+      "explanation": "Cross-account access padrão é via IAM Role + STS AssumeRole para credenciais temporárias.",
+      "choice_explanations": {
+        "A": "Chaves longas aumentam risco e são contra boas práticas.",
+        "B": "Correta: role assumida via STS é o padrão seguro.",
+        "C": "Acesso público é inseguro.",
+        "D": "ACLs são legadas e difíceis de governar; role/bucket policy é preferível."
+      }
+    },
+    {
+      "id": "SAA-17-004",
+      "topic": "security",
+      "tags": ["organizations", "cloudtrail", "central-logging", "s3", "governance"],
+      "question": "Você quer centralizar CloudTrail de todas as contas e regiões em um único bucket S3 na conta LogArchive. Qual configuração atende melhor com governança central?",
+      "choices": {
+        "A": "Criar um Trail em cada conta apontando para um bucket local em cada conta",
+        "B": "Criar um Organization Trail na conta de gerenciamento (management) enviando logs para o bucket central na LogArchive",
+        "C": "Usar somente CloudWatch Logs em cada conta e exportar manualmente",
+        "D": "Habilitar S3 server access logs e considerar isso suficiente como auditoria"
+      },
+      "correct": ["B"],
+      "explanation": "Organization Trail (CloudTrail) pode registrar eventos para todas as contas da Organization e entregar em um destino central (normalmente LogArchive).",
+      "choice_explanations": {
+        "A": "Funciona, mas aumenta operação e risco de inconsistência.",
+        "B": "Correta: Organization Trail centraliza e padroniza.",
+        "C": "Operacional e propenso a falhas; não é o padrão.",
+        "D": "S3 access logs não substituem CloudTrail para auditoria de API."
+      }
+    },
+    {
+      "id": "SAA-17-005",
+      "topic": "organizations",
+      "tags": ["scp", "regions", "governance", "security"],
+      "question": "O compliance exige que workloads só possam ser criados em us-east-1 e sa-east-1. Como aplicar isso de forma central para várias contas?",
+      "choices": {
+        "A": "Criar regras no Security Group para bloquear tráfego de outras regiões",
+        "B": "Usar SCP para negar ações fora das regiões permitidas usando aws:RequestedRegion",
+        "C": "Usar tags obrigatórias e rejeitar recursos sem tags",
+        "D": "Confiar no treinamento dos usuários e revisão manual"
+      },
+      "correct": ["B"],
+      "explanation": "SCP com condição aws:RequestedRegion é abordagem padrão para restringir regiões em toda a org.",
+      "choice_explanations": {
+        "A": "Segurança de rede não restringe criação de recursos em regiões.",
+        "B": "Correta: SCP impõe limite global por região.",
+        "C": "Tags ajudam governança, mas não impedem criação por região.",
+        "D": "Manual não é confiável."
+      }
+    },
+    {
+      "id": "SAA-17-006",
+      "topic": "organizations",
+      "tags": ["scp", "guardrails", "governance", "security", "kms"],
+      "question": "Você quer garantir que nenhum recurso use KMS key gerenciada pelo cliente que não seja aprovada pela segurança. Qual opção dá controle central mais forte?",
+      "choices": {
+        "A": "Usar SCP para negar kms:CreateKey em OUs de workload e permitir apenas na conta de segurança",
+        "B": "Usar CloudWatch Alarm para alertar quando uma CMK for criada",
+        "C": "Permitir criação e depois rodar um script que apaga CMKs não aprovadas",
+        "D": "Habilitar rotação automática e considerar aprovado"
+      },
+      "correct": ["A"],
+      "explanation": "Bloquear criação de CMKs via SCP nas contas de workload centraliza governança de chaves.",
+      "choice_explanations": {
+        "A": "Correta: SCP impede criação e força uso de chaves aprovadas.",
+        "B": "Alerta não impede o ato.",
+        "C": "Reativo e arriscado; pode quebrar workloads.",
+        "D": "Rotação não trata aprovação/governança."
+      }
+    },
+    {
+      "id": "SAA-17-007",
+      "topic": "security",
+      "tags": ["organizations", "guardduty", "security-hub", "central-security", "multi-account"],
+      "question": "Você quer detectar ameaças (GuardDuty) e ter postura de segurança consolidada (Security Hub) para todas as contas. Qual arquitetura é mais adequada?",
+      "choices": {
+        "A": "Habilitar GuardDuty e Security Hub em cada conta, sem administração central",
+        "B": "Definir uma conta Security como administradora delegada para GuardDuty e Security Hub e associar as demais contas como membros",
+        "C": "Executar scanners em EC2 em cada conta e enviar relatórios por e-mail",
+        "D": "Ativar apenas AWS WAF na borda e considerar suficiente"
+      },
+      "correct": ["B"],
+      "explanation": "Delegated admin + membership é o padrão para centralizar GuardDuty/Security Hub em organizações.",
+      "choice_explanations": {
+        "A": "Sem centralização, aumenta falhas operacionais.",
+        "B": "Correta: administração delegada centraliza e escala.",
+        "C": "Não substitui serviços gerenciados e é operacional.",
+        "D": "WAF não cobre postura e detecção interna."
+      }
+    },
+    {
+      "id": "SAA-17-008",
+      "topic": "iam",
+      "tags": ["iam-identity-center", "sso", "multi-account", "security", "sts"],
+      "question": "Você precisa dar acesso humano a múltiplas contas com MFA obrigatório, gerenciamento central e sem criar usuários IAM por conta. Melhor solução?",
+      "choices": {
+        "A": "Criar usuários IAM em cada conta e exigir MFA",
+        "B": "Usar IAM Identity Center (AWS SSO) integrado ao Organizations com permission sets",
+        "C": "Compartilhar um único usuário root por conta com MFA",
+        "D": "Usar access keys e rotacionar mensalmente"
+      },
+      "correct": ["B"],
+      "explanation": "IAM Identity Center fornece SSO multi-conta com permission sets e credenciais temporárias.",
+      "choice_explanations": {
+        "A": "Aumenta esforço e risco de inconsistência.",
+        "B": "Correta: padrão para acesso humano multi-conta.",
+        "C": "Inseguro e contra boas práticas.",
+        "D": "Chaves longas para humano é ruim; preferir SSO/STS."
+      }
+    },
+    {
+      "id": "SAA-17-009",
+      "topic": "organizations",
+      "tags": ["resource-access-manager", "ram", "sharing", "multi-account", "networking"],
+      "question": "Você quer compartilhar um Transit Gateway (TGW) de uma conta Networking para várias contas de workload sem duplicar TGWs. Qual serviço facilita o compartilhamento?",
+      "choices": {
+        "A": "AWS Resource Access Manager (RAM)",
+        "B": "AWS Direct Connect",
+        "C": "VPC Peering manual para cada VPC",
+        "D": "Copiar o TGW para cada conta"
+      },
+      "correct": ["A"],
+      "explanation": "AWS RAM permite compartilhar recursos suportados (como TGW) entre contas, especialmente via Organizations.",
+      "choice_explanations": {
+        "A": "Correta: RAM é feito para sharing.",
+        "B": "DX é conectividade on-prem, não sharing de TGW entre contas.",
+        "C": "Peering escala mal e não substitui TGW compartilhado.",
+        "D": "Não existe copiar TGW assim; e duplicar custa caro."
+      }
+    },
+    {
+      "id": "SAA-17-010",
+      "topic": "security",
+      "tags": ["s3", "central-logging", "bucket-policy", "organizations", "kms"],
+      "question": "O bucket central de logs (LogArchive) deve aceitar gravação de logs de múltiplas contas e impedir exclusões/alterações por contas de workload. Melhor configuração?",
+      "choices": {
+        "A": "Permitir s3:* para o role de administração em todas as contas",
+        "B": "Bucket policy permitindo apenas PutObject de contas específicas/Org e habilitar versioning + MFA Delete (quando aplicável) + restrição de DeleteObject",
+        "C": "Desabilitar SSE e confiar que logs são apenas texto",
+        "D": "Usar ACLs públicas somente para leitura"
+      },
+      "correct": ["B"],
+      "explanation": "Central logging seguro envolve bucket policy restrita, versioning e controle forte de deleção. Permitir somente escrita (PutObject) de origens válidas.",
+      "choice_explanations": {
+        "A": "Amplia demais as permissões e aumenta risco.",
+        "B": "Correta: escrita controlada + proteções contra deleção/tamper.",
+        "C": "Sem criptografia, risco alto.",
+        "D": "ACL pública é insegura."
+      }
+    },
+    {
+      "id": "SAA-17-011",
+      "topic": "organizations",
+      "tags": ["scp", "root", "security", "governance"],
+      "question": "Seu objetivo é reduzir risco operacional e impedir ações perigosas com root (como desabilitar CloudTrail) em contas-membro. Qual medida é mais apropriada?",
+      "choices": {
+        "A": "Aplicar SCP para negar ações críticas e garantir guardrails, sabendo que SCP não restringe root da conta de gerenciamento",
+        "B": "Confiar que root nunca será usado",
+        "C": "Remover o usuário root de todas as contas",
+        "D": "Criar um usuário IAM chamado root e usar no lugar"
+      },
+      "correct": ["A"],
+      "explanation": "SCP ajuda a bloquear ações perigosas em contas-membro. Além disso, boas práticas incluem MFA no root e bloquear acesso, mas SCP é a ferramenta de governança central.",
+      "choice_explanations": {
+        "A": "Correta: SCP + guardrails centraliza restrições (com ressalvas sobre management account).",
+        "B": "Não é controle.",
+        "C": "Root não pode ser removido.",
+        "D": "Usuário IAM não equivale ao root."
+      }
+    },
+    {
+      "id": "SAA-17-012",
+      "topic": "organizations",
+      "tags": ["control-tower", "guardrails", "scp", "governance"],
+      "question": "No Control Tower, você habilitou um guardrail preventivo para impedir S3 buckets públicos. O que isso geralmente implementa por baixo do capô?",
+      "choices": {
+        "A": "Apenas um alerta no CloudWatch",
+        "B": "Uma SCP (Deny) e/ou configurações de bloqueio de acesso público (Block Public Access) aplicadas conforme o guardrail",
+        "C": "Um script local que roda no navegador do usuário",
+        "D": "Uma ACL pública controlada por tags"
+      },
+      "correct": ["B"],
+      "explanation": "Guardrails preventivos tipicamente usam SCPs e configurações gerenciadas para impedir estados não conformes.",
+      "choice_explanations": {
+        "A": "Preventivo não é só alerta; impede.",
+        "B": "Correta: guardrails preventivos normalmente aplicam bloqueios/SCP.",
+        "C": "Não faz sentido.",
+        "D": "ACL pública é o oposto do objetivo."
+      }
+    },
+    {
+      "id": "SAA-17-013",
+      "topic": "iam",
+      "tags": ["permission-boundary", "scp", "security", "governance"],
+      "question": "Qual a diferença prática mais importante entre SCP e Permission Boundary para governança em escala?",
+      "choices": {
+        "A": "SCP limita o máximo de permissões em contas/OU; permission boundary limita o máximo para uma identidade específica (user/role) dentro da conta",
+        "B": "Permission boundary funciona entre contas e SCP só funciona dentro da conta",
+        "C": "SCP é aplicado apenas em buckets S3 e permission boundary em EC2",
+        "D": "Ambos são idênticos e intercambiáveis"
+      },
+      "correct": ["A"],
+      "explanation": "SCP é limite máximo em nível de conta/OU. Permission boundary é limite máximo por principal (identidade).",
+      "choice_explanations": {
+        "A": "Correta: descreve o escopo real de cada mecanismo.",
+        "B": "Invertido: SCP é Organizations (multi-conta). Permission boundary é dentro da conta.",
+        "C": "Errado: não são por serviço específico.",
+        "D": "Não são iguais."
+      }
+    },
+    {
+      "id": "SAA-17-014",
+      "topic": "security",
+      "tags": ["cloudwatch", "cloudtrail", "central-logging", "multi-account", "governance"],
+      "question": "Você precisa de detecção rápida quando alguém tenta desabilitar CloudTrail ou alterar configurações de logging em qualquer conta. Qual combinação é mais adequada?",
+      "choices": {
+        "A": "CloudTrail + EventBridge rule + SNS/Lambda na conta de segurança para alertar eventos administrativos",
+        "B": "Apenas S3 access logs",
+        "C": "Somente métricas básicas de EC2",
+        "D": "Exportar logs manualmente uma vez por semana"
+      },
+      "correct": ["A"],
+      "explanation": "CloudTrail gera eventos de API. EventBridge consegue reagir quase em tempo real a eventos específicos (ex: StopLogging/UpdateTrail), acionando alertas.",
+      "choice_explanations": {
+        "A": "Correta: padrão de detecção near-real-time.",
+        "B": "S3 access logs não capturam chamadas de API de CloudTrail.",
+        "C": "Não cobre auditoria.",
+        "D": "Muito tardio."
+      }
+    },
+    {
+      "id": "SAA-17-015",
+      "topic": "organizations",
+      "tags": ["billing", "cost", "consolidated-billing", "tags", "governance"],
+      "question": "O financeiro quer visibilidade de custos por time em ambiente multi-conta, com chargeback. Qual abordagem é mais aderente?",
+      "choices": {
+        "A": "Consolidated Billing + Cost Allocation Tags padronizadas e obrigatórias (governança) + CUR (Cost and Usage Report)",
+        "B": "Somente olhar a fatura da conta de gerenciamento no fim do mês",
+        "C": "Criar um bucket S3 por time e estimar custo manualmente",
+        "D": "Desabilitar tags para evitar complexidade"
+      },
+      "correct": ["A"],
+      "explanation": "Chargeback costuma usar CUR + tags de alocação e padronização em organizações para custos por time/projeto.",
+      "choice_explanations": {
+        "A": "Correta: combinação padrão de visibilidade e governança.",
+        "B": "Sem granularidade.",
+        "C": "Não é método confiável.",
+        "D": "Tags ajudam muito em chargeback."
+      }
+    },
+    {
+      "id": "SAA-17-016",
+      "topic": "organizations",
+      "tags": ["organizations", "account-vending", "control-tower", "governance"],
+      "question": "Você precisa criar novas contas com baseline de segurança automaticamente (logging, IAM Identity Center, guardrails) e reduzir drift. Qual estratégia é a melhor?",
+      "choices": {
+        "A": "Criar contas manualmente e configurar tudo na mão",
+        "B": "Usar Control Tower Account Factory (ou Account Vending) para provisionamento padronizado",
+        "C": "Clonar uma AMI de uma conta para outra",
+        "D": "Usar apenas AWS Config e esperar resolver"
+      },
+      "correct": ["B"],
+      "explanation": "Account Factory/Account Vending automatiza criação de contas com baseline e integrações de governança.",
+      "choice_explanations": {
+        "A": "Escala mal e aumenta drift.",
+        "B": "Correta: provisionamento padronizado e governado.",
+        "C": "AMI não cria contas nem baseline.",
+        "D": "Config não provisiona contas."
+      }
+    },
+    {
+      "id": "SAA-17-017",
+      "topic": "security",
+      "tags": ["kms", "cross-account", "s3", "organizations", "encryption"],
+      "question": "A conta LogArchive usa SSE-KMS no bucket de logs central. As contas de workload falham ao entregar logs porque não conseguem usar a CMK. Qual ajuste resolve com menor privilégio?",
+      "choices": {
+        "A": "Permitir kms:* para todas as contas no key policy",
+        "B": "Adicionar no key policy permissões mínimas para os serviços/gravação relevantes (ex: cloudtrail.amazonaws.com) e/ou principals específicos das contas para Encrypt/GenerateDataKey",
+        "C": "Desabilitar SSE-KMS e usar SSE-S3",
+        "D": "Tornar o bucket público para facilitar a entrega"
+      },
+      "correct": ["B"],
+      "explanation": "Para SSE-KMS cross-account, a key policy deve permitir o uso (Encrypt/GenerateDataKey) aos principals/serviços que gravam no bucket, com escopo mínimo.",
+      "choice_explanations": {
+        "A": "Excessivo e inseguro.",
+        "B": "Correta: ajuste mínimo e correto no key policy.",
+        "C": "Pode reduzir controle; não é necessário se configurar corretamente.",
+        "D": "Inseguro."
+      }
+    },
+    {
+      "id": "SAA-17-018",
+      "topic": "organizations",
+      "tags": ["scp", "ec2", "security", "governance", "guardrails"],
+      "question": "O time de segurança quer proibir instâncias EC2 sem IMDSv2 em todas as contas. Como impor isso centralmente com maior consistência?",
+      "choices": {
+        "A": "Treinar os times para sempre ativar IMDSv2",
+        "B": "Aplicar SCP negando RunInstances quando a condição de metadados não estiver configurada conforme exigido (quando aplicável), combinado com templates/padrões",
+        "C": "Habilitar CloudTrail apenas",
+        "D": "Usar apenas Security Groups"
+      },
+      "correct": ["B"],
+      "explanation": "Em governança, combina-se políticas preventivas (SCP quando possível) com padronização (IaC/templates) para garantir IMDSv2.",
+      "choice_explanations": {
+        "A": "Não garante enforcement.",
+        "B": "Correta: abordagem preventiva + padrão operacional.",
+        "C": "Audita, não impede.",
+        "D": "Rede não força IMDS."
+      }
+    },
+    {
+      "id": "SAA-17-019",
+      "topic": "organizations",
+      "tags": ["organizations", "delegated-admin", "governance", "security"],
+      "question": "Você quer que a conta Security administre serviços de segurança (ex: GuardDuty) sem usar a conta de gerenciamento para tarefas diárias. O que habilitar?",
+      "choices": {
+        "A": "Ativar conta Security como administrador delegado (delegated administrator) no Organizations para os serviços relevantes",
+        "B": "Mover a conta Security para fora do Organizations",
+        "C": "Criar access keys do root da conta de gerenciamento e usar no dia a dia",
+        "D": "Desabilitar Organizations e usar contas independentes"
+      },
+      "correct": ["A"],
+      "explanation": "Delegated administrator permite centralização operacional fora da management account, seguindo boas práticas.",
+      "choice_explanations": {
+        "A": "Correta: delegated admin é o padrão.",
+        "B": "Perde governança central.",
+        "C": "Prática insegura.",
+        "D": "Perde benefícios de governança e billing."
+      }
+    },
+    {
+      "id": "SAA-17-020",
+      "topic": "security",
+      "tags": ["organizations", "cloudtrail", "tamper-proof", "s3", "governance"],
+      "question": "Você precisa tornar logs de auditoria resistentes a adulteração (tamper-evident) no bucket central de logs. Qual opção é a mais adequada?",
+      "choices": {
+        "A": "Desabilitar versioning para economizar custo",
+        "B": "Habilitar S3 Object Lock em modo Compliance (quando aplicável) e/ou versioning + retenção, além de controlar deleções por policy",
+        "C": "Permitir DeleteObject para facilitar limpeza",
+        "D": "Armazenar logs apenas localmente em cada conta"
+      },
+      "correct": ["B"],
+      "explanation": "Object Lock (WORM) e versioning/retenção aumentam resiliência contra adulteração de logs em S3.",
+      "choice_explanations": {
+        "A": "Reduz proteção contra adulteração.",
+        "B": "Correta: WORM/retention/versões aumentam integridade.",
+        "C": "Facilita adulteração.",
+        "D": "Sem centralização, aumenta risco e operação."
+      }
+    }
+  ]
+}

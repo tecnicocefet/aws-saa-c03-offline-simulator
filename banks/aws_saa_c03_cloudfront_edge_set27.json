@@ -1,0 +1,404 @@
+{
+  "questions": [
+    {
+      "id": "SAA-CF-EDGE-027-001",
+      "topic": "edge",
+      "question": "Você serve um site estático do S3 via CloudFront. Requisito: bloquear acesso direto ao bucket e permitir apenas CloudFront. Qual abordagem recomendada atualmente?",
+      "choices": {
+        "A": "Origin Access Control (OAC) + bucket policy permitindo somente CloudFront",
+        "B": "Bucket público + signed URLs no CloudFront",
+        "C": "Desativar Block Public Access e usar ACLs",
+        "D": "Somente WAF no CloudFront e bucket público"
+      },
+      "correct": ["A"],
+      "explanation": "OAC é o mecanismo moderno para restringir a origem S3 ao CloudFront sem expor o bucket.",
+      "choice_explanations": {
+        "A": "Correto: origem privada via OAC + policy.",
+        "B": "Errado: bucket público quebra requisito.",
+        "C": "Errado: abrir ACLs é exatamente o problema de segurança.",
+        "D": "Errado: WAF não impede acesso direto ao endpoint do S3."
+      },
+      "tags": ["cloudfront", "s3", "oac", "security", "edge"]
+    },
+    {
+      "id": "SAA-CF-EDGE-027-002",
+      "topic": "edge",
+      "question": "Um time reclama que após deploy de novos assets, usuários ainda recebem conteúdo antigo. Eles não querem reduzir TTL global. Qual solução é mais adequada?",
+      "choices": {
+        "A": "Cache-busting (hash no nome do arquivo) ou invalidation seletiva",
+        "B": "Aumentar TTL para reduzir inconsistência",
+        "C": "Desativar cache do CloudFront permanentemente",
+        "D": "Trocar CloudFront por acesso direto ao S3"
+      },
+      "correct": ["A"],
+      "explanation": "Cache-busting por versionamento de assets e invalidation seletiva são práticas padrão sem destruir performance/custo do cache.",
+      "choice_explanations": {
+        "A": "Correto: mantém benefícios do cache e garante atualização rápida.",
+        "B": "Errado: piora stale content.",
+        "C": "Errado: resolve, mas mata o objetivo do CloudFront.",
+        "D": "Errado: perde edge, proteção e performance."
+      },
+      "tags": ["cloudfront", "cache", "performance", "edge"]
+    },
+    {
+      "id": "SAA-CF-EDGE-027-003",
+      "topic": "edge",
+      "question": "Você precisa proteger uma API global contra ataques L7 e reduzir latência. Requisito: cache de GET por 30s e bloqueio de padrões comuns (SQLi, XSS). Melhor solução?",
+      "choices": {
+        "A": "CloudFront na frente + AWS WAF no CloudFront + cache policy",
+        "B": "Route 53 weighted + Security Groups na API",
+        "C": "Global Accelerator + NACLs no API Gateway",
+        "D": "Somente API Gateway throttling"
+      },
+      "correct": ["A"],
+      "explanation": "CloudFront provê caching e presença global; WAF provê proteção L7 com regras gerenciadas.",
+      "choice_explanations": {
+        "A": "Correto: cache + WAF no edge.",
+        "B": "Errado: SG não se aplica ao API Gateway e weighted não dá cache.",
+        "C": "Errado: GA é L4 e NACL não se aplica assim ao API Gateway.",
+        "D": "Errado: throttling ajuda, mas não cobre ataques L7 comuns nem caching."
+      },
+      "tags": ["cloudfront", "waf", "apigw", "cache", "security", "edge"]
+    },
+    {
+      "id": "SAA-CF-EDGE-027-004",
+      "topic": "edge",
+      "question": "Você precisa restringir o download de vídeos privados por CloudFront para usuários autenticados. Qual mecanismo é mais adequado?",
+      "choices": {
+        "A": "Signed URLs ou Signed Cookies",
+        "B": "Origin Shield",
+        "C": "Aumentar TTL para 24h",
+        "D": "Compressão Brotli"
+      },
+      "correct": ["A"],
+      "explanation": "Signed URLs/Cookies controlam acesso ao conteúdo exigindo assinatura válida.",
+      "choice_explanations": {
+        "A": "Correto: controle de acesso para conteúdo privado.",
+        "B": "Errado: Origin Shield melhora cache, não autorização.",
+        "C": "Errado: TTL é cache, não segurança.",
+        "D": "Errado: compressão não controla acesso."
+      },
+      "tags": ["cloudfront", "security", "signed-url", "edge"]
+    },
+    {
+      "id": "SAA-CF-EDGE-027-005",
+      "topic": "edge",
+      "question": "Você quer bloquear tráfego de países específicos e também aplicar regras gerenciadas de proteção web. Onde isso deve ser configurado para maior eficácia?",
+      "choices": {
+        "A": "AWS WAF associado à distribuição CloudFront",
+        "B": "Security Groups no CloudFront",
+        "C": "NACL no S3 bucket",
+        "D": "IAM policy no usuário final"
+      },
+      "correct": ["A"],
+      "explanation": "WAF no CloudFront permite geoblocking e regras gerenciadas no edge.",
+      "choice_explanations": {
+        "A": "Correto: bloqueio geográfico + managed rules no edge.",
+        "B": "Errado: CloudFront não usa SG.",
+        "C": "Errado: S3 não está em subnets para NACL.",
+        "D": "Errado: IAM não controla clientes finais anônimos."
+      },
+      "tags": ["cloudfront", "waf", "security", "edge"]
+    },
+    {
+      "id": "SAA-CF-EDGE-027-006",
+      "topic": "edge",
+      "question": "Uma aplicação quer otimizar cache no CloudFront: páginas HTML devem ter TTL baixo, mas imagens/CSS/JS podem ter TTL alto. Qual recurso do CloudFront atende melhor?",
+      "choices": {
+        "A": "Multiple cache behaviors por path pattern (ex: /static/*) com cache policies diferentes",
+        "B": "Uma única behavior com TTL único para tudo",
+        "C": "Desabilitar cache para todo o site",
+        "D": "Usar apenas Route 53 TTLs diferentes"
+      },
+      "correct": ["A"],
+      "explanation": "Behaviors permitem políticas de cache distintas por path/headers/query strings, controlando TTL de forma granular.",
+      "choice_explanations": {
+        "A": "Correto: granularidade por path pattern e policy.",
+        "B": "Errado: não atende requisitos diferentes por tipo de conteúdo.",
+        "C": "Errado: perde performance/custo do cache.",
+        "D": "Errado: TTL do DNS não controla cache do CDN."
+      },
+      "tags": ["cloudfront", "cache", "behaviors", "performance", "edge"]
+    },
+    {
+      "id": "SAA-CF-EDGE-027-007",
+      "topic": "edge",
+      "question": "Você usa CloudFront com origem em ALB. Precisa encaminhar cabeçalhos específicos para a origem (ex: Authorization) e evitar que isso destrua o cache para conteúdos públicos. Qual desenho é mais adequado?",
+      "choices": {
+        "A": "Separar behaviors: um para rotas autenticadas que forward Authorization e sem cache; outro para rotas públicas com cache",
+        "B": "Forward Authorization para tudo e manter cache padrão",
+        "C": "Não encaminhar Authorization nunca",
+        "D": "Trocar para NLB pois lida melhor com headers"
+      },
+      "correct": ["A"],
+      "explanation": "Encaminhar Authorization geralmente torna o cache menos efetivo. Separar rotas/bahaviors mantém performance do conteúdo público e permite auth onde precisa.",
+      "choice_explanations": {
+        "A": "Correto: separa rotas autenticadas e públicas para preservar cache.",
+        "B": "Errado: Authorization tende a variar por usuário, matando cache.",
+        "C": "Errado: rotas autenticadas não funcionariam.",
+        "D": "Errado: NLB é L4 e não resolve comportamento de headers/caching."
+      },
+      "tags": ["cloudfront", "alb", "cache", "security", "edge"]
+    },
+    {
+      "id": "SAA-CF-EDGE-027-008",
+      "topic": "edge",
+      "question": "Uma empresa precisa diminuir a carga no origin e melhorar cache hit ratio em múltiplas distribuições que compartilham a mesma origem. Qual recurso do CloudFront ajuda diretamente?",
+      "choices": {
+        "A": "Origin Shield",
+        "B": "Signed Cookies",
+        "C": "Route 53 latency routing",
+        "D": "Lambda@Edge para compressão"
+      },
+      "correct": ["A"],
+      "explanation": "Origin Shield adiciona uma camada extra de cache centralizado para reduzir requisições ao origin e aumentar cache hit ratio.",
+      "choice_explanations": {
+        "A": "Correto: cache adicional antes do origin.",
+        "B": "Errado: controle de acesso, não cache hit ratio.",
+        "C": "Errado: DNS não é cache do CDN.",
+        "D": "Errado: compressão não é o principal fator para origin load."
+      },
+      "tags": ["cloudfront", "origin-shield", "performance", "cache", "edge"]
+    },
+    {
+      "id": "SAA-CF-EDGE-027-009",
+      "topic": "edge",
+      "question": "Você precisa executar lógica simples no edge: redirecionar /old para /new e adicionar um header de segurança em todas as respostas. Qual opção é mais adequada e moderna?",
+      "choices": {
+        "A": "CloudFront Functions",
+        "B": "Lambda@Edge sempre, mesmo para lógica simples",
+        "C": "EC2 rodando Nginx em cada região",
+        "D": "Route 53 TXT records"
+      },
+      "correct": ["A"],
+      "explanation": "CloudFront Functions é ideal para manipulação leve de requests/responses no edge (headers, redirects) com menor latência/custo que Lambda@Edge.",
+      "choice_explanations": {
+        "A": "Correto: simples, rápido e econômico para lógica leve.",
+        "B": "Errado: Lambda@Edge funciona, mas é mais pesado para caso simples.",
+        "C": "Errado: complexo e caro para isso.",
+        "D": "Errado: DNS não faz manipulação HTTP."
+      },
+      "tags": ["cloudfront", "edge", "functions", "security", "redirect"]
+    },
+    {
+      "id": "SAA-CF-EDGE-027-010",
+      "topic": "edge",
+      "question": "Você quer distribuir conteúdo com CloudFront e usar um certificado TLS para 'www.example.com'. Onde o certificado ACM deve estar para CloudFront?",
+      "choices": {
+        "A": "Na região us-east-1",
+        "B": "Na mesma região do bucket S3",
+        "C": "Na região mais próxima do usuário",
+        "D": "Em qualquer região, CloudFront replica automaticamente"
+      },
+      "correct": ["A"],
+      "explanation": "Para CloudFront, o certificado ACM (para custom domain) deve estar em us-east-1.",
+      "choice_explanations": {
+        "A": "Correto: requisito do CloudFront.",
+        "B": "Errado: não depende da região do S3.",
+        "C": "Errado: não existe esse modelo.",
+        "D": "Errado: CloudFront não aceita ACM de qualquer região para esse caso."
+      },
+      "tags": ["cloudfront", "acm", "tls", "edge", "security"]
+    },
+    {
+      "id": "SAA-CF-EDGE-027-011",
+      "topic": "edge",
+      "question": "Um time quer registrar e analisar requisições no CloudFront para auditoria e troubleshooting. Qual recurso fornece logs detalhados de requests?",
+      "choices": {
+        "A": "CloudFront access logs (Standard logs) ou real-time logs",
+        "B": "VPC Flow Logs",
+        "C": "CloudTrail apenas",
+        "D": "S3 Inventory"
+      },
+      "correct": ["A"],
+      "explanation": "Access logs e real-time logs do CloudFront registram detalhes de requisições (paths, status, bytes, user-agent etc.).",
+      "choice_explanations": {
+        "A": "Correto: logs próprios do CloudFront.",
+        "B": "Errado: Flow Logs são para interfaces ENI na VPC.",
+        "C": "Errado: CloudTrail registra chamadas de API, não requests de usuários.",
+        "D": "Errado: inventory é para objetos S3."
+      },
+      "tags": ["cloudfront", "logging", "observability", "security", "edge"]
+    },
+    {
+      "id": "SAA-CF-EDGE-027-012",
+      "topic": "edge",
+      "question": "Você está servindo conteúdo do S3 via CloudFront. Quer permitir CORS apenas para 'https://app.example.com' e evitar que browsers de outros origins façam requests. Onde aplicar isso corretamente?",
+      "choices": {
+        "A": "Configurar CORS no S3 (origem) e/ou ajustar headers no CloudFront (ex: via Functions/Lambda@Edge) conforme necessário",
+        "B": "Configurar CORS no Route 53",
+        "C": "Configurar CORS no Security Group do CloudFront",
+        "D": "Configurar CORS no NAT Gateway"
+      },
+      "correct": ["A"],
+      "explanation": "CORS é controle de headers HTTP. Deve ser configurado na origem (S3) e, se necessário, manipulado no edge para consistência.",
+      "choice_explanations": {
+        "A": "Correto: CORS é HTTP header e deve estar na resposta/origem.",
+        "B": "Errado: DNS não controla headers.",
+        "C": "Errado: CloudFront não usa SG.",
+        "D": "Errado: NAT não controla headers."
+      },
+      "tags": ["cloudfront", "s3", "cors", "security", "edge"]
+    },
+    {
+      "id": "SAA-CF-EDGE-027-013",
+      "topic": "edge",
+      "question": "Uma empresa quer proteger uma distribuição CloudFront de picos de ataques volumétricos e também de L7. Qual combinação cobre melhor os dois?",
+      "choices": {
+        "A": "Shield (proteção DDoS) + WAF (L7) no CloudFront",
+        "B": "Somente WAF no CloudFront",
+        "C": "Somente Security Groups",
+        "D": "Somente CloudTrail"
+      },
+      "correct": ["A"],
+      "explanation": "Shield ajuda em DDoS volumétrico e WAF protege L7. Em prova, a resposta robusta costuma ser Shield + WAF.",
+      "choice_explanations": {
+        "A": "Correto: cobre volumétrico e L7.",
+        "B": "Errado: WAF é L7, não substitui proteção DDoS volumétrica.",
+        "C": "Errado: CloudFront não usa SG.",
+        "D": "Errado: CloudTrail é auditoria de API, não proteção."
+      },
+      "tags": ["cloudfront", "shield", "waf", "security", "ddos", "edge"]
+    },
+    {
+      "id": "SAA-CF-EDGE-027-014",
+      "topic": "edge",
+      "question": "Você precisa garantir que usuários sempre baixem objetos do CloudFront e nunca acessem o S3 publicamente, mesmo que descubram a URL do bucket. Além de OAC, o que é crítico no S3?",
+      "choices": {
+        "A": "Block Public Access habilitado + bucket policy restritiva",
+        "B": "ACLs públicas para compatibilidade",
+        "C": "Desabilitar versionamento",
+        "D": "Aumentar o TTL do Route 53"
+      },
+      "correct": ["A"],
+      "explanation": "Block Public Access e bucket policy restritiva são essenciais para evitar exposição do bucket.",
+      "choice_explanations": {
+        "A": "Correto: reforça privacidade do bucket.",
+        "B": "Errado: ACL pública quebra o objetivo.",
+        "C": "Errado: versionamento não controla acesso.",
+        "D": "Errado: TTL DNS não controla acesso ao bucket."
+      },
+      "tags": ["cloudfront", "s3", "security", "oac", "edge"]
+    },
+    {
+      "id": "SAA-CF-EDGE-027-015",
+      "topic": "edge",
+      "question": "Um time quer que respostas do CloudFront incluam automaticamente headers como Strict-Transport-Security, X-Content-Type-Options e Content-Security-Policy. Qual opção simples e adequada no edge?",
+      "choices": {
+        "A": "CloudFront Functions (viewer response) adicionando headers",
+        "B": "Alterar Route 53 records",
+        "C": "Adicionar NACLs para inserir headers",
+        "D": "Habilitar S3 server access logs"
+      },
+      "correct": ["A"],
+      "explanation": "CloudFront Functions é ideal para manipulação leve de resposta no edge, como adicionar headers de segurança.",
+      "choice_explanations": {
+        "A": "Correto: headers no edge com baixa latência.",
+        "B": "Errado: DNS não mexe em HTTP headers.",
+        "C": "Errado: NACL não mexe em HTTP headers.",
+        "D": "Errado: logs não inserem headers."
+      },
+      "tags": ["cloudfront", "functions", "security-headers", "edge", "security"]
+    },
+    {
+      "id": "SAA-CF-EDGE-027-016",
+      "topic": "edge",
+      "question": "Seu CloudFront está com custo alto por muitos cache misses. O origin é S3 e há muitos parâmetros de query string irrelevantes (ex: utm_*). Como reduzir misses?",
+      "choices": {
+        "A": "Ajustar cache policy para ignorar query strings irrelevantes (ou whitelist só as necessárias)",
+        "B": "Aumentar TTL DNS no Route 53",
+        "C": "Trocar S3 por EFS",
+        "D": "Desabilitar compressão para reduzir custo"
+      },
+      "correct": ["A"],
+      "explanation": "Cache key inclui query strings se configurado. Ignorar parâmetros irrelevantes melhora hit ratio e reduz custo.",
+      "choice_explanations": {
+        "A": "Correto: melhora cache hit ratio ajustando cache key.",
+        "B": "Errado: DNS TTL não afeta cache do CDN.",
+        "C": "Errado: muda a origem sem atacar a causa do miss.",
+        "D": "Errado: compressão afeta bytes, não misses."
+      },
+      "tags": ["cloudfront", "cache", "cost", "performance", "edge"]
+    },
+    {
+      "id": "SAA-CF-EDGE-027-017",
+      "topic": "edge",
+      "question": "Você precisa servir conteúdo dinâmico (API) e estático (assets) pela mesma distribuição CloudFront. O conteúdo estático deve ser cacheado agressivamente, e a API deve ter cache mínimo e forward Authorization. Qual desenho é mais correto?",
+      "choices": {
+        "A": "Behaviors diferentes: /static/* cache alto sem Authorization; /api/* cache baixo/sem cache e forward Authorization",
+        "B": "Uma behavior única cache alto para tudo",
+        "C": "Uma behavior única sem cache para tudo",
+        "D": "Route 53 weighted para separar API e estático"
+      },
+      "correct": ["A"],
+      "explanation": "Separar behaviors por path permite políticas distintas de cache e headers, otimizando custo e segurança.",
+      "choice_explanations": {
+        "A": "Correto: separação por path atende requisitos conflitantes.",
+        "B": "Errado: API não pode ter cache agressivo com Authorization.",
+        "C": "Errado: assets perderiam performance.",
+        "D": "Errado: DNS não substitui behaviors e cache policies."
+      },
+      "tags": ["cloudfront", "cache", "security", "behaviors", "edge", "apigw", "alb"]
+    },
+    {
+      "id": "SAA-CF-EDGE-027-018",
+      "topic": "edge",
+      "question": "O time quer fazer A/B testing no edge: 50% usuários vão para /v1 e 50% para /v2 baseado em um cookie. Quer baixa latência e sem origin extra. Qual opção é mais apropriada?",
+      "choices": {
+        "A": "CloudFront Functions para ler cookie e reescrever URI",
+        "B": "Route 53 weighted routing baseado em cookie",
+        "C": "S3 lifecycle rule para escolher versão",
+        "D": "NAT Gateway para dividir tráfego"
+      },
+      "correct": ["A"],
+      "explanation": "CloudFront Functions pode ler cookies e fazer rewrites/redirects de forma leve no edge.",
+      "choice_explanations": {
+        "A": "Correto: lógica leve e rápida no edge.",
+        "B": "Errado: DNS não lê cookie.",
+        "C": "Errado: lifecycle não faz roteamento.",
+        "D": "Errado: NAT não divide tráfego por cookie."
+      },
+      "tags": ["cloudfront", "functions", "ab-testing", "edge", "routing"]
+    },
+    {
+      "id": "SAA-CF-EDGE-027-019",
+      "topic": "edge",
+      "question": "Você serve arquivos grandes via CloudFront. Quer habilitar downloads parciais e melhorar experiência ao retomar download. O que é necessário do lado do CloudFront/origem?",
+      "choices": {
+        "A": "Suporte a Range Requests (byte-range) e manter comportamento padrão do CloudFront",
+        "B": "Desabilitar cache e forçar origin sempre",
+        "C": "Aumentar TTL DNS",
+        "D": "Usar apenas Route 53 failover"
+      },
+      "correct": ["A"],
+      "explanation": "Range requests permitem downloads parciais/retomada. CloudFront suporta byte-range, desde que origem responda corretamente.",
+      "choice_explanations": {
+        "A": "Correto: byte-range melhora retomada e streaming.",
+        "B": "Errado: desabilitar cache não resolve o requisito.",
+        "C": "Errado: TTL DNS não tem relação.",
+        "D": "Errado: DNS failover não trata downloads parciais."
+      },
+      "tags": ["cloudfront", "performance", "edge", "range-requests"]
+    },
+    {
+      "id": "SAA-CF-EDGE-027-020",
+      "topic": "edge",
+      "question": "Você precisa que o CloudFront use uma origem diferente dependendo do país (ex: conteúdo licenciado). Quer aplicar lógica baseada em header CloudFront-Viewer-Country. Qual ferramenta é mais adequada?",
+      "choices": {
+        "A": "Lambda@Edge ou CloudFront Functions (dependendo da complexidade) para roteamento/rewrites baseados no header",
+        "B": "Route 53 geolocation routing baseado em headers HTTP",
+        "C": "Security Groups no CloudFront",
+        "D": "S3 Inventory para decidir origem"
+      },
+      "correct": ["A"],
+      "explanation": "No edge, você pode usar Functions (leve) ou Lambda@Edge (mais complexo) para tomar decisões com base em headers como Viewer-Country.",
+      "choice_explanations": {
+        "A": "Correto: lógica no edge baseada em headers.",
+        "B": "Errado: DNS não vê headers HTTP.",
+        "C": "Errado: CloudFront não usa SG.",
+        "D": "Errado: inventory não roteia requests."
+      },
+      "tags": ["cloudfront", "edge", "lambda-at-edge", "functions", "routing", "security"]
+    }
+  ]
+}

@@ -1,0 +1,204 @@
+{
+  "questions": [
+    {
+      "id": "SAA-CON-131",
+      "topic": "containers",
+      "question": "Uma startup quer rodar containers sem gerenciar servidores, com escala automática e cobrança por uso. A aplicação é stateless e usa ALB. Qual opção atende melhor com menor overhead operacional?",
+      "choices": {
+        "A": "ECS com EC2 Launch Type + Auto Scaling Group",
+        "B": "ECS com Fargate + Service Auto Scaling",
+        "C": "EKS com nós gerenciados (Managed Node Groups)",
+        "D": "EC2 manual com Docker Compose"
+      },
+      "correct": ["B"],
+      "explanation": "ECS com Fargate elimina gerenciamento de servidores e combina com workloads stateless atrás de ALB, com scaling por métricas.",
+      "choice_explanations": {
+        "A": "❌ Ainda precisa gerenciar capacidade de EC2/ASG e patching.",
+        "B": "✅ Serverless para containers, ideal para menor overhead.",
+        "C": "❌ Funciona, mas adiciona complexidade operacional (K8s).",
+        "D": "❌ Sem HA/auto scaling gerenciado; alto risco operacional."
+      },
+      "tags": ["ecs", "fargate", "alb", "autoscaling", "serverless"]
+    },
+    {
+      "id": "SAA-CON-132",
+      "topic": "containers",
+      "question": "Uma aplicação em ECS precisa receber tráfego TCP de baixa latência e manter o IP do cliente (preservar source IP) para validação no backend. Qual balanceador é mais apropriado?",
+      "choices": {
+        "A": "Application Load Balancer (ALB)",
+        "B": "Network Load Balancer (NLB)",
+        "C": "Classic Load Balancer (CLB)",
+        "D": "API Gateway"
+      },
+      "correct": ["B"],
+      "explanation": "NLB opera em camada 4 (TCP/UDP), é indicado para baixa latência e pode preservar source IP dependendo do modo/target.",
+      "choice_explanations": {
+        "A": "❌ ALB é L7 (HTTP/HTTPS) e não é o foco para TCP puro.",
+        "B": "✅ NLB é o padrão para TCP/baixa latência.",
+        "C": "❌ CLB é legado e menos recomendado.",
+        "D": "❌ API Gateway é para APIs HTTP, não TCP genérico."
+      },
+      "tags": ["nlb", "tcp", "ecs", "load-balancer"]
+    },
+    {
+      "id": "SAA-CON-133",
+      "topic": "containers",
+      "question": "Você precisa expor um serviço HTTP em ECS com roteamento baseado em path (/api, /admin) e suporte a WAF. Qual escolha é a melhor?",
+      "choices": {
+        "A": "NLB",
+        "B": "ALB",
+        "C": "Gateway Load Balancer",
+        "D": "CloudFront apenas"
+      },
+      "correct": ["B"],
+      "explanation": "ALB (L7) suporta roteamento por path/host e integra com AWS WAF, ideal para HTTP.",
+      "choice_explanations": {
+        "A": "❌ NLB não faz roteamento L7 por path.",
+        "B": "✅ ALB atende roteamento por path + WAF.",
+        "C": "❌ GWLB é para appliances (firewalls), não para roteamento HTTP.",
+        "D": "❌ CloudFront ajuda, mas não substitui roteamento e WAF no ALB em cenários comuns."
+      },
+      "tags": ["alb", "waf", "routing", "ecs"]
+    },
+    {
+      "id": "SAA-CON-134",
+      "topic": "observability",
+      "question": "Uma aplicação em ECS Fargate precisa enviar logs de stdout/stderr para um serviço central para busca e retenção. Qual opção é a mais comum e simples na AWS?",
+      "choices": {
+        "A": "Enviar logs para S3 via user-data",
+        "B": "Usar CloudWatch Logs com awslogs/firelens",
+        "C": "Gravar logs localmente no disco do host",
+        "D": "Enviar logs para DynamoDB"
+      },
+      "correct": ["B"],
+      "explanation": "CloudWatch Logs é o caminho padrão para logs em ECS/Fargate. FireLens pode rotear para destinos adicionais, mas CloudWatch é o básico.",
+      "choice_explanations": {
+        "A": "❌ Fargate não usa user-data; além de ser gambiarra.",
+        "B": "✅ Padrão para logs e observabilidade em ECS.",
+        "C": "❌ Em Fargate não há host gerenciável; logs locais se perdem.",
+        "D": "❌ DynamoDB não é para logs."
+      },
+      "tags": ["cloudwatch-logs", "ecs", "fargate", "logging"]
+    },
+    {
+      "id": "SAA-CON-135",
+      "topic": "observability",
+      "question": "Você quer identificar gargalos e latência ponta-a-ponta em uma arquitetura com ALB -> ECS -> DynamoDB. Qual serviço AWS é mais indicado para tracing distribuído?",
+      "choices": {
+        "A": "CloudTrail",
+        "B": "AWS X-Ray",
+        "C": "AWS Config",
+        "D": "VPC Flow Logs"
+      },
+      "correct": ["B"],
+      "explanation": "X-Ray é voltado a tracing distribuído (serviços, latência, dependências).",
+      "choice_explanations": {
+        "A": "❌ CloudTrail audita chamadas de API, não tracing.",
+        "B": "✅ Tracing distribuído e service map.",
+        "C": "❌ Config é compliance/configuração.",
+        "D": "❌ Flow Logs é rede, não tracing de aplicação."
+      },
+      "tags": ["x-ray", "tracing", "observability"]
+    },
+    {
+      "id": "SAA-CON-136",
+      "topic": "scaling",
+      "question": "Um serviço em ECS atrás de ALB tem picos de tráfego previsíveis. A equipe quer que a escala aconteça baseada em utilização de CPU e que volte a reduzir depois. O que usar?",
+      "choices": {
+        "A": "ECS Service Auto Scaling com target tracking em CPU",
+        "B": "Trocar ALB por NLB",
+        "C": "Aumentar manualmente desiredCount sempre que houver pico",
+        "D": "Desativar health checks para acelerar"
+      },
+      "correct": ["A"],
+      "explanation": "ECS Service Auto Scaling com target tracking é ideal para escalar desired count com base em CPU/memória e reduzir automaticamente.",
+      "choice_explanations": {
+        "A": "✅ Solução gerenciada e automática.",
+        "B": "❌ Não resolve auto scaling.",
+        "C": "❌ Manual e sujeito a erro.",
+        "D": "❌ Perigoso: health check é crítico para HA."
+      },
+      "tags": ["ecs", "autoscaling", "cpu", "alb"]
+    },
+    {
+      "id": "SAA-CON-137",
+      "topic": "scaling",
+      "question": "Um cluster EKS precisa escalar nós automaticamente conforme novos pods não cabem mais nos nós atuais. Qual componente resolve isso?",
+      "choices": {
+        "A": "EKS Pod Security Policy",
+        "B": "Cluster Autoscaler (com ASG/Managed Node Groups)",
+        "C": "AWS Config Rules",
+        "D": "CloudFront Functions"
+      },
+      "correct": ["B"],
+      "explanation": "Cluster Autoscaler ajusta a quantidade de nós com base em pods pendentes e capacidade do cluster.",
+      "choice_explanations": {
+        "A": "❌ Segurança, não escala.",
+        "B": "✅ Escala nós conforme necessidade.",
+        "C": "❌ Compliance.",
+        "D": "❌ Edge compute."
+      },
+      "tags": ["eks", "cluster-autoscaler", "scaling"]
+    },
+    {
+      "id": "SAA-CON-138",
+      "topic": "availability",
+      "question": "Um serviço ECS deve ser altamente disponível em duas AZs. Qual configuração é essencial para evitar que todas as tasks fiquem em uma única AZ?",
+      "choices": {
+        "A": "Colocar tudo em uma subnet pública",
+        "B": "Usar subnets em múltiplas AZs e distribuir tasks (awsvpc) com ALB multi-AZ",
+        "C": "Rodar apenas 1 task com mais CPU",
+        "D": "Usar EBS single-AZ como volume compartilhado"
+      },
+      "correct": ["B"],
+      "explanation": "HA em ECS depende de subnets multi-AZ e distribuição das tasks/targets no ALB, garantindo redundância por zona.",
+      "choice_explanations": {
+        "A": "❌ Público não significa HA.",
+        "B": "✅ Multi-AZ é a base de alta disponibilidade.",
+        "C": "❌ SPoF total.",
+        "D": "❌ EBS é por AZ; volume compartilhado aqui vira fragilidade."
+      },
+      "tags": ["ecs", "multi-az", "high-availability", "alb"]
+    },
+    {
+      "id": "SAA-CON-139",
+      "topic": "deployments",
+      "question": "Você precisa fazer deploy de nova versão de um serviço ECS minimizando downtime e garantindo rollback automático se health checks falharem. Qual estratégia é a mais adequada no ECS Service?",
+      "choices": {
+        "A": "Blue/Green com CodeDeploy (quando aplicável) ou Rolling Update com health checks",
+        "B": "Parar todas as tasks e subir novas depois",
+        "C": "Atualizar manualmente a imagem em cada container",
+        "D": "Desativar o ALB durante deploy"
+      },
+      "correct": ["A"],
+      "explanation": "Rolling update com health checks já reduz downtime e permite rollback; Blue/Green via CodeDeploy pode oferecer mais controle dependendo do cenário.",
+      "choice_explanations": {
+        "A": "✅ Estratégias corretas e seguras.",
+        "B": "❌ Downtime garantido.",
+        "C": "❌ Manual e inconsistente.",
+        "D": "❌ Interrompe tráfego e aumenta indisponibilidade."
+      },
+      "tags": ["ecs", "deploy", "health-check", "rollback"]
+    },
+    {
+      "id": "SAA-CON-140",
+      "topic": "security",
+      "question": "Uma tarefa ECS precisa acessar um bucket S3 e uma tabela DynamoDB. A equipe quer evitar credenciais hardcoded e aplicar menor privilégio. Qual é a melhor abordagem?",
+      "choices": {
+        "A": "Colocar Access Key/Secret no código",
+        "B": "Usar IAM Role para Task (Task Role) com políticas mínimas",
+        "C": "Usar credenciais do usuário root",
+        "D": "Abrir o bucket S3 como público"
+      },
+      "correct": ["B"],
+      "explanation": "Task Role é o padrão: credenciais temporárias via IAM, mínimo privilégio, sem secrets no código.",
+      "choice_explanations": {
+        "A": "❌ Péssima prática (vazamento).",
+        "B": "✅ Melhor prática.",
+        "C": "❌ Inaceitável e inseguro.",
+        "D": "❌ Exposição pública desnecessária."
+      },
+      "tags": ["iam", "ecs", "task-role", "least-privilege", "s3", "dynamodb"]
+    }
+  ]
+}

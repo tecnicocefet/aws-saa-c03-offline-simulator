@@ -1,0 +1,207 @@
+{
+  "version": "1.0",
+  "exam": "AWS-SAA-C03",
+  "language": "pt-BR",
+  "questions": [
+    {
+      "id": "SAA-HADR-001",
+      "topic": "ha-dr",
+      "tags": ["rto", "rpo", "pilot-light", "rds", "dr-pattern"],
+      "question": "Uma empresa roda um sistema crítico em uma região AWS. O requisito é RTO < 60 minutos e RPO < 15 minutos, com foco em menor custo possível. A aplicação usa EC2 Auto Scaling, ALB e RDS MySQL. Qual estratégia atende melhor?",
+      "choices": {
+        "A": "Backup diário do EBS e snapshots semanais do RDS, restaurando sob demanda em outra região.",
+        "B": "Pilot light em outra região com AMIs prontas, Auto Scaling configurado e RDS cross-region read replica promovida em caso de falha.",
+        "C": "Active-active em duas regiões com Route 53 weighted 50/50.",
+        "D": "Warm standby com capacidade igual à produção e replicação síncrona."
+      },
+      "correct": ["B"],
+      "explanation": "Pilot light mantém infraestrutura mínima ativa no DR com replicação contínua do banco, atendendo RPO baixo com custo reduzido.",
+      "choice_explanations": {
+        "A": "Errado. RPO seria alto (backup diário/semanal) e RTO longo.",
+        "B": "Certo. Replica banco continuamente e permite escalar aplicação rapidamente.",
+        "C": "Errado. Active-active é mais caro que necessário.",
+        "D": "Errado. Warm standby é mais caro que pilot light para esse requisito."
+      }
+    },
+    {
+      "id": "SAA-HADR-002",
+      "topic": "ha-dr",
+      "tags": ["aurora-global", "rpo-zero", "multi-region"],
+      "question": "Um e-commerce exige RPO próximo de zero e RTO < 5 minutos para banco relacional com workload global. Melhor solução?",
+      "choices": {
+        "A": "RDS Multi-AZ.",
+        "B": "Snapshots frequentes.",
+        "C": "Aurora Global Database.",
+        "D": "DynamoDB padrão."
+      },
+      "correct": ["C"],
+      "explanation": "Aurora Global Database replica storage com latência muito baixa entre regiões, permitindo RPO muito baixo e promoção rápida.",
+      "choice_explanations": {
+        "A": "Errado. Multi-AZ é intra-região.",
+        "B": "Errado. Snapshots não atendem RPO quase zero.",
+        "C": "Certo. Projetado para DR multi-região rápido.",
+        "D": "Errado. DynamoDB não é relacional."
+      }
+    },
+    {
+      "id": "SAA-HADR-003",
+      "topic": "dns",
+      "tags": ["route53", "failover", "health-check"],
+      "question": "Você precisa de failover automático entre duas regiões para um endpoint público. Qual combinação é mais adequada?",
+      "choices": {
+        "A": "Route 53 failover routing com health checks.",
+        "B": "Route 53 simple routing.",
+        "C": "CloudFront sem origin failover.",
+        "D": "Weighted routing 50/50."
+      },
+      "correct": ["A"],
+      "explanation": "Failover routing com health checks detecta falha e redireciona automaticamente.",
+      "choice_explanations": {
+        "A": "Certo. É o padrão para failover DNS.",
+        "B": "Errado. Simple não faz failover.",
+        "C": "Errado. Sem origin failover não cobre região inteira.",
+        "D": "Errado. Weighted não garante failover automático."
+      }
+    },
+    {
+      "id": "SAA-HADR-004",
+      "topic": "ha",
+      "tags": ["multi-az", "availability"],
+      "question": "Sistema requer alta disponibilidade dentro de uma região e tolerância a falhas de AZ. Melhor escolha?",
+      "choices": {
+        "A": "Active-active multi-região.",
+        "B": "Multi-AZ com ALB, ASG e RDS Multi-AZ.",
+        "C": "Backup semanal.",
+        "D": "Glacier restore."
+      },
+      "correct": ["B"],
+      "explanation": "Multi-AZ cobre falhas de AZ dentro da mesma região com simplicidade.",
+      "choice_explanations": {
+        "A": "Errado. Exagerado para requisito.",
+        "B": "Certo. Alta disponibilidade regional.",
+        "C": "Errado. Backup não é HA.",
+        "D": "Errado. Glacier é arquivamento."
+      }
+    },
+    {
+      "id": "SAA-HADR-005",
+      "topic": "s3",
+      "tags": ["crr", "kms", "replication"],
+      "question": "Dados em S3 com SSE-KMS precisam estar disponíveis em outra região para DR. Melhor abordagem?",
+      "choices": {
+        "A": "S3 Cross-Region Replication com permissões KMS corretas.",
+        "B": "aws s3 sync manual.",
+        "C": "CloudFront cache.",
+        "D": "Transfer Acceleration."
+      },
+      "correct": ["A"],
+      "explanation": "CRR replica automaticamente objetos, inclusive com KMS configurado corretamente.",
+      "choice_explanations": {
+        "A": "Certo. Replicação automática e contínua.",
+        "B": "Errado. Manual não garante RPO baixo.",
+        "C": "Errado. Cache não é DR.",
+        "D": "Errado. Aceleração não replica."
+      }
+    },
+    {
+      "id": "SAA-HADR-006",
+      "topic": "backup-restore",
+      "tags": ["ebs", "snapshots", "cross-region"],
+      "question": "Aplicação stateful em EC2 com requisito RPO 1 hora e RTO 2 horas, DR barato em outra região. Melhor estratégia?",
+      "choices": {
+        "A": "Snapshots EBS com cópia cross-region + IaC para recriar infra.",
+        "B": "EBS Multi-Attach entre regiões.",
+        "C": "Replicação síncrona de EBS.",
+        "D": "Instance store apenas."
+      },
+      "correct": ["A"],
+      "explanation": "Snapshots frequentes e cópia cross-region atendem RPO/RTO com baixo custo.",
+      "choice_explanations": {
+        "A": "Certo.",
+        "B": "Errado. Multi-Attach não é cross-region.",
+        "C": "Errado. Não existe replicação síncrona EBS cross-region.",
+        "D": "Errado. Instance store é efêmero."
+      }
+    },
+    {
+      "id": "SAA-HADR-007",
+      "topic": "dr-pattern",
+      "tags": ["warm-standby"],
+      "question": "Qual cenário descreve melhor Warm Standby?",
+      "choices": {
+        "A": "Nada rodando no DR.",
+        "B": "Infra mínima ativa pronta para escalar.",
+        "C": "Active-active.",
+        "D": "Somente backup."
+      },
+      "correct": ["B"],
+      "explanation": "Warm standby mantém ambiente parcialmente ativo e escalável rapidamente.",
+      "choice_explanations": {
+        "A": "Errado. Isso é backup & restore.",
+        "B": "Certo.",
+        "C": "Errado. Active-active é diferente.",
+        "D": "Errado."
+      }
+    },
+    {
+      "id": "SAA-HADR-008",
+      "topic": "dns",
+      "tags": ["route53", "ttl"],
+      "question": "Para reduzir tempo de failover DNS com Route 53, o que influencia diretamente?",
+      "choices": {
+        "A": "Aumentar TTL.",
+        "B": "Diminuir TTL e ajustar health check.",
+        "C": "Weighted routing.",
+        "D": "CloudFront."
+      },
+      "correct": ["B"],
+      "explanation": "TTL menor reduz cache DNS e acelera propagação de failover.",
+      "choice_explanations": {
+        "A": "Errado. Aumenta tempo de propagação.",
+        "B": "Certo.",
+        "C": "Errado.",
+        "D": "Errado."
+      }
+    },
+    {
+      "id": "SAA-HADR-009",
+      "topic": "dynamodb",
+      "tags": ["global-tables"],
+      "question": "Aplicação global precisa escrita multi-região com alta disponibilidade. Melhor solução?",
+      "choices": {
+        "A": "DynamoDB padrão.",
+        "B": "DynamoDB Global Tables.",
+        "C": "Snapshots diários.",
+        "D": "S3 export."
+      },
+      "correct": ["B"],
+      "explanation": "Global Tables permite escrita multi-região ativa.",
+      "choice_explanations": {
+        "A": "Errado.",
+        "B": "Certo.",
+        "C": "Errado.",
+        "D": "Errado."
+      }
+    },
+    {
+      "id": "SAA-HADR-010",
+      "topic": "rds",
+      "tags": ["multi-az", "regional"],
+      "question": "Por que RDS Multi-AZ não é considerado DR multi-região?",
+      "choices": {
+        "A": "Não faz backup.",
+        "B": "É apenas intra-região (AZ), não cobre falha regional.",
+        "C": "Não suporta failover.",
+        "D": "É somente leitura."
+      },
+      "correct": ["B"],
+      "explanation": "Multi-AZ protege contra falha de AZ, não de região inteira.",
+      "choice_explanations": {
+        "A": "Errado.",
+        "B": "Certo.",
+        "C": "Errado.",
+        "D": "Errado."
+      }
+    }
+  ]
+}

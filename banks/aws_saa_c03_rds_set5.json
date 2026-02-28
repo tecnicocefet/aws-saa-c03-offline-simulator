@@ -1,0 +1,204 @@
+{
+  "questions": [
+    {
+      "id": "SAA-RDS-081",
+      "topic": "rds",
+      "question": "Uma aplicação usa RDS MySQL e precisa de alta disponibilidade automática dentro da mesma região, sem alteração na string de conexão da aplicação durante failover. Qual opção atende melhor?",
+      "choices": {
+        "A": "Read Replica em outra AZ",
+        "B": "RDS Multi-AZ deployment",
+        "C": "Snapshot diário automatizado",
+        "D": "RDS Single-AZ com Auto Scaling"
+      },
+      "correct": ["B"],
+      "explanation": "RDS Multi-AZ fornece standby síncrono e failover automático transparente usando o mesmo endpoint.",
+      "choice_explanations": {
+        "A": "❌ Read Replica é assíncrona e não faz failover automático padrão.",
+        "B": "✅ Multi-AZ é HA com failover automático e endpoint único.",
+        "C": "❌ Snapshot é backup, não HA.",
+        "D": "❌ Não existe 'Single-AZ com Auto Scaling' como HA."
+      },
+      "tags": ["rds", "multi-az", "ha", "mysql"]
+    },
+    {
+      "id": "SAA-RDS-082",
+      "topic": "aurora",
+      "question": "Uma empresa exige RPO próximo de zero e RTO inferior a 1 minuto para falha de AZ. Qual engine atende melhor esse requisito por arquitetura?",
+      "choices": {
+        "A": "RDS MySQL Single-AZ",
+        "B": "RDS Multi-AZ",
+        "C": "Aurora com armazenamento distribuído em múltiplas AZs",
+        "D": "Snapshot + restore manual"
+      },
+      "correct": ["C"],
+      "explanation": "Aurora replica storage em 6 cópias distribuídas por 3 AZs, permitindo failover muito rápido e RPO praticamente zero.",
+      "choice_explanations": {
+        "A": "❌ Sem HA.",
+        "B": "❌ Multi-AZ é bom, mas Aurora tem arquitetura mais resiliente.",
+        "C": "✅ Arquitetura distribuída com failover rápido.",
+        "D": "❌ RTO muito alto."
+      },
+      "tags": ["aurora", "ha", "rpo", "rto"]
+    },
+    {
+      "id": "SAA-RDS-083",
+      "topic": "rds",
+      "question": "Você precisa escalar leitura intensivamente para workload analítico sem impactar primário. Qual abordagem é mais adequada?",
+      "choices": {
+        "A": "Aumentar instance size do primário",
+        "B": "Criar Read Replicas",
+        "C": "Habilitar Multi-AZ",
+        "D": "Criar snapshot e consultar snapshot"
+      },
+      "correct": ["B"],
+      "explanation": "Read Replicas escalam leitura de forma horizontal e aliviam carga do primário.",
+      "choice_explanations": {
+        "A": "❌ Escala vertical limitada.",
+        "B": "✅ Escala leitura horizontalmente.",
+        "C": "❌ Multi-AZ é para HA, não scale de leitura.",
+        "D": "❌ Snapshot não é banco ativo."
+      },
+      "tags": ["rds", "read-replica", "scaling", "performance"]
+    },
+    {
+      "id": "SAA-RDS-084",
+      "topic": "aurora",
+      "question": "Você precisa de DR multi-região com replicação quase em tempo real e failover rápido para workload Aurora. Qual recurso usar?",
+      "choices": {
+        "A": "Read Replica tradicional",
+        "B": "Aurora Global Database",
+        "C": "Backup diário e restore",
+        "D": "Export para S3"
+      },
+      "correct": ["B"],
+      "explanation": "Aurora Global Database replica storage para região secundária com latência baixa e RPO muito pequeno.",
+      "choice_explanations": {
+        "A": "❌ Não é otimizado para DR multi-região como Global.",
+        "B": "✅ Melhor opção para DR multi-região Aurora.",
+        "C": "❌ RPO alto.",
+        "D": "❌ Não é DR real-time."
+      },
+      "tags": ["aurora", "global-database", "dr", "multi-region"]
+    },
+    {
+      "id": "SAA-RDS-085",
+      "topic": "rds",
+      "question": "Uma empresa quer reduzir impacto de falha regional e aceita RTO de 1 hora e RPO de 15 minutos. Qual estratégia é mais custo-efetiva?",
+      "choices": {
+        "A": "Active-active multi-site completo",
+        "B": "Pilot light com Read Replica cross-region promovida em desastre",
+        "C": "Snapshot semanal apenas",
+        "D": "Multi-AZ apenas"
+      },
+      "correct": ["B"],
+      "explanation": "Read Replica cross-region pode ser promovida, atendendo RPO/RTO moderados com custo menor que active-active.",
+      "choice_explanations": {
+        "A": "❌ Muito caro.",
+        "B": "✅ Equilíbrio custo vs DR.",
+        "C": "❌ RPO alto.",
+        "D": "❌ Não cobre desastre regional."
+      },
+      "tags": ["rds", "dr", "read-replica", "cross-region"]
+    },
+    {
+      "id": "SAA-RDS-086",
+      "topic": "rds",
+      "question": "Você quer criptografar um banco RDS existente não criptografado. Qual é o procedimento correto?",
+      "choices": {
+        "A": "Habilitar criptografia diretamente na instância existente",
+        "B": "Criar snapshot, copiar snapshot com criptografia habilitada e restaurar nova instância",
+        "C": "Ativar KMS no console",
+        "D": "Reiniciar instância"
+      },
+      "correct": ["B"],
+      "explanation": "RDS não permite habilitar criptografia retroativamente; é necessário criar snapshot e restaurar criptografado.",
+      "choice_explanations": {
+        "A": "❌ Não é suportado.",
+        "B": "✅ Processo correto.",
+        "C": "❌ Não funciona assim.",
+        "D": "❌ Reinício não altera criptografia."
+      },
+      "tags": ["rds", "encryption", "kms", "snapshot"]
+    },
+    {
+      "id": "SAA-RDS-087",
+      "topic": "aurora",
+      "question": "Qual característica diferencia Aurora do RDS tradicional em termos de storage?",
+      "choices": {
+        "A": "Aurora usa EBS gp3 diretamente",
+        "B": "Aurora usa storage distribuído em múltiplas AZs com 6 cópias",
+        "C": "Aurora não suporta replicação",
+        "D": "Aurora não suporta Multi-AZ"
+      },
+      "correct": ["B"],
+      "explanation": "Aurora separa compute e storage, replicando storage automaticamente em múltiplas AZs.",
+      "choice_explanations": {
+        "A": "❌ Aurora não usa EBS tradicional como RDS.",
+        "B": "✅ Arquitetura diferenciada.",
+        "C": "❌ Suporta replicação.",
+        "D": "❌ É multi-AZ por design."
+      },
+      "tags": ["aurora", "architecture", "storage"]
+    },
+    {
+      "id": "SAA-RDS-088",
+      "topic": "rds",
+      "question": "Qual recurso permite restaurar banco RDS para um ponto específico no tempo dentro da janela de retenção?",
+      "choices": {
+        "A": "Snapshot manual apenas",
+        "B": "Point-in-Time Recovery (PITR)",
+        "C": "Multi-AZ",
+        "D": "Read Replica"
+      },
+      "correct": ["B"],
+      "explanation": "PITR usa backups automáticos e logs para restaurar em ponto específico.",
+      "choice_explanations": {
+        "A": "❌ Snapshot é ponto fixo.",
+        "B": "✅ PITR permite granularidade temporal.",
+        "C": "❌ Multi-AZ é HA.",
+        "D": "❌ Replica não é restore."
+      },
+      "tags": ["rds", "backup", "pitr", "recovery"]
+    },
+    {
+      "id": "SAA-RDS-089",
+      "topic": "rds",
+      "question": "Uma aplicação exige latência mínima e acesso frequente a dados quentes. Qual configuração de storage é mais apropriada?",
+      "choices": {
+        "A": "gp2",
+        "B": "gp3",
+        "C": "Magnetic",
+        "D": "Standard-IA"
+      },
+      "correct": ["B"],
+      "explanation": "gp3 permite provisionar IOPS independentemente do tamanho e oferece melhor controle de performance.",
+      "choice_explanations": {
+        "A": "❌ Antigo padrão.",
+        "B": "✅ Melhor controle e custo-benefício.",
+        "C": "❌ Obsoleto.",
+        "D": "❌ Não é RDS storage."
+      },
+      "tags": ["rds", "storage", "performance", "gp3"]
+    },
+    {
+      "id": "SAA-RDS-090",
+      "topic": "aurora",
+      "question": "Você quer separar workload OLTP e relatórios analíticos no Aurora sem impactar escrita. Qual recurso usar?",
+      "choices": {
+        "A": "Aumentar instance size",
+        "B": "Aurora Reader endpoint com múltiplas réplicas",
+        "C": "Snapshot manual",
+        "D": "Multi-AZ"
+      },
+      "correct": ["B"],
+      "explanation": "Aurora Reader endpoint distribui queries de leitura entre réplicas.",
+      "choice_explanations": {
+        "A": "❌ Escala vertical.",
+        "B": "✅ Escala leitura com endpoint específico.",
+        "C": "❌ Não é banco ativo.",
+        "D": "❌ HA apenas."
+      },
+      "tags": ["aurora", "read-scaling", "reader-endpoint"]
+    }
+  ]
+}

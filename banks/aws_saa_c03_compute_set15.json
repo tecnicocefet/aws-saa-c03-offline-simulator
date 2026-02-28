@@ -1,0 +1,411 @@
+{
+  "meta": {
+    "exam": "AWS SAA-C03",
+    "set": 15,
+    "focus": ["EC2", "Auto Scaling", "ELB", "EBS", "Resilience", "Operations"],
+    "difficulty": "hard",
+    "language": "pt-BR"
+  },
+  "questions": [
+    {
+      "id": "SAA-15-001",
+      "topic": "scaling",
+      "question": "Uma aplicação web em EC2 atrás de um ALB tem picos imprevisíveis. Você precisa manter latência baixa sem custo excessivo. A equipe quer escalar baseado em carga real, mas também reagir rápido a spikes. Qual combinação é a melhor?",
+      "choices": {
+        "A": "Auto Scaling com Target Tracking em ALBRequestCountPerTarget e Warm Pools",
+        "B": "Auto Scaling com Step Scaling baseado em CPU e instâncias on-demand fixas",
+        "C": "Aumentar o tamanho das instâncias (vertical scaling) e desativar Auto Scaling",
+        "D": "Usar apenas Scheduled Scaling com horários de pico definidos manualmente"
+      },
+      "correct": ["A"],
+      "explanation": "Target Tracking em métricas do ALB (request count por target) responde bem à demanda real. Warm Pools reduzem o tempo de scale-out mantendo instâncias pré-inicializadas, ajudando em spikes.",
+      "choice_explanations": {
+        "A": "Correto: combina métrica alinhada ao tráfego real + redução de tempo de provisão com Warm Pools.",
+        "B": "CPU nem sempre reflete tráfego (ex: I/O, threads bloqueadas). Sem warm pool, pode demorar a reagir.",
+        "C": "Perde elasticidade e pode custar caro, além de não reagir a spikes.",
+        "D": "Spikes imprevisíveis quebram scheduled scaling; não reage a eventos fora do padrão."
+      },
+      "tags": ["ec2", "autoscaling", "alb", "performance", "cost"]
+    },
+    {
+      "id": "SAA-15-002",
+      "topic": "elb",
+      "question": "Você precisa expor um serviço TCP de baixa latência para clientes internos e manter IPs estáticos por AZ para permitir allowlists em firewalls. Qual serviço é mais adequado?",
+      "choices": {
+        "A": "ALB com listeners HTTPS e regras por host",
+        "B": "NLB com Elastic IP por subnet (por AZ)",
+        "C": "API Gateway REST com VPC Link",
+        "D": "CloudFront com Origin ALB"
+      },
+      "correct": ["B"],
+      "explanation": "Para TCP e IPs estáticos por AZ, o NLB suporta Elastic IP associado às subnets por AZ, permitindo allowlist estável e baixa latência.",
+      "choice_explanations": {
+        "A": "ALB é L7 (HTTP/HTTPS) e não foca em TCP nem garante IP estático.",
+        "B": "Correto: NLB é L4 (TCP/UDP/TLS) e pode usar EIP por AZ.",
+        "C": "API Gateway não é ideal para TCP puro e adiciona overhead.",
+        "D": "CloudFront é CDN, não resolve TCP interno com IP allowlist por AZ."
+      },
+      "tags": ["nlb", "tcp", "networking", "security", "allowlist"]
+    },
+    {
+      "id": "SAA-15-003",
+      "topic": "ec2",
+      "question": "Um time precisa rodar um job batch grande que tolera interrupções, mas quer o menor custo possível. O job pode checkpoint a cada 2 minutos. Qual opção entrega menor custo com estratégia correta?",
+      "choices": {
+        "A": "Instâncias On-Demand com Auto Recovery habilitado",
+        "B": "Reserved Instances 3 anos All Upfront",
+        "C": "Spot Instances com checkpoint e requeue automático",
+        "D": "Instâncias Dedicated Hosts para garantir capacidade"
+      },
+      "correct": ["C"],
+      "explanation": "Spot é a opção mais barata para workloads tolerantes a interrupção. Com checkpoint frequente e requeue, a interrupção vira parte do design.",
+      "choice_explanations": {
+        "A": "On-Demand é mais caro e não aproveita tolerância a interrupção.",
+        "B": "RI reduz custo, mas normalmente Spot é mais barato para batch tolerante a interrupções.",
+        "C": "Correto: Spot + checkpoint é o padrão para custo mínimo com tolerância a interrupções.",
+        "D": "Dedicated é caro e não faz sentido para batch tolerante a interrupção."
+      },
+      "tags": ["spot", "ec2", "cost", "batch", "resilience"]
+    },
+    {
+      "id": "SAA-15-004",
+      "topic": "ec2",
+      "question": "Você precisa garantir que 3 instâncias que rodam um banco legado tenham menor latência possível entre si e rede 10 Gbps, mas aceita risco maior de falha correlacionada. Qual abordagem é mais adequada?",
+      "choices": {
+        "A": "Spread Placement Group",
+        "B": "Partition Placement Group",
+        "C": "Cluster Placement Group",
+        "D": "Executar em 3 AZs diferentes sem placement group"
+      },
+      "correct": ["C"],
+      "explanation": "Cluster placement group fornece baixa latência e alta largura de banda, com risco de falha correlacionada (mesmo rack/infra).",
+      "choice_explanations": {
+        "A": "Spread maximiza separação física, bom para HA, não para menor latência.",
+        "B": "Partition equilibra isolamento e escala, não foca em mínima latência.",
+        "C": "Correto: cluster é otimizado para performance entre instâncias.",
+        "D": "Multi-AZ melhora HA, mas não é a melhor opção para latência mínima entre nós."
+      },
+      "tags": ["ec2", "placement-group", "performance", "latency"]
+    },
+    {
+      "id": "SAA-15-005",
+      "topic": "security",
+      "question": "Você precisa permitir que uma instância EC2 acesse S3 sem chaves estáticas e com rotação automática. Qual é a solução recomendada?",
+      "choices": {
+        "A": "Armazenar Access Key/Secret em /etc/environment e restringir permissões do arquivo",
+        "B": "Usar IAM Role associada à instância (Instance Profile)",
+        "C": "Usar um usuário IAM com MFA obrigatório e exportar tokens temporários manualmente",
+        "D": "Colocar as chaves em Parameter Store como SecureString e ler no boot"
+      },
+      "correct": ["B"],
+      "explanation": "IAM Role em EC2 (Instance Profile) fornece credenciais temporárias via metadata, com rotação automática e sem chaves hardcoded.",
+      "choice_explanations": {
+        "A": "Chave estática é risco e não rotaciona automaticamente.",
+        "B": "Correto: padrão AWS para acesso seguro a serviços.",
+        "C": "Operacionalmente ruim e sujeito a erro humano.",
+        "D": "Ainda é segredo estático (mesmo que criptografado) e exige rotação manual."
+      },
+      "tags": ["iam", "ec2", "s3", "security", "instance-profile"]
+    },
+    {
+      "id": "SAA-15-006",
+      "topic": "storage",
+      "question": "Uma aplicação em EC2 precisa de armazenamento de baixa latência com alta taxa de IOPS consistente para um banco local. Você quer minimizar jitter de performance. Qual tipo de volume é o mais indicado?",
+      "choices": {
+        "A": "EBS gp3",
+        "B": "EBS st1",
+        "C": "EBS sc1",
+        "D": "EFS Standard"
+      },
+      "correct": ["A"],
+      "explanation": "gp3 permite provisionar IOPS e throughput independentes, oferecendo performance consistente para workloads transacionais gerais.",
+      "choice_explanations": {
+        "A": "Correto: gp3 é SSD e permite IOPS/throughput provisionados.",
+        "B": "st1 é HDD otimizado para throughput, não IOPS baixos/consistentes.",
+        "C": "sc1 é cold HDD, pior ainda para latência/IOPS.",
+        "D": "EFS é NFS compartilhado; latência e perfil podem não ser ideais para banco local exigente."
+      },
+      "tags": ["ebs", "gp3", "storage", "performance", "iops"]
+    },
+    {
+      "id": "SAA-15-007",
+      "topic": "ec2",
+      "question": "Você quer reduzir o tempo de boot em scale-out. A aplicação faz muitos downloads e configurações no user-data. Qual melhoria tende a reduzir tempo e aumentar previsibilidade?",
+      "choices": {
+        "A": "Mover tudo para um script que roda a cada 5 minutos via cron",
+        "B": "Criar uma AMI customizada já com dependências e artefatos pré-instalados",
+        "C": "Usar instâncias maiores para boot mais rápido",
+        "D": "Desabilitar health checks do ALB para evitar substituição"
+      },
+      "correct": ["B"],
+      "explanation": "AMI custom reduz trabalho no boot (user-data), tornando o scale-out mais rápido e previsível.",
+      "choice_explanations": {
+        "A": "Não reduz boot, só posterga configuração e pode quebrar a app.",
+        "B": "Correto: pré-bake é prática comum para reduzir tempo de inicialização.",
+        "C": "Tamanho não resolve downloads/config; custo sobe.",
+        "D": "Desabilitar health check piora confiabilidade e não resolve boot."
+      },
+      "tags": ["ami", "ec2", "autoscaling", "performance", "operations"]
+    },
+    {
+      "id": "SAA-15-008",
+      "topic": "observability",
+      "question": "A equipe quer saber quando uma instância do Auto Scaling Group foi substituída por falha e por quê, sem depender de acesso SSH. Qual é a melhor abordagem?",
+      "choices": {
+        "A": "Habilitar acesso SSH e pedir para o time investigar manualmente",
+        "B": "Usar CloudTrail apenas",
+        "C": "Usar Auto Scaling lifecycle hooks + logs (CloudWatch) + eventos (EventBridge)",
+        "D": "Desativar substituição automática para manter instâncias falhas para análise"
+      },
+      "correct": ["C"],
+      "explanation": "Lifecycle hooks permitem pausar transições (quando necessário), registrar contexto, enviar logs/telemetria e disparar eventos para investigação.",
+      "choice_explanations": {
+        "A": "Depende de acesso manual, não escala e falha em incidentes.",
+        "B": "CloudTrail mostra chamadas API, mas não dá contexto operacional suficiente sozinho.",
+        "C": "Correto: hooks + logs + eventos dá rastreabilidade e automação.",
+        "D": "Desativa resiliência e aumenta downtime."
+      },
+      "tags": ["autoscaling", "cloudwatch", "eventbridge", "operations", "troubleshooting"]
+    },
+    {
+      "id": "SAA-15-009",
+      "topic": "elb",
+      "question": "Você precisa rotear requisições HTTP para múltiplos serviços com base em path (/api, /static) e também fazer autenticação OIDC antes de chegar no backend. Qual é a melhor opção?",
+      "choices": {
+        "A": "NLB com TLS pass-through",
+        "B": "ALB com regras por path + autenticação OIDC",
+        "C": "Classic Load Balancer com sticky sessions",
+        "D": "Route 53 weighted routing direto para instâncias"
+      },
+      "correct": ["B"],
+      "explanation": "ALB (L7) permite regras por path/host e suporta autenticação via OIDC/Cognito, descarregando essa lógica do backend.",
+      "choice_explanations": {
+        "A": "NLB não faz roteamento por path nem autenticação L7.",
+        "B": "Correto: ALB é o serviço certo para HTTP routing + auth OIDC.",
+        "C": "CLB é legado e limitado para recursos modernos.",
+        "D": "Route 53 não faz auth nem roteamento L7 por path."
+      },
+      "tags": ["alb", "oidc", "security", "routing", "http"]
+    },
+    {
+      "id": "SAA-15-010",
+      "topic": "scaling",
+      "question": "Uma aplicação usa conexões longas (WebSocket) com clientes. Você precisa escalar e balancear mantendo compatibilidade com conexões persistentes. Qual opção é mais adequada?",
+      "choices": {
+        "A": "ALB (Application Load Balancer)",
+        "B": "NLB (Network Load Balancer)",
+        "C": "CloudFront apenas",
+        "D": "API Gateway REST"
+      },
+      "correct": ["A"],
+      "explanation": "ALB suporta WebSocket em nível HTTP/HTTPS e é adequado para aplicações L7 com conexões persistentes.",
+      "choice_explanations": {
+        "A": "Correto: ALB é comumente usado com WebSocket.",
+        "B": "NLB pode funcionar para TCP, mas se a necessidade é WebSocket HTTP/HTTPS e recursos L7, ALB é mais direto.",
+        "C": "CloudFront não substitui o load balancer de origem para WebSocket em todas as necessidades.",
+        "D": "API Gateway REST não é ideal para WebSocket (existe API Gateway WebSocket, mas não é a opção listada)."
+      },
+      "tags": ["alb", "websocket", "scaling", "networking"]
+    },
+    {
+      "id": "SAA-15-011",
+      "topic": "security",
+      "question": "Você quer bloquear tráfego malicioso em camada 7 (SQLi, XSS) antes de chegar no ALB. Qual serviço se integra diretamente para isso?",
+      "choices": {
+        "A": "AWS Shield Standard apenas",
+        "B": "AWS WAF associado ao ALB",
+        "C": "Security Group com regras por URL",
+        "D": "NACL com regras por cabeçalho HTTP"
+      },
+      "correct": ["B"],
+      "explanation": "AWS WAF opera em L7 e integra com ALB/CloudFront/API Gateway para bloquear padrões como SQLi/XSS.",
+      "choice_explanations": {
+        "A": "Shield ajuda contra DDoS, não cobre regras L7 customizadas como SQLi/XSS.",
+        "B": "Correto: WAF é a camada L7 para filtragem.",
+        "C": "SG não entende URL/cabeçalho; é L3/L4.",
+        "D": "NACL também é L3/L4; não inspeciona HTTP."
+      },
+      "tags": ["waf", "alb", "security", "layer7"]
+    },
+    {
+      "id": "SAA-15-012",
+      "topic": "ec2",
+      "question": "Você precisa garantir que, quando uma instância for terminada pelo Auto Scaling, logs e métricas finais sejam enviados antes do shutdown. Qual recurso permite controlar isso?",
+      "choices": {
+        "A": "ALB deregistration delay apenas",
+        "B": "Auto Scaling lifecycle hook em EC2_INSTANCE_TERMINATING",
+        "C": "Aumentar o cooldown do Auto Scaling",
+        "D": "Usar apenas CloudTrail para auditar depois"
+      },
+      "correct": ["B"],
+      "explanation": "Lifecycle hook em terminação permite pausar o processo e executar ações (ex: flush logs) antes de finalizar.",
+      "choice_explanations": {
+        "A": "Deregistration delay ajuda a drenar conexões, mas não garante flush de logs/ações customizadas.",
+        "B": "Correto: hook de terminação é feito para isso.",
+        "C": "Cooldown não garante ações no shutdown.",
+        "D": "Auditar não resolve perda de logs/métricas."
+      },
+      "tags": ["autoscaling", "lifecycle-hook", "cloudwatch", "operations"]
+    },
+    {
+      "id": "SAA-15-013",
+      "topic": "storage",
+      "question": "Uma instância precisa de armazenamento local temporário muito rápido para cache e scratch space durante processamento. Perder dados no stop/terminate é aceitável. Qual opção é mais apropriada?",
+      "choices": {
+        "A": "EBS gp3",
+        "B": "EFS",
+        "C": "Instance Store",
+        "D": "S3"
+      },
+      "correct": ["C"],
+      "explanation": "Instance Store é armazenamento local de alta performance e efêmero, ideal para cache/scratch.",
+      "choice_explanations": {
+        "A": "EBS é persistente e pode ser mais caro para scratch, além de latência de rede.",
+        "B": "EFS é rede compartilhada, não ideal para scratch de altíssima performance.",
+        "C": "Correto: efêmero e rápido para cache/scratch.",
+        "D": "S3 não é disco de baixa latência para scratch local."
+      },
+      "tags": ["instance-store", "ec2", "storage", "performance"]
+    },
+    {
+      "id": "SAA-15-014",
+      "topic": "ec2",
+      "question": "Você precisa executar uma tarefa de manutenção em todas as instâncias de um ASG sem abrir portas SSH. Qual serviço é mais adequado?",
+      "choices": {
+        "A": "AWS Systems Manager Run Command",
+        "B": "CloudTrail Insights",
+        "C": "AWS Config",
+        "D": "Route 53 health checks"
+      },
+      "correct": ["A"],
+      "explanation": "SSM Run Command permite executar comandos remotamente sem SSH, desde que a instância tenha SSM Agent e IAM Role apropriada.",
+      "choice_explanations": {
+        "A": "Correto: solução padrão para operações sem SSH.",
+        "B": "CloudTrail Insights detecta anomalias, não executa comandos.",
+        "C": "Config avalia compliance, não faz execução remota.",
+        "D": "Health checks não executam manutenção."
+      },
+      "tags": ["ssm", "operations", "ec2", "security"]
+    },
+    {
+      "id": "SAA-15-015",
+      "topic": "scaling",
+      "question": "Uma aplicação sofre 'thrashing' (scale in/out frequente) em momentos de oscilação leve. Você precisa estabilizar o comportamento do ASG. O que ajuda mais?",
+      "choices": {
+        "A": "Reduzir o cooldown para 0 segundos",
+        "B": "Aumentar cooldown/instance warm-up e ajustar métricas/limiares do scaling",
+        "C": "Desativar health checks do ALB",
+        "D": "Trocar ALB por NLB"
+      },
+      "correct": ["B"],
+      "explanation": "Cooldown/warm-up e thresholds adequados evitam reações excessivas a ruído, reduzindo thrashing.",
+      "choice_explanations": {
+        "A": "Piora thrashing.",
+        "B": "Correto: estabiliza decisões de scaling.",
+        "C": "Não resolve thrashing e piora disponibilidade.",
+        "D": "Tipo de LB não resolve política de scaling."
+      },
+      "tags": ["autoscaling", "stability", "performance", "operations"]
+    },
+    {
+      "id": "SAA-15-016",
+      "topic": "security",
+      "question": "Você precisa permitir acesso HTTP de saída para baixar patches, mas bloquear qualquer outro tráfego de saída (ex: exfiltração). Qual controle é mais adequado no nível de instância/subnet?",
+      "choices": {
+        "A": "Security Group com regras egress restritas a destinos/portas necessários",
+        "B": "IAM Policy anexada à instância",
+        "C": "Route 53 Resolver rules",
+        "D": "AWS KMS key policy"
+      },
+      "correct": ["A"],
+      "explanation": "Security Groups controlam tráfego L3/L4 e permitem restringir egress por porta e destino (IP/CIDR/SG).",
+      "choice_explanations": {
+        "A": "Correto: é o controle certo de rede para egress.",
+        "B": "IAM controla chamadas API, não tráfego de rede.",
+        "C": "Resolver rules afetam DNS, não bloqueiam tráfego direto.",
+        "D": "KMS é criptografia, não controle de rede."
+      },
+      "tags": ["security-group", "security", "networking", "egress"]
+    },
+    {
+      "id": "SAA-15-017",
+      "topic": "elb",
+      "question": "Você precisa desligar gradualmente instâncias antigas durante um deploy, garantindo que conexões existentes sejam drenadas. Qual recurso do ALB ajuda nisso?",
+      "choices": {
+        "A": "Listener rules por host",
+        "B": "Deregistration delay (connection draining) no target group",
+        "C": "Sticky sessions com duração infinita",
+        "D": "Cross-zone load balancing desativado"
+      },
+      "correct": ["B"],
+      "explanation": "Deregistration delay no target group permite drenar conexões antes de remover o target do balanceamento.",
+      "choice_explanations": {
+        "A": "Roteamento por host não drena conexões.",
+        "B": "Correto: drena conexões ativas antes de remover.",
+        "C": "Sticky pode piorar rollout e não garante drenagem segura.",
+        "D": "Cross-zone não é o mecanismo de drenagem."
+      },
+      "tags": ["alb", "deployment", "operations", "resilience"]
+    },
+    {
+      "id": "SAA-15-018",
+      "topic": "ec2",
+      "question": "Uma equipe quer garantir que instâncias críticas sejam recuperadas automaticamente em caso de falha de hardware no host subjacente. Qual recurso atende melhor?",
+      "choices": {
+        "A": "EC2 Auto Recovery via CloudWatch alarms (Recover this instance)",
+        "B": "Trocar para Spot Instances",
+        "C": "Desabilitar termination protection",
+        "D": "Mover para Instance Store"
+      },
+      "correct": ["A"],
+      "explanation": "EC2 Auto Recovery pode recuperar instâncias em falhas de hardware/host preservando instance ID e volumes EBS anexados.",
+      "choice_explanations": {
+        "A": "Correto: é exatamente para falha de host/hardware.",
+        "B": "Spot aumenta interrupções, não ajuda em criticidade.",
+        "C": "Isso piora proteção, não recupera host.",
+        "D": "Instance Store aumenta risco de perda de dados."
+      },
+      "tags": ["ec2", "resilience", "cloudwatch", "auto-recovery"]
+    },
+    {
+      "id": "SAA-15-019",
+      "topic": "scaling",
+      "question": "Você precisa de um Auto Scaling Group que mantenha a mesma capacidade em múltiplas AZs, mas quer evitar que uma AZ fique sem instâncias quando há falha parcial. O que ajuda mais?",
+      "choices": {
+        "A": "Usar apenas uma AZ para simplificar",
+        "B": "Habilitar Multi-AZ e ajustar 'capacity rebalance' (quando usando Spot) + health checks do ELB",
+        "C": "Desabilitar health checks do ELB",
+        "D": "Fixar manualmente instâncias por AZ sem ASG"
+      },
+      "correct": ["B"],
+      "explanation": "Multi-AZ com health checks do ELB aumenta resiliência. Capacity Rebalancing ajuda especialmente com Spot para manter capacidade antes de interrupções.",
+      "choice_explanations": {
+        "A": "Perde HA.",
+        "B": "Correto: práticas de resiliência para manter capacidade distribuída.",
+        "C": "Piora disponibilidade.",
+        "D": "Operacionalmente ruim e perde auto-healing."
+      },
+      "tags": ["autoscaling", "multi-az", "resilience", "spot"]
+    },
+    {
+      "id": "SAA-15-020",
+      "topic": "operations",
+      "question": "Você precisa coletar métricas de memória (RAM) e disco dentro das instâncias para acionar alarmes e scaling. CloudWatch padrão não traz isso. Qual é a abordagem correta?",
+      "choices": {
+        "A": "Usar apenas métricas padrão de CPU",
+        "B": "Instalar e configurar CloudWatch Agent para métricas customizadas",
+        "C": "Usar CloudTrail para medir memória",
+        "D": "Usar AWS Config para medir consumo de RAM"
+      },
+      "correct": ["B"],
+      "explanation": "Métricas de RAM/disco exigem CloudWatch Agent (ou métricas customizadas) rodando na instância.",
+      "choice_explanations": {
+        "A": "CPU pode não refletir saturação real de RAM/disco.",
+        "B": "Correto: CloudWatch Agent publica métricas de SO.",
+        "C": "CloudTrail é auditoria de API, não telemetria de SO.",
+        "D": "AWS Config é compliance, não métrica de utilização."
+      },
+      "tags": ["cloudwatch", "agent", "observability", "autoscaling", "operations"]
+    }
+  ]
+}

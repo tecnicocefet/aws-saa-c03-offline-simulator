@@ -1,0 +1,207 @@
+{
+  "exam": "AWS SAA-C03",
+  "set": "19",
+  "focus": ["hybrid-connectivity", "direct-connect", "vpn", "tgw", "privatelink", "vpc-endpoints"],
+  "questions": [
+    {
+      "id": "SAA-19-001",
+      "topic": "networking",
+      "tags": ["direct-connect", "vpn", "hybrid", "resilience"],
+      "question": "Uma empresa possui Direct Connect entre on-premises e AWS. O requisito é alta disponibilidade caso o link DX falhe. Qual arquitetura é recomendada?",
+      "choices": {
+        "A": "Criar um segundo VPC na mesma região",
+        "B": "Configurar Site-to-Site VPN como backup para o Direct Connect",
+        "C": "Usar somente Internet Gateway",
+        "D": "Habilitar NAT Gateway"
+      },
+      "correct": ["B"],
+      "explanation": "Boa prática é usar VPN como failover automático para Direct Connect, garantindo conectividade híbrida resiliente.",
+      "choice_explanations": {
+        "A": "Não resolve falha de conectividade híbrida.",
+        "B": "Correta: VPN serve como backup do DX.",
+        "C": "Internet pública não substitui DX seguro.",
+        "D": "NAT não resolve conectividade on-prem."
+      }
+    },
+    {
+      "id": "SAA-19-002",
+      "topic": "networking",
+      "tags": ["transit-gateway", "multi-account", "routing", "scale"],
+      "question": "Uma organização possui 20 VPCs em múltiplas contas e precisa comunicação simplificada entre elas. Qual solução escala melhor?",
+      "choices": {
+        "A": "VPC Peering full mesh",
+        "B": "AWS Transit Gateway",
+        "C": "VPN entre todas as VPCs",
+        "D": "Internet Gateway compartilhado"
+      },
+      "correct": ["B"],
+      "explanation": "Transit Gateway centraliza roteamento e evita complexidade de malha full-mesh.",
+      "choice_explanations": {
+        "A": "Full mesh escala mal.",
+        "B": "Correta: TGW é solução centralizada.",
+        "C": "VPN não é ideal para comunicação interna massiva.",
+        "D": "IGW não conecta VPCs entre si."
+      }
+    },
+    {
+      "id": "SAA-19-003",
+      "topic": "networking",
+      "tags": ["vpc-endpoint", "privatelink", "s3", "security"],
+      "question": "Uma aplicação em VPC privada precisa acessar S3 sem sair para internet pública. Qual recurso usar?",
+      "choices": {
+        "A": "NAT Gateway",
+        "B": "VPC Gateway Endpoint para S3",
+        "C": "Internet Gateway",
+        "D": "Elastic IP"
+      },
+      "correct": ["B"],
+      "explanation": "Gateway Endpoint para S3 permite acesso privado ao serviço sem tráfego pela internet.",
+      "choice_explanations": {
+        "A": "NAT usa internet.",
+        "B": "Correta: acesso privado via endpoint.",
+        "C": "IGW expõe tráfego à internet.",
+        "D": "IP público não é necessário."
+      }
+    },
+    {
+      "id": "SAA-19-004",
+      "topic": "networking",
+      "tags": ["privatelink", "cross-account", "security", "multi-account"],
+      "question": "Uma empresa quer expor um serviço interno para outras contas sem permitir tráfego amplo entre VPCs. Melhor opção?",
+      "choices": {
+        "A": "VPC Peering",
+        "B": "AWS PrivateLink",
+        "C": "Internet Gateway público",
+        "D": "Route 53 público"
+      },
+      "correct": ["B"],
+      "explanation": "PrivateLink permite acesso privado a serviço específico sem abrir toda a rede.",
+      "choice_explanations": {
+        "A": "Peering abre comunicação mais ampla.",
+        "B": "Correta: PrivateLink expõe apenas serviço específico.",
+        "C": "Exposição pública é insegura.",
+        "D": "DNS público não resolve conectividade privada."
+      }
+    },
+    {
+      "id": "SAA-19-005",
+      "topic": "networking",
+      "tags": ["route53", "latency-routing", "multi-region", "performance"],
+      "question": "Usuários globais devem acessar automaticamente a região AWS com menor latência. Qual política usar?",
+      "choices": {
+        "A": "Simple routing",
+        "B": "Latency-based routing",
+        "C": "Failover routing",
+        "D": "Weighted routing"
+      },
+      "correct": ["B"],
+      "explanation": "Latency-based routing direciona usuários para a região com menor latência.",
+      "choice_explanations": {
+        "A": "Não considera latência.",
+        "B": "Correta: otimiza performance global.",
+        "C": "Failover é para falha.",
+        "D": "Weighted distribui, não otimiza latência."
+      }
+    },
+    {
+      "id": "SAA-19-006",
+      "topic": "networking",
+      "tags": ["direct-connect", "high-availability", "resilience"],
+      "question": "Para maior disponibilidade em Direct Connect, qual prática é recomendada?",
+      "choices": {
+        "A": "Um único DX em uma localização",
+        "B": "DX redundantes em locais diferentes",
+        "C": "Somente VPN",
+        "D": "IGW adicional"
+      },
+      "correct": ["B"],
+      "explanation": "Recomendado ter múltiplos DX em locais distintos para alta disponibilidade.",
+      "choice_explanations": {
+        "A": "Single point of failure.",
+        "B": "Correta: redundância física.",
+        "C": "VPN é backup, mas não substitui DX redundante.",
+        "D": "IGW não substitui DX."
+      }
+    },
+    {
+      "id": "SAA-19-007",
+      "topic": "networking",
+      "tags": ["vpc-endpoint", "interface-endpoint", "security", "private-subnet"],
+      "question": "Uma aplicação precisa acessar Secrets Manager de uma subnet privada sem NAT. Qual solução?",
+      "choices": {
+        "A": "Internet Gateway",
+        "B": "Gateway Endpoint",
+        "C": "Interface VPC Endpoint",
+        "D": "Elastic Load Balancer"
+      },
+      "correct": ["C"],
+      "explanation": "Serviços como Secrets Manager usam Interface Endpoints (PrivateLink).",
+      "choice_explanations": {
+        "A": "Não pode sair para internet.",
+        "B": "Gateway endpoint é apenas para S3/DynamoDB.",
+        "C": "Correta: Interface Endpoint permite acesso privado.",
+        "D": "ELB não resolve acesso a serviço AWS."
+      }
+    },
+    {
+      "id": "SAA-19-008",
+      "topic": "networking",
+      "tags": ["transit-gateway", "hybrid", "direct-connect", "scale"],
+      "question": "Você quer conectar múltiplas VPCs e múltiplos data centers on-prem via Direct Connect de forma centralizada. Melhor arquitetura?",
+      "choices": {
+        "A": "VPC Peering individual",
+        "B": "Transit Gateway com DX Gateway",
+        "C": "Internet pública",
+        "D": "Elastic IP compartilhado"
+      },
+      "correct": ["B"],
+      "explanation": "Transit Gateway + DX Gateway permite conectar múltiplas VPCs e on-prem de forma escalável.",
+      "choice_explanations": {
+        "A": "Escala mal.",
+        "B": "Correta: arquitetura centralizada e escalável.",
+        "C": "Não atende segurança.",
+        "D": "Não conecta redes."
+      }
+    },
+    {
+      "id": "SAA-19-009",
+      "topic": "networking",
+      "tags": ["nat-gateway", "high-availability", "multi-az"],
+      "question": "Para evitar single point of failure em NAT Gateway, qual prática é recomendada?",
+      "choices": {
+        "A": "Um único NAT na região",
+        "B": "NAT Gateway em cada AZ utilizada",
+        "C": "Internet Gateway adicional",
+        "D": "Elastic IP duplicado"
+      },
+      "correct": ["B"],
+      "explanation": "Boa prática é ter NAT Gateway por AZ para evitar falha regional.",
+      "choice_explanations": {
+        "A": "Pode falhar se AZ cair.",
+        "B": "Correta: NAT por AZ garante resiliência.",
+        "C": "IGW não substitui NAT.",
+        "D": "IP não resolve HA."
+      }
+    },
+    {
+      "id": "SAA-19-010",
+      "topic": "networking",
+      "tags": ["vpc-peering", "limitations", "routing", "architecture"],
+      "question": "Qual limitação importante do VPC Peering pode impactar arquiteturas grandes?",
+      "choices": {
+        "A": "Não suporta IPv4",
+        "B": "Não suporta transitive routing",
+        "C": "Não funciona entre regiões",
+        "D": "Não suporta Security Groups"
+      },
+      "correct": ["B"],
+      "explanation": "VPC Peering não é transitivo, ou seja, não permite roteamento indireto entre VPCs.",
+      "choice_explanations": {
+        "A": "Suporta IPv4.",
+        "B": "Correta: ausência de roteamento transitivo limita escala.",
+        "C": "Funciona cross-region.",
+        "D": "Security Groups funcionam normalmente."
+      }
+    }
+  ]
+}

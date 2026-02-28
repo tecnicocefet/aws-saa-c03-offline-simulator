@@ -1,0 +1,150 @@
+{
+  "meta": {
+    "exam": "AWS SAA-C03",
+    "set": 16,
+    "focus": ["Route53", "CloudFront", "Global Architecture", "DNS Failover"],
+    "difficulty": "hard"
+  },
+  "questions": [
+    {
+      "id": "SAA-16-001",
+      "topic": "dns",
+      "tags": ["route53", "failover", "health-check"],
+      "question": "Você tem aplicação em duas regiões (us-east-1 e eu-west-1). Quer failover automático se região primária falhar. Melhor configuração?",
+      "choices": {
+        "A": "Route53 Weighted Routing",
+        "B": "Route53 Failover Routing com health checks",
+        "C": "Latency Based Routing",
+        "D": "Multi-value routing"
+      },
+      "correct": ["B"],
+      "explanation": "Failover routing com health checks monitora endpoint primário e redireciona automaticamente para secundário."
+    },
+    {
+      "id": "SAA-16-002",
+      "topic": "edge",
+      "tags": ["cloudfront", "performance", "latency"],
+      "question": "Usuários globais acessam conteúdo estático hospedado em S3. Qual solução reduz latência global?",
+      "choices": {
+        "A": "ALB na frente do S3",
+        "B": "CloudFront com origem S3",
+        "C": "EBS Snapshot público",
+        "D": "NLB multi-AZ"
+      },
+      "correct": ["B"],
+      "explanation": "CloudFront distribui conteúdo via edge locations, reduzindo latência global."
+    },
+    {
+      "id": "SAA-16-003",
+      "topic": "dns",
+      "tags": ["latency-routing"],
+      "question": "Você quer que usuários sejam direcionados automaticamente para a região com menor latência. Qual política usar?",
+      "choices": {
+        "A": "Failover",
+        "B": "Weighted",
+        "C": "Latency-based routing",
+        "D": "Geoproximity"
+      },
+      "correct": ["C"],
+      "explanation": "Latency-based routing envia usuários para região com menor latência medida."
+    },
+    {
+      "id": "SAA-16-004",
+      "topic": "edge",
+      "tags": ["cloudfront", "security", "oac"],
+      "question": "Você quer impedir acesso direto ao bucket S3 e permitir acesso somente via CloudFront. Melhor abordagem?",
+      "choices": {
+        "A": "Bucket público",
+        "B": "Origin Access Control (OAC)",
+        "C": "IAM User para CloudFront",
+        "D": "Security Group no S3"
+      },
+      "correct": ["B"],
+      "explanation": "OAC restringe acesso ao bucket apenas via CloudFront."
+    },
+    {
+      "id": "SAA-16-005",
+      "topic": "dns",
+      "tags": ["weighted", "canary"],
+      "question": "Você quer testar nova versão da aplicação direcionando 10% do tráfego para novo endpoint. Melhor política?",
+      "choices": {
+        "A": "Failover",
+        "B": "Weighted routing",
+        "C": "Simple routing",
+        "D": "Latency routing"
+      },
+      "correct": ["B"],
+      "explanation": "Weighted routing permite distribuir tráfego por porcentagem."
+    },
+    {
+      "id": "SAA-16-006",
+      "topic": "edge",
+      "tags": ["cloudfront", "signed-urls"],
+      "question": "Você precisa restringir acesso a conteúdo premium distribuído globalmente. Melhor solução?",
+      "choices": {
+        "A": "Bucket público",
+        "B": "CloudFront Signed URLs",
+        "C": "Security Group",
+        "D": "Route53 health check"
+      },
+      "correct": ["B"],
+      "explanation": "Signed URLs permitem acesso controlado e temporário ao conteúdo."
+    },
+    {
+      "id": "SAA-16-007",
+      "topic": "dns",
+      "tags": ["multi-value", "availability"],
+      "question": "Você quer retornar múltiplos IPs saudáveis para aumentar disponibilidade sem failover explícito. Melhor política?",
+      "choices": {
+        "A": "Multi-value routing",
+        "B": "Weighted",
+        "C": "Failover",
+        "D": "Geolocation"
+      },
+      "correct": ["A"],
+      "explanation": "Multi-value retorna múltiplos registros saudáveis."
+    },
+    {
+      "id": "SAA-16-008",
+      "topic": "edge",
+      "tags": ["cache", "ttl"],
+      "question": "Conteúdo dinâmico está sendo servido desatualizado via CloudFront. Qual ajuste pode ajudar?",
+      "choices": {
+        "A": "Reduzir TTL do cache",
+        "B": "Aumentar TTL",
+        "C": "Trocar para NLB",
+        "D": "Desabilitar HTTPS"
+      },
+      "correct": ["A"],
+      "explanation": "Reduzir TTL diminui tempo de cache, refletindo atualizações mais rapidamente."
+    },
+    {
+      "id": "SAA-16-009",
+      "topic": "dns",
+      "tags": ["geolocation"],
+      "question": "Você quer redirecionar usuários por país (ex: EUA vs Europa). Qual política usar?",
+      "choices": {
+        "A": "Latency",
+        "B": "Geolocation routing",
+        "C": "Failover",
+        "D": "Simple"
+      },
+      "correct": ["B"],
+      "explanation": "Geolocation routing direciona por localização do usuário."
+    },
+    {
+      "id": "SAA-16-010",
+      "topic": "edge",
+      "tags": ["waf", "cloudfront"],
+      "question": "Você quer bloquear ataques SQL injection antes de atingir sua aplicação global. Melhor integração?",
+      "choices": {
+        "A": "NACL",
+        "B": "Security Group",
+        "C": "AWS WAF associado ao CloudFront",
+        "D": "Route53"
+      },
+      "correct": ["C"],
+      "explanation": "WAF integrado ao CloudFront bloqueia ataques L7 globalmente."
+    }
+  ]
+}

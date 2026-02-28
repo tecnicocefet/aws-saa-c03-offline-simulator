@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="card">
+  <h2 class="{{ 'ok' if ok else 'bad' }}">{{ '✅ Correto!' if ok else '❌ Incorreto' }}</h2>
+
+  <p><strong>Sua resposta:</strong> {{ selected_str }}</p>
+  <p><strong>Correta:</strong> {{ correct_str }}</p>
+
+  {% if q.explanation %}
+  <div class="explain">
+    <h3>Explicação (geral)</h3>
+    <p>{{ q.explanation }}</p>
+  </div>
+  {% endif %}
+
+  <div class="explain">
+    <h3>Por alternativa</h3>
+    <ul>
+    {% for k in keys %}
+      <li>
+        <strong>{{ k }})</strong>
+        {% if k in correct_set %}<span class="pill">✅ correta</span>{% endif %}
+        {% if k in selected_set and k not in correct_set %}<span class="pill">🧨 marcada por você</span>{% endif %}
+        {% if k in selected_set and k in correct_set %}<span class="pill">🎯 marcada por você</span>{% endif %}
+        <div class="muted" style="margin-top:4px;">
+          {{ q.choice_explanations.get(k, '') or '(sem explicação cadastrada)' }}
+        </div>
+      </li>
+    {% endfor %}
+    </ul>
+  </div>
+
+  <div style="margin-top:14px;">
+    <a href="/q"><button>Próxima</button></a>
+    <a href="/result" style="margin-left:10px;">Ver resultado</a>
+  </div>
+</div>
+{% endblock %}

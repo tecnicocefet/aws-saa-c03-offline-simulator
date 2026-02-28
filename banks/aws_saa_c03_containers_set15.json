@@ -1,0 +1,291 @@
+{
+  "meta": {
+    "exam": "AWS SAA-C03",
+    "set": 15,
+    "topic": "containers",
+    "difficulty": "hard",
+    "questions": 20
+  },
+  "questions": [
+    {
+      "id": "SAA-CTR-015-001",
+      "topic": "containers",
+      "tags": ["ecs","fargate","iam","task-role"],
+      "question": "Uma aplicação em ECS Fargate precisa ler objetos no S3. Qual é a forma correta e mais segura de conceder permissão ao container?",
+      "choices": {
+        "A": "Anexar policy no IAM User usado pelo desenvolvedor e exportar as chaves como variáveis de ambiente",
+        "B": "Anexar policy na instância EC2 do cluster ECS",
+        "C": "Definir um Task Role (IAM Role) para a Task Definition com permissões no S3",
+        "D": "Habilitar Public Access no bucket S3"
+      },
+      "correct": ["C"],
+      "explanation": "Em ECS/Fargate, o padrão seguro é usar IAM Task Role (credenciais temporárias via metadata), evitando chaves fixas e permissões excessivas."
+    },
+    {
+      "id": "SAA-CTR-015-002",
+      "topic": "containers",
+      "tags": ["ecr","security","image-scan"],
+      "question": "Seu time precisa detectar vulnerabilidades em imagens Docker publicadas no Amazon ECR antes do deploy. Melhor opção nativa do ECR?",
+      "choices": {
+        "A": "Habilitar ECR image scanning e bloquear deploy se houver findings críticos",
+        "B": "Usar S3 Object Lock",
+        "C": "Habilitar DynamoDB Streams",
+        "D": "Usar CloudFront na frente do ECR"
+      },
+      "correct": ["A"],
+      "explanation": "ECR suporta scanning de imagens (básico/avançado conforme configuração) para vulnerabilidades, integrando no pipeline de CI/CD."
+    },
+    {
+      "id": "SAA-CTR-015-003",
+      "topic": "containers",
+      "tags": ["eks","security","irsa","oidc"],
+      "question": "Em EKS, você quer dar acesso ao S3 apenas para um único ServiceAccount, sem usar Node Instance Role. Qual recurso usar?",
+      "choices": {
+        "A": "Security Groups for Pods",
+        "B": "IRSA (IAM Roles for Service Accounts) com OIDC provider",
+        "C": "KMS CMK no cluster",
+        "D": "Colocar as chaves AWS no Secret do Kubernetes"
+      },
+      "correct": ["B"],
+      "explanation": "IRSA permite mapear um IAM Role específico para um ServiceAccount usando OIDC, evitando credenciais estáticas e permissões no nível do node."
+    },
+    {
+      "id": "SAA-CTR-015-004",
+      "topic": "containers",
+      "tags": ["ecs","load-balancer","target-group","awsvpc"],
+      "question": "Você tem um serviço ECS (awsvpc) com múltiplas tasks em subnets privadas e precisa expor via ALB com health checks por task. Como configurar corretamente?",
+      "choices": {
+        "A": "Registrar as tasks no target group do tipo IP",
+        "B": "Registrar as tasks no target group do tipo Instance",
+        "C": "Colocar um NLB interno e depois ALB externo em cadeia",
+        "D": "Expor via S3 static website"
+      },
+      "correct": ["A"],
+      "explanation": "Com awsvpc, cada task tem IP próprio. O target group deve ser do tipo IP para health check e roteamento por task."
+    },
+    {
+      "id": "SAA-CTR-015-005",
+      "topic": "containers",
+      "tags": ["fargate","storage","efs"],
+      "question": "Uma aplicação stateful em Fargate precisa de storage compartilhado entre tasks, com POSIX e persistência. Melhor opção?",
+      "choices": {
+        "A": "EBS",
+        "B": "Instance Store",
+        "C": "EFS montado na task",
+        "D": "S3 como filesystem POSIX"
+      },
+      "correct": ["C"],
+      "explanation": "Fargate não usa EBS direto como em EC2. Para filesystem compartilhado e persistente, EFS é o padrão."
+    },
+    {
+      "id": "SAA-CTR-015-006",
+      "topic": "containers",
+      "tags": ["eks","networking","private-cluster"],
+      "question": "Você quer um EKS onde o endpoint do Kubernetes API não fique acessível pela Internet. O que fazer?",
+      "choices": {
+        "A": "Habilitar endpoint público apenas e restringir por CIDR 0.0.0.0/0",
+        "B": "Desabilitar endpoint privado e usar bastion",
+        "C": "Habilitar endpoint privado e desabilitar (ou restringir fortemente) o endpoint público",
+        "D": "Mover o cluster para CloudFront"
+      },
+      "correct": ["C"],
+      "explanation": "EKS permite endpoint privado; você pode desabilitar o público ou restringi-lo por CIDRs confiáveis."
+    },
+    {
+      "id": "SAA-CTR-015-007",
+      "topic": "containers",
+      "tags": ["ecs","autoscaling","cloudwatch"],
+      "question": "Seu serviço ECS precisa escalar tasks automaticamente baseado em CPU média > 60%. Qual mecanismo correto?",
+      "choices": {
+        "A": "EC2 Auto Scaling Group apenas",
+        "B": "ECS Service Auto Scaling com policy baseada em métricas (CloudWatch)",
+        "C": "Route 53 weighted routing",
+        "D": "S3 Replication"
+      },
+      "correct": ["B"],
+      "explanation": "ECS Service Auto Scaling escala número de tasks com base em métricas CloudWatch (CPU, Memory, custom)."
+    },
+    {
+      "id": "SAA-CTR-015-008",
+      "topic": "containers",
+      "tags": ["eks","hpa","cluster-autoscaler"],
+      "question": "No EKS, pods escalam via HPA, mas faltam nós (nodes) para agendar pods. O que complementa o HPA para escalar infraestrutura?",
+      "choices": {
+        "A": "ECR Lifecycle Policy",
+        "B": "Cluster Autoscaler (ou Karpenter) para escalar nodes",
+        "C": "Lambda Destinations",
+        "D": "CloudFront Functions"
+      },
+      "correct": ["B"],
+      "explanation": "HPA escala pods; para nodes, você precisa de Cluster Autoscaler ou Karpenter (dependendo da arquitetura)."
+    },
+    {
+      "id": "SAA-CTR-015-009",
+      "topic": "containers",
+      "tags": ["blue-green","deployments","ecs","codedeploy"],
+      "question": "Você precisa fazer deployment Blue/Green em ECS com rollback automático se health checks falharem. Melhor abordagem nativa?",
+      "choices": {
+        "A": "Atualizar manualmente Task Definition e torcer",
+        "B": "ECS Rolling Update sem ALB",
+        "C": "AWS CodeDeploy com ECS Blue/Green + ALB",
+        "D": "Copiar imagem no S3"
+      },
+      "correct": ["C"],
+      "explanation": "CodeDeploy integra com ECS/ALB para Blue/Green, com validação, shifting de tráfego e rollback."
+    },
+    {
+      "id": "SAA-CTR-015-010",
+      "topic": "containers",
+      "tags": ["secrets","ssm","secrets-manager","ecs"],
+      "question": "Um container precisa de senha de banco. Você quer rotação e evitar texto claro em env vars. Melhor solução?",
+      "choices": {
+        "A": "Hardcode no Dockerfile",
+        "B": "Guardar em Parameter Store/Secrets Manager e referenciar na Task Definition (secrets)",
+        "C": "Colocar em UserData do EC2",
+        "D": "Colocar no código fonte"
+      },
+      "correct": ["B"],
+      "explanation": "ECS suporta injeção de secrets do SSM Parameter Store/Secrets Manager, e Secrets Manager facilita rotação."
+    },
+    {
+      "id": "SAA-CTR-015-011",
+      "topic": "containers",
+      "tags": ["observability","logging","cloudwatch"],
+      "question": "Você precisa centralizar logs de containers ECS e pesquisar por padrões rapidamente. Opção mínima e comum?",
+      "choices": {
+        "A": "Enviar logs para DynamoDB",
+        "B": "Usar awslogs driver para CloudWatch Logs",
+        "C": "Enviar logs para Route 53",
+        "D": "Armazenar logs em EBS e fazer rsync"
+      },
+      "correct": ["B"],
+      "explanation": "O driver awslogs envia stdout/stderr do container para CloudWatch Logs, permitindo busca e retenção."
+    },
+    {
+      "id": "SAA-CTR-015-012",
+      "topic": "containers",
+      "tags": ["eks","ingress","alb","controller"],
+      "question": "No EKS, você quer criar ingress HTTP/HTTPS gerenciado por ALB automaticamente, com regras por host/path. O que usar?",
+      "choices": {
+        "A": "NLB Controller",
+        "B": "AWS Load Balancer Controller (ALB Ingress Controller)",
+        "C": "ECR Replication",
+        "D": "KMS Key Policy"
+      },
+      "correct": ["B"],
+      "explanation": "AWS Load Balancer Controller provisiona ALBs/NLBs via recursos Kubernetes (Ingress/Service)."
+    },
+    {
+      "id": "SAA-CTR-015-013",
+      "topic": "containers",
+      "tags": ["service-mesh","app-mesh","traffic-splitting"],
+      "question": "Você precisa fazer traffic splitting (ex: 90/10) e observabilidade de chamadas entre microservices em ECS/EKS. Solução AWS recomendada?",
+      "choices": {
+        "A": "S3 Transfer Acceleration",
+        "B": "AWS App Mesh",
+        "C": "CloudFront Signed URLs",
+        "D": "EBS Multi-Attach"
+      },
+      "correct": ["B"],
+      "explanation": "App Mesh é o service mesh da AWS para controle de tráfego e observabilidade entre serviços."
+    },
+    {
+      "id": "SAA-CTR-015-014",
+      "topic": "containers",
+      "tags": ["ecr","cross-account","replication"],
+      "question": "Você tem contas separadas (dev e prod). Quer replicar automaticamente imagens do ECR de dev para prod. Melhor solução?",
+      "choices": {
+        "A": "Copiar manualmente via docker save/load",
+        "B": "ECR Replication (cross-account/region) + permissões adequadas",
+        "C": "CloudTrail Insights",
+        "D": "SQS FIFO"
+      },
+      "correct": ["B"],
+      "explanation": "ECR suporta replicação automática entre regiões/contas, reduzindo drift e trabalho manual."
+    },
+    {
+      "id": "SAA-CTR-015-015",
+      "topic": "containers",
+      "tags": ["security","least-privilege","ecs-exec"],
+      "question": "Você quer permitir troubleshooting em uma task ECS (entrar no container) sem abrir SSH e com auditoria. Qual recurso usar?",
+      "choices": {
+        "A": "SSH no container",
+        "B": "ECS Exec via SSM",
+        "C": "Telnet no container",
+        "D": "Colocar bastion em subnet pública"
+      },
+      "correct": ["B"],
+      "explanation": "ECS Exec usa SSM, com IAM, auditoria (CloudTrail) e sem exposição de portas."
+    },
+    {
+      "id": "SAA-CTR-015-016",
+      "topic": "containers",
+      "tags": ["private-registry","nat","vpc-endpoint","ecr"],
+      "question": "Tasks ECS em subnets privadas sem NAT precisam puxar imagem do ECR. Como habilitar sem Internet?",
+      "choices": {
+        "A": "Habilitar IGW na subnet privada",
+        "B": "Criar VPC endpoints necessários (ECR API, ECR DKR e S3 gateway endpoint)",
+        "C": "Usar CloudFront",
+        "D": "Usar Route 53 Resolver"
+      },
+      "correct": ["B"],
+      "explanation": "Pull do ECR depende de endpoints do ECR (api/dkr) e acesso ao S3 onde layers podem estar, via endpoints."
+    },
+    {
+      "id": "SAA-CTR-015-017",
+      "topic": "containers",
+      "tags": ["eks","upgrade","availability"],
+      "question": "Você precisa atualizar EKS com mínimo downtime, garantindo continuidade de workloads. Melhor prática?",
+      "choices": {
+        "A": "Atualizar todos os nodes e control plane ao mesmo tempo",
+        "B": "Criar um node group novo com versão nova e drenar pods gradualmente (rolling)",
+        "C": "Parar o cluster, atualizar e iniciar",
+        "D": "Migrar para EC2 sem containers"
+      },
+      "correct": ["B"],
+      "explanation": "O padrão é criar node group novo, cordon/drain do antigo, e migrar gradualmente, mantendo alta disponibilidade."
+    },
+    {
+      "id": "SAA-CTR-015-018",
+      "topic": "containers",
+      "tags": ["ecs","capacity","fargate-spot","cost"],
+      "question": "Você quer reduzir custo em tarefas batch tolerantes a interrupções em ECS. Melhor opção?",
+      "choices": {
+        "A": "Fargate Spot",
+        "B": "On-Demand apenas",
+        "C": "Aumentar desired count",
+        "D": "Mover para Lambda@Edge"
+      },
+      "correct": ["A"],
+      "explanation": "Fargate Spot reduz custo com risco de interrupção. Ideal para workloads tolerantes."
+    },
+    {
+      "id": "SAA-CTR-015-019",
+      "topic": "containers",
+      "tags": ["eks","network-policy","security"],
+      "question": "Você quer restringir tráfego pod-a-pod no EKS por políticas L3/L4. O que usar no Kubernetes (em geral) com suporte adequado?",
+      "choices": {
+        "A": "NetworkPolicy (com CNI compatível, ex: Calico)",
+        "B": "IAM Policy",
+        "C": "S3 Bucket Policy",
+        "D": "CloudWatch Alarm"
+      },
+      "correct": ["A"],
+      "explanation": "NetworkPolicy define regras de tráfego entre pods/namespaces, desde que o CNI implemente enforcement."
+    },
+    {
+      "id": "SAA-CTR-015-020",
+      "topic": "containers",
+      "tags": ["multi-az","availability","ecs"],
+      "question": "Seu serviço ECS precisa sobreviver à falha de uma AZ mantendo disponibilidade. Qual configuração é mais correta?",
+      "choices": {
+        "A": "Colocar todas as tasks em uma subnet na mesma AZ para reduzir latência",
+        "B": "Distribuir tasks em subnets de múltiplas AZs e usar ALB multi-AZ",
+        "C": "Desabilitar health checks",
+        "D": "Colocar um NAT por AZ e isso resolve sozinho"
+      },
+      "correct": ["B"],
+      "explanation": "Alta disponibilidade em ECS envolve distribuir tasks em múltiplas AZs e balancear com ALB multi-AZ."
+    }
+  ]
+}

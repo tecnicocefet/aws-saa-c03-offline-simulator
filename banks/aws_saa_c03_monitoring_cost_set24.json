@@ -1,0 +1,107 @@
+{
+  "exam": "AWS SAA-C03",
+  "set": "24",
+  "focus": ["monitoring", "cloudtrail", "cost-optimization", "root-cause"],
+  "questions": [
+    {
+      "id": "SAA-24-001",
+      "topic": "monitoring",
+      "tags": ["cloudwatch", "root-cause"],
+      "question": "Usuários relatam latência intermitente. Qual ferramenta ajuda identificar gargalo na aplicação distribuída?",
+      "choices": {
+        "A": "CloudTrail",
+        "B": "AWS X-Ray",
+        "C": "IAM Access Analyzer",
+        "D": "Config"
+      },
+      "correct": ["B"],
+      "explanation": "X-Ray permite tracing distribuído.",
+      "choice_explanations": {
+        "A": "Auditoria.",
+        "B": "Correta.",
+        "C": "Segurança.",
+        "D": "Compliance."
+      }
+    },
+    {
+      "id": "SAA-24-002",
+      "topic": "cloudtrail",
+      "tags": ["security", "multi-account"],
+      "question": "Como garantir logging centralizado de todas contas da organização?",
+      "choices": {
+        "A": "Trail por conta manual",
+        "B": "Organization Trail no CloudTrail",
+        "C": "Export manual de logs",
+        "D": "S3 local"
+      },
+      "correct": ["B"],
+      "explanation": "Organization trail registra eventos em todas contas automaticamente.",
+      "choice_explanations": {
+        "A": "Não escala.",
+        "B": "Correta.",
+        "C": "Manual.",
+        "D": "Sem integração."
+      }
+    },
+    {
+      "id": "SAA-24-003",
+      "topic": "cost",
+      "tags": ["savings-plan", "compute"],
+      "question": "Workload previsível por 3 anos. Melhor forma de reduzir custo?",
+      "choices": {
+        "A": "On-Demand",
+        "B": "Savings Plan 3 anos",
+        "C": "Spot",
+        "D": "Desligar instâncias"
+      },
+      "correct": ["B"],
+      "explanation": "Savings Plans oferecem desconto significativo para uso previsível.",
+      "choice_explanations": {
+        "A": "Mais caro.",
+        "B": "Correta.",
+        "C": "Não é previsível.",
+        "D": "Irreal."
+      }
+    },
+    {
+      "id": "SAA-24-004",
+      "topic": "cost",
+      "tags": ["spot", "batch"],
+      "question": "Qual workload é ideal para EC2 Spot?",
+      "choices": {
+        "A": "Banco de dados crítico",
+        "B": "Processamento batch tolerante a interrupção",
+        "C": "Sistema financeiro em produção",
+        "D": "DNS primário"
+      },
+      "correct": ["B"],
+      "explanation": "Spot é ideal para workloads tolerantes a interrupção.",
+      "choice_explanations": {
+        "A": "Não tolera interrupção.",
+        "B": "Correta.",
+        "C": "Crítico.",
+        "D": "Crítico."
+      }
+    },
+    {
+      "id": "SAA-24-005",
+      "topic": "monitoring",
+      "tags": ["cloudwatch", "alarm"],
+      "question": "Como acionar escala automática baseada em CPU?",
+      "choices": {
+        "A": "CloudTrail event",
+        "B": "CloudWatch Alarm integrado ao Auto Scaling",
+        "C": "IAM Role",
+        "D": "Snapshot"
+      },
+      "correct": ["B"],
+      "explanation": "CloudWatch Alarm pode disparar ações de scaling.",
+      "choice_explanations": {
+        "A": "Auditoria.",
+        "B": "Correta.",
+        "C": "Permissão.",
+        "D": "Não relacionado."
+      }
+    }
+  ]
+}

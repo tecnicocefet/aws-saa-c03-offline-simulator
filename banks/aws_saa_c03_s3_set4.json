@@ -1,0 +1,404 @@
+{
+  "questions": [
+    {
+      "id": "SAA-S3-061",
+      "topic": "s3",
+      "question": "Uma empresa exige que todos os objetos enviados para um bucket sejam criptografados com uma CMK específica e que uploads sem criptografia sejam bloqueados. Desenvolvedores frequentemente esquecem de configurar o header correto. Qual solução impõe esse requisito de forma técnica e obrigatória?",
+      "choices": {
+        "A": "Confiar na aplicação para sempre enviar o header x-amz-server-side-encryption",
+        "B": "Habilitar default encryption no bucket apenas",
+        "C": "Adicionar bucket policy negando PutObject se não usar SSE-KMS com a chave específica",
+        "D": "Habilitar versioning"
+      },
+      "correct": ["C"],
+      "explanation": "Default encryption ajuda, mas não impede uploads mal configurados explicitamente. Bucket policy com Deny garante enforcement.",
+      "choice_explanations": {
+        "A": "❌ Não é enforcement.",
+        "B": "❌ Default encryption não impede explicitamente requisições incorretas.",
+        "C": "✅ Policy com condição s3:x-amz-server-side-encryption e chave específica garante enforcement.",
+        "D": "❌ Versioning não impõe criptografia."
+      },
+      "tags": ["s3", "kms", "encryption", "bucket-policy", "security"]
+    },
+    {
+      "id": "SAA-S3-062",
+      "topic": "s3",
+      "question": "Uma empresa quer replicação cross-region quase em tempo real e quer garantia de SLA de replicação. Qual recurso adicional deve ser habilitado?",
+      "choices": {
+        "A": "S3 Batch Operations",
+        "B": "S3 Replication Time Control (RTC)",
+        "C": "S3 Intelligent-Tiering",
+        "D": "S3 Lifecycle"
+      },
+      "correct": ["B"],
+      "explanation": "S3 RTC fornece SLA de replicação em 15 minutos para CRR.",
+      "choice_explanations": {
+        "A": "❌ Batch é para operações em massa, não SLA de replicação.",
+        "B": "✅ RTC adiciona SLA formal de replicação.",
+        "C": "❌ Classe de storage.",
+        "D": "❌ Lifecycle é para transição/expiração."
+      },
+      "tags": ["s3", "crr", "replication", "rtc"]
+    },
+    {
+      "id": "SAA-S3-063",
+      "topic": "s3",
+      "question": "Você precisa impedir que qualquer bucket na conta seja público, mesmo que alguém altere policy manualmente. Qual controle é mais apropriado?",
+      "choices": {
+        "A": "Treinar desenvolvedores",
+        "B": "Habilitar S3 Block Public Access em nível de conta",
+        "C": "Usar apenas bucket policy",
+        "D": "Criar um Security Group"
+      },
+      "correct": ["B"],
+      "explanation": "Block Public Access em nível de conta impede configuração pública acidental ou intencional.",
+      "choice_explanations": {
+        "A": "❌ Processo não é controle técnico.",
+        "B": "✅ Controle preventivo central.",
+        "C": "❌ Bucket policy pode ser alterada.",
+        "D": "❌ S3 não usa SG."
+      },
+      "tags": ["s3", "security", "block-public-access", "governance"]
+    },
+    {
+      "id": "SAA-S3-064",
+      "topic": "s3",
+      "question": "Uma aplicação precisa acessar objetos S3 de forma privada a partir de subnets privadas, sem usar NAT Gateway. Qual solução é recomendada?",
+      "choices": {
+        "A": "Internet Gateway",
+        "B": "Gateway VPC Endpoint para S3",
+        "C": "Elastic IP na instância",
+        "D": "CloudFront"
+      },
+      "correct": ["B"],
+      "explanation": "Gateway Endpoint permite acesso privado a S3 sem NAT e sem sair para internet.",
+      "choice_explanations": {
+        "A": "❌ IGW exige IP público.",
+        "B": "✅ Acesso privado via rede AWS.",
+        "C": "❌ Torna instância pública.",
+        "D": "❌ CloudFront é CDN."
+      },
+      "tags": ["s3", "vpc-endpoint", "private-access"]
+    },
+    {
+      "id": "SAA-S3-065",
+      "topic": "s3",
+      "question": "Você precisa impedir exclusão de objetos por 7 anos por requisito regulatório. Qual recurso atende melhor?",
+      "choices": {
+        "A": "Versioning apenas",
+        "B": "S3 Object Lock em modo Compliance",
+        "C": "Lifecycle para Glacier",
+        "D": "Bucket policy apenas"
+      },
+      "correct": ["B"],
+      "explanation": "Object Lock em modo Compliance impede exclusão até o período expirar, mesmo por admin.",
+      "choice_explanations": {
+        "A": "❌ Versioning permite delete marker.",
+        "B": "✅ Compliance mode impede exclusão.",
+        "C": "❌ Glacier não impede delete.",
+        "D": "❌ Admin pode alterar policy."
+      },
+      "tags": ["s3", "object-lock", "compliance", "retention"]
+    },
+    {
+      "id": "SAA-S3-066",
+      "topic": "s3",
+      "question": "Um time habilitou CRR, mas deletes estão sendo replicados para a região secundária e isso não é desejado. O que pode ser ajustado?",
+      "choices": {
+        "A": "Desabilitar replicação de delete markers",
+        "B": "Desabilitar versioning",
+        "C": "Criar NAT Gateway",
+        "D": "Habilitar Intelligent Tiering"
+      },
+      "correct": ["A"],
+      "explanation": "CRR permite controlar replicação de delete markers.",
+      "choice_explanations": {
+        "A": "✅ Pode desabilitar replicação de delete markers.",
+        "B": "❌ Versioning é obrigatório para CRR.",
+        "C": "❌ Irrelevante.",
+        "D": "❌ Classe de storage."
+      },
+      "tags": ["s3", "crr", "replication", "delete-marker"]
+    },
+    {
+      "id": "SAA-S3-067",
+      "topic": "s3",
+      "question": "Uma aplicação precisa servir arquivos estáticos globalmente com baixa latência e proteção contra DDoS. Qual combinação é mais adequada?",
+      "choices": {
+        "A": "S3 + CloudFront",
+        "B": "S3 público apenas",
+        "C": "EC2 + EBS",
+        "D": "NAT Gateway"
+      },
+      "correct": ["A"],
+      "explanation": "CloudFront reduz latência global e integra com AWS Shield para proteção DDoS.",
+      "choice_explanations": {
+        "A": "✅ CDN global + proteção.",
+        "B": "❌ Sem CDN nem proteção avançada.",
+        "C": "❌ Mais operacional.",
+        "D": "❌ Não relacionado."
+      },
+      "tags": ["s3", "cloudfront", "cdn", "ddos"]
+    },
+    {
+      "id": "SAA-S3-068",
+      "topic": "s3",
+      "question": "Uma empresa quer reduzir custo para objetos acessados raramente, mas manter acesso imediato quando necessário. Qual classe é mais apropriada?",
+      "choices": {
+        "A": "Glacier Deep Archive",
+        "B": "S3 Standard",
+        "C": "S3 Standard-IA",
+        "D": "S3 One Zone-IA"
+      },
+      "correct": ["C"],
+      "explanation": "Standard-IA reduz custo com acesso imediato e múltiplas AZs.",
+      "choice_explanations": {
+        "A": "❌ Restore lento.",
+        "B": "❌ Mais caro.",
+        "C": "✅ Equilíbrio ideal.",
+        "D": "❌ Single AZ."
+      },
+      "tags": ["s3", "storage-class", "cost"]
+    },
+    {
+      "id": "SAA-S3-069",
+      "topic": "s3",
+      "question": "Uma empresa quer restringir acesso a um bucket apenas quando requisição vem de dentro da VPC específica. Qual condição pode ser usada?",
+      "choices": {
+        "A": "aws:SourceVpc",
+        "B": "aws:PrincipalTag",
+        "C": "aws:MultiFactorAuthPresent",
+        "D": "s3:prefix"
+      },
+      "correct": ["A"],
+      "explanation": "Condition aws:SourceVpc pode restringir acesso via VPC endpoint.",
+      "choice_explanations": {
+        "A": "✅ Restrição por VPC.",
+        "B": "❌ ABAC, não rede.",
+        "C": "❌ MFA não é rede.",
+        "D": "❌ Prefixo de objeto."
+      },
+      "tags": ["s3", "vpc-endpoint", "security", "policy"]
+    },
+    {
+      "id": "SAA-S3-070",
+      "topic": "s3",
+      "question": "Após habilitar versioning, um usuário deleta um objeto. O que ocorre?",
+      "choices": {
+        "A": "Objeto é removido permanentemente",
+        "B": "Um delete marker é criado",
+        "C": "Objeto é movido para Glacier",
+        "D": "Bucket é bloqueado"
+      },
+      "correct": ["B"],
+      "explanation": "Delete marker é criado, preservando versões anteriores.",
+      "choice_explanations": {
+        "A": "❌ Não com versioning.",
+        "B": "✅ Comportamento padrão.",
+        "C": "❌ Lifecycle separado.",
+        "D": "❌ Não acontece."
+      },
+      "tags": ["s3", "versioning", "delete-marker"]
+    },
+    {
+      "id": "SAA-S3-071",
+      "topic": "s3",
+      "question": "Você precisa criptografar objetos com chaves totalmente gerenciadas pela AWS, sem gerenciar key policy. Qual opção usar?",
+      "choices": {
+        "A": "SSE-S3",
+        "B": "SSE-KMS com CMK",
+        "C": "Client-side encryption",
+        "D": "EBS encryption"
+      },
+      "correct": ["A"],
+      "explanation": "SSE-S3 usa chaves gerenciadas pela AWS sem configuração de KMS.",
+      "choice_explanations": {
+        "A": "✅ Mais simples.",
+        "B": "❌ Requer gerenciamento KMS.",
+        "C": "❌ Complexo.",
+        "D": "❌ Não é S3."
+      },
+      "tags": ["s3", "encryption", "sse-s3"]
+    },
+    {
+      "id": "SAA-S3-072",
+      "topic": "s3",
+      "question": "Uma empresa quer enviar eventos S3 para processamento assíncrono desacoplado. Qual integração é apropriada?",
+      "choices": {
+        "A": "S3 -> SQS",
+        "B": "S3 -> NAT Gateway",
+        "C": "S3 -> Security Group",
+        "D": "S3 -> Route Table"
+      },
+      "correct": ["A"],
+      "explanation": "S3 pode enviar eventos para SQS, SNS ou Lambda.",
+      "choice_explanations": {
+        "A": "✅ Integração nativa.",
+        "B": "❌ Irrelevante.",
+        "C": "❌ Irrelevante.",
+        "D": "❌ Irrelevante."
+      },
+      "tags": ["s3", "event-notification", "sqs"]
+    },
+    {
+      "id": "SAA-S3-073",
+      "topic": "s3",
+      "question": "Você precisa compartilhar acesso temporário de download de um objeto S3 com cliente externo sem credenciais AWS. Qual recurso usar?",
+      "choices": {
+        "A": "Access Key permanente",
+        "B": "Presigned URL",
+        "C": "Bucket público",
+        "D": "IAM Role"
+      },
+      "correct": ["B"],
+      "explanation": "Presigned URL fornece acesso temporário autenticado sem expor credenciais.",
+      "choice_explanations": {
+        "A": "❌ Inseguro.",
+        "B": "✅ Melhor prática.",
+        "C": "❌ Público é inseguro.",
+        "D": "❌ Cliente externo não assume role."
+      },
+      "tags": ["s3", "presigned-url", "security"]
+    },
+    {
+      "id": "SAA-S3-074",
+      "topic": "s3",
+      "question": "Você precisa otimizar custo automaticamente para objetos com padrão de acesso imprevisível. Qual classe é recomendada?",
+      "choices": {
+        "A": "S3 Standard",
+        "B": "S3 Intelligent-Tiering",
+        "C": "S3 Glacier",
+        "D": "S3 One Zone-IA"
+      },
+      "correct": ["B"],
+      "explanation": "Intelligent-Tiering move automaticamente entre tiers conforme padrão de acesso.",
+      "choice_explanations": {
+        "A": "❌ Sem otimização automática.",
+        "B": "✅ Ajuste automático.",
+        "C": "❌ Restore lento.",
+        "D": "❌ Single AZ."
+      },
+      "tags": ["s3", "cost-optimization", "intelligent-tiering"]
+    },
+    {
+      "id": "SAA-S3-075",
+      "topic": "s3",
+      "question": "Uma empresa quer garantir que todos uploads usem TLS. Qual condição pode ser usada?",
+      "choices": {
+        "A": "aws:SecureTransport",
+        "B": "aws:PrincipalTag",
+        "C": "kms:ViaService",
+        "D": "aws:SourceVpc"
+      },
+      "correct": ["A"],
+      "explanation": "aws:SecureTransport permite negar requests não TLS.",
+      "choice_explanations": {
+        "A": "✅ Bloqueia HTTP.",
+        "B": "❌ ABAC.",
+        "C": "❌ KMS específico.",
+        "D": "❌ Rede."
+      },
+      "tags": ["s3", "security", "tls", "policy"]
+    },
+    {
+      "id": "SAA-S3-076",
+      "topic": "s3",
+      "question": "Você precisa disponibilizar acesso granular a múltiplos times em prefixos diferentes do mesmo bucket. Qual recurso simplifica?",
+      "choices": {
+        "A": "S3 Access Points",
+        "B": "Internet Gateway",
+        "C": "Route Table",
+        "D": "Elastic IP"
+      },
+      "correct": ["A"],
+      "explanation": "Access Points permitem políticas independentes por ponto de acesso.",
+      "choice_explanations": {
+        "A": "✅ Simplifica controle granular.",
+        "B": "❌ Não relacionado.",
+        "C": "❌ Não relacionado.",
+        "D": "❌ Não relacionado."
+      },
+      "tags": ["s3", "access-points", "security"]
+    },
+    {
+      "id": "SAA-S3-077",
+      "topic": "s3",
+      "question": "Após habilitar CRR com KMS, a replicação falha com erro de permissão. Qual causa comum?",
+      "choices": {
+        "A": "Falta permissão KMS na chave de destino para role de replicação",
+        "B": "Versioning está habilitado",
+        "C": "Bucket está privado",
+        "D": "Falta NAT Gateway"
+      },
+      "correct": ["A"],
+      "explanation": "Role de replicação precisa permissão na chave KMS destino.",
+      "choice_explanations": {
+        "A": "✅ Muito comum em CRR com KMS.",
+        "B": "❌ Versioning é obrigatório.",
+        "C": "❌ Não é o problema.",
+        "D": "❌ Irrelevante."
+      },
+      "tags": ["s3", "crr", "kms", "replication"]
+    },
+    {
+      "id": "SAA-S3-078",
+      "topic": "s3",
+      "question": "Qual afirmação é verdadeira sobre consistência no S3 moderno?",
+      "choices": {
+        "A": "É eventual consistency para todos os casos",
+        "B": "É strong read-after-write consistency para PUT e DELETE",
+        "C": "Não suporta consistência",
+        "D": "Depende da região"
+      },
+      "correct": ["B"],
+      "explanation": "S3 moderno oferece strong consistency para PUT/DELETE/overwrite.",
+      "choice_explanations": {
+        "A": "❌ Modelo antigo.",
+        "B": "✅ Atual comportamento.",
+        "C": "❌ Errado.",
+        "D": "❌ Não depende."
+      },
+      "tags": ["s3", "consistency"]
+    },
+    {
+      "id": "SAA-S3-079",
+      "topic": "s3",
+      "question": "Uma empresa quer impedir que objetos sejam baixados fora da VPC corporativa usando VPC endpoint. Qual condição pode ser usada na bucket policy?",
+      "choices": {
+        "A": "aws:SourceVpc",
+        "B": "aws:SecureTransport",
+        "C": "s3:prefix",
+        "D": "kms:ViaService"
+      },
+      "correct": ["A"],
+      "explanation": "aws:SourceVpc restringe acesso via endpoint específico.",
+      "choice_explanations": {
+        "A": "✅ Restringe por VPC.",
+        "B": "❌ TLS apenas.",
+        "C": "❌ Prefixo.",
+        "D": "❌ KMS."
+      },
+      "tags": ["s3", "policy", "vpc-endpoint", "security"]
+    },
+    {
+      "id": "SAA-S3-080",
+      "topic": "s3",
+      "question": "Você precisa arquivar dados por 10 anos com custo mínimo e raríssimo acesso. Qual classe é ideal?",
+      "choices": {
+        "A": "S3 Standard",
+        "B": "S3 Standard-IA",
+        "C": "S3 Glacier Deep Archive",
+        "D": "S3 Intelligent-Tiering"
+      },
+      "correct": ["C"],
+      "explanation": "Deep Archive é a classe de menor custo para retenção longa e acesso raríssimo.",
+      "choice_explanations": {
+        "A": "❌ Caro.",
+        "B": "❌ Mais caro que Deep Archive.",
+        "C": "✅ Ideal para longo prazo e raríssimo acesso.",
+        "D": "❌ Mais caro que Deep Archive."
+      },
+      "tags": ["s3", "glacier", "deep-archive", "cost"]
+    }
+  ]
+}

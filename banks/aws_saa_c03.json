@@ -1,0 +1,1210 @@
+{
+  "name": "AWS SAA-C03 (prática offline) - Lote 1 (60 questões)",
+  "version": 1,
+  "questions": [
+    {
+      "id": "SAA-001",
+      "topic": "s3",
+      "tags": ["s3", "kms", "encryption"],
+      "question": "Uma empresa armazena dados sensíveis no Amazon S3 e precisa de auditoria detalhada de uso de chaves e controle de acesso à chave. Qual opção atende melhor?",
+      "choices": {
+        "A": "SSE-S3",
+        "B": "SSE-KMS com CMK e políticas de chave",
+        "C": "SSE-C com chave fornecida pelo cliente em cada requisição",
+        "D": "Criptografar no cliente e desativar criptografia no S3"
+      },
+      "correct": ["B"],
+      "explanation": "SSE-KMS fornece controle/auditoria de chaves (CloudTrail/KMS), políticas e separação de permissões (S3 vs KMS).",
+      "choice_explanations": {
+        "A": "SSE-S3 é gerenciado pela AWS, com menos controle granular de permissões e auditoria de chave.",
+        "B": "Correto: KMS permite auditoria, políticas e controle de acesso à chave.",
+        "C": "SSE-C aumenta complexidade operacional (gestão e envio de chave a cada request).",
+        "D": "Criptografia no cliente pode funcionar, mas perde integração e governança de chave central (KMS) e aumenta risco operacional."
+      }
+    },
+    {
+      "id": "SAA-002",
+      "topic": "s3",
+      "tags": ["s3", "consistency", "versioning"],
+      "question": "Um time precisa proteger objetos contra deleções acidentais e permitir recuperação rápida de versões anteriores. Qual configuração é a mais adequada?",
+      "choices": {
+        "A": "S3 Transfer Acceleration",
+        "B": "S3 Versioning",
+        "C": "S3 Select",
+        "D": "S3 Requester Pays"
+      },
+      "correct": ["B"],
+      "explanation": "Versioning mantém versões anteriores e permite recuperar objetos deletados (delete marker).",
+      "choice_explanations": {
+        "A": "Acelera uploads/downloads globalmente, não protege contra deleção.",
+        "B": "Correto: Versioning dá histórico e recuperação.",
+        "C": "Filtra dados em objetos, não é mecanismo de proteção.",
+        "D": "Altera quem paga requisições, sem relação com versões."
+      }
+    },
+    {
+      "id": "SAA-003",
+      "topic": "s3",
+      "tags": ["s3", "lifecycle", "glacier"],
+      "question": "Logs precisam ser mantidos por 7 anos com custo mínimo. Acesso raramente ocorre e pode tolerar horas para restauração. Melhor abordagem?",
+      "choices": {
+        "A": "Mover para S3 Standard-IA após 30 dias",
+        "B": "Mover para S3 One Zone-IA após 30 dias",
+        "C": "Mover para S3 Glacier Deep Archive via Lifecycle",
+        "D": "Mover para EBS st1 e snapshots"
+      },
+      "correct": ["C"],
+      "explanation": "Glacier Deep Archive é o menor custo para retenção longa, aceitando restauração lenta.",
+      "choice_explanations": {
+        "A": "Standard-IA ainda é mais caro que Glacier para 7 anos e acesso raro.",
+        "B": "One Zone-IA reduz resiliência e não bate custo do Deep Archive para longo prazo.",
+        "C": "Correto: Lifecycle para Deep Archive é o padrão para retenção longa e barata.",
+        "D": "EBS + snapshots tende a ser mais caro/complexo para logs em larga escala."
+      }
+    },
+    {
+      "id": "SAA-004",
+      "topic": "cloudfront",
+      "tags": ["cloudfront", "latency", "static"],
+      "question": "Um site estático no S3 precisa de baixa latência global e cache de conteúdo. Qual solução é a mais indicada?",
+      "choices": {
+        "A": "S3 Transfer Acceleration apenas",
+        "B": "CloudFront com origem no S3",
+        "C": "Route 53 com weighted routing para múltiplos buckets",
+        "D": "EFS montado em instâncias EC2 em várias regiões"
+      },
+      "correct": ["B"],
+      "explanation": "CloudFront fornece CDN global com cache, reduzindo latência para conteúdo estático.",
+      "choice_explanations": {
+        "A": "Transfer Acceleration ajuda upload, não é CDN com cache amplo para navegação.",
+        "B": "Correto: CloudFront + S3 é o padrão para site estático global.",
+        "C": "Route 53 não faz cache; e gerenciar múltiplos buckets é mais complexo.",
+        "D": "EFS/EC2 multi-região é desnecessário e caro para site estático."
+      }
+    },
+    {
+      "id": "SAA-005",
+      "topic": "iam",
+      "tags": ["iam", "sts", "assume-role"],
+      "question": "Um serviço em uma conta AWS A precisa acessar um bucket S3 na conta B com menor privilégio e auditoria. Melhor opção?",
+      "choices": {
+        "A": "Criar usuário IAM na conta B e compartilhar access keys",
+        "B": "Usar role na conta B e permitir AssumeRole da conta A (STS)",
+        "C": "Habilitar acesso público no bucket e restringir por IP",
+        "D": "Usar uma policy inline no bucket permitindo '*' com condição MFA"
+      },
+      "correct": ["B"],
+      "explanation": "Cross-account access recomendado é via IAM Role + STS AssumeRole, evitando chaves longas e permitindo auditoria.",
+      "choice_explanations": {
+        "A": "Compartilhar keys é anti-pattern e aumenta risco de vazamento.",
+        "B": "Correto: AssumeRole é o padrão seguro e auditável.",
+        "C": "Acesso público aumenta superfície de ataque.",
+        "D": "Permitir '*' é perigoso; MFA não resolve o excesso de permissões."
+      }
+    },
+    {
+      "id": "SAA-006",
+      "topic": "iam",
+      "tags": ["iam", "permission-boundary"],
+      "question": "Você quer permitir que desenvolvedores criem roles para Lambda, mas impedir que concedam permissões além de um limite corporativo. Qual recurso atende melhor?",
+      "choices": {
+        "A": "IAM Groups",
+        "B": "Permission Boundaries",
+        "C": "Resource-based policy no Lambda",
+        "D": "Apenas SCPs, sem mais nada"
+      },
+      "correct": ["B"],
+      "explanation": "Permission Boundaries impõem o máximo que uma role/usuário pode ter, mesmo que anexem policies mais amplas.",
+      "choice_explanations": {
+        "A": "Groups organizam, mas não impõem um limite máximo técnico.",
+        "B": "Correto: Boundary limita efetivamente permissões máximas.",
+        "C": "Resource-based policy controla acesso ao recurso, não o que o principal pode criar/usar.",
+        "D": "SCP ajuda em nível de conta/OU, mas boundaries resolvem o caso de delegação fina na criação de roles."
+      }
+    },
+    {
+      "id": "SAA-007",
+      "topic": "organizations",
+      "tags": ["organizations", "scp", "governance"],
+      "question": "A empresa quer bloquear a criação de recursos fora das regiões aprovadas em todas as contas de uma OU. Melhor abordagem?",
+      "choices": {
+        "A": "Configurar Security Groups padrão",
+        "B": "Aplicar SCP com condição aws:RequestedRegion",
+        "C": "Usar IAM user policies em cada conta manualmente",
+        "D": "Usar CloudFront para redirecionar tráfego"
+      },
+      "correct": ["B"],
+      "explanation": "SCPs controlam permissões máximas em contas/OU; aws:RequestedRegion é padrão para restringir regiões.",
+      "choice_explanations": {
+        "A": "SGs não controlam onde recursos podem ser criados.",
+        "B": "Correto: SCP na OU faz enforcement central.",
+        "C": "Escala mal e é propenso a erro.",
+        "D": "CloudFront não tem relação com governança de regiões."
+      }
+    },
+    {
+      "id": "SAA-008",
+      "topic": "vpc",
+      "tags": ["vpc", "endpoints", "private"],
+      "question": "Instâncias em subnets privadas precisam acessar S3 sem passar pela internet e sem NAT Gateway. Qual solução é a melhor?",
+      "choices": {
+        "A": "Internet Gateway",
+        "B": "VPC Gateway Endpoint para S3",
+        "C": "Peering com uma VPC pública",
+        "D": "Colocar as instâncias em subnet pública"
+      },
+      "correct": ["B"],
+      "explanation": "Gateway Endpoint para S3 permite tráfego privado dentro da rede AWS sem NAT/Internet.",
+      "choice_explanations": {
+        "A": "IGW exige subnet pública/rota e expõe à internet.",
+        "B": "Correto: S3 Gateway Endpoint é a solução clássica.",
+        "C": "Peering não elimina necessidade de rota/saída para S3.",
+        "D": "Colocar em pública aumenta risco e foge do requisito."
+      }
+    },
+    {
+      "id": "SAA-009",
+      "topic": "vpc",
+      "tags": ["vpc", "privatelink", "saas"],
+      "question": "Uma aplicação precisa consumir um serviço SaaS exposto como endpoint em outra VPC (de terceiro) de forma privada e escalável. Melhor opção?",
+      "choices": {
+        "A": "VPC Peering",
+        "B": "AWS PrivateLink (Interface Endpoint)",
+        "C": "NAT Gateway",
+        "D": "Public ALB com IP allowlist"
+      },
+      "correct": ["B"],
+      "explanation": "PrivateLink fornece conectividade privada para serviços via endpoints de interface, sem abrir rede inteira (como peering).",
+      "choice_explanations": {
+        "A": "Peering abre conectividade ampla e tem limitações de transitive routing.",
+        "B": "Correto: PrivateLink é o padrão para expor/consumir serviços privados.",
+        "C": "NAT é para saída à internet, não para acesso privado a serviço em outra VPC.",
+        "D": "Public ALB expõe à internet e depende de controles adicionais."
+      }
+    },
+    {
+      "id": "SAA-010",
+      "topic": "vpc",
+      "tags": ["vpc", "routing", "nat"],
+      "question": "Você quer que instâncias em subnet privada tenham saída para internet para baixar updates, sem aceitar conexões de entrada. O que é necessário?",
+      "choices": {
+        "A": "Internet Gateway + rota direta na subnet privada",
+        "B": "NAT Gateway em subnet pública + rota 0.0.0.0/0 na subnet privada para o NAT",
+        "C": "VPC Endpoint para EC2",
+        "D": "Load Balancer interno"
+      },
+      "correct": ["B"],
+      "explanation": "NAT Gateway permite saída (egress) para internet a partir de subnets privadas sem inbound.",
+      "choice_explanations": {
+        "A": "IGW requer subnet pública com IP público na instância; não atende ao requisito.",
+        "B": "Correto: NAT em pública + rota da privada para NAT.",
+        "C": "Endpoint não é para acesso geral à internet.",
+        "D": "LB interno não fornece egress à internet."
+      }
+    },
+    {
+      "id": "SAA-011",
+      "topic": "route53",
+      "tags": ["route53", "failover", "health-check"],
+      "question": "Uma aplicação precisa de failover automático entre duas regiões (ativa-passiva) baseado em health check. Qual recurso do Route 53 usar?",
+      "choices": {
+        "A": "Weighted routing",
+        "B": "Failover routing + health checks",
+        "C": "Latency-based routing apenas",
+        "D": "Geolocation routing apenas"
+      },
+      "correct": ["B"],
+      "explanation": "Failover routing usa registros primary/secondary com health checks para alternar automaticamente.",
+      "choice_explanations": {
+        "A": "Weighted distribui porcentagem, não é failover explícito.",
+        "B": "Correto: Failover + health checks atende exatamente.",
+        "C": "Latency escolhe menor latência, não garante ativo-passivo.",
+        "D": "Geolocation roteia por localização, não por saúde."
+      }
+    },
+    {
+      "id": "SAA-012",
+      "topic": "ec2",
+      "tags": ["ec2", "asg", "scaling"],
+      "question": "Uma workload web tem tráfego variável e precisa escalar automaticamente mantendo alta disponibilidade. Melhor combinação?",
+      "choices": {
+        "A": "Uma instância grande e snapshots",
+        "B": "Auto Scaling Group multi-AZ atrás de Application Load Balancer",
+        "C": "EBS Multi-Attach em uma instância",
+        "D": "RDS Multi-AZ para servir conteúdo web"
+      },
+      "correct": ["B"],
+      "explanation": "ASG + ALB em múltiplas AZs é padrão para elasticidade e HA em camada web.",
+      "choice_explanations": {
+        "A": "Instância única é ponto único de falha e não escala automaticamente.",
+        "B": "Correto: ALB + ASG multi-AZ é arquitetura padrão.",
+        "C": "Multi-Attach não resolve escalabilidade/HA da camada web.",
+        "D": "RDS é banco, não substitui a camada web."
+      }
+    },
+    {
+      "id": "SAA-013",
+      "topic": "elb",
+      "tags": ["alb", "routing", "microservices"],
+      "question": "Você tem múltiplos microserviços HTTP na mesma VPC e quer rotear por path (/api, /auth) para targets diferentes. Qual LB usar?",
+      "choices": {
+        "A": "Classic Load Balancer",
+        "B": "Application Load Balancer",
+        "C": "Network Load Balancer",
+        "D": "Gateway Load Balancer"
+      },
+      "correct": ["B"],
+      "explanation": "ALB suporta roteamento L7 (host/path) e integração com target groups.",
+      "choice_explanations": {
+        "A": "CLB é legado e tem menos recursos L7 modernos.",
+        "B": "Correto: ALB faz path-based routing.",
+        "C": "NLB é L4, não faz roteamento por path.",
+        "D": "GWLB é para appliances (firewall), não para roteamento HTTP por path."
+      }
+    },
+    {
+      "id": "SAA-014",
+      "topic": "ec2",
+      "tags": ["ec2", "placement-groups"],
+      "question": "Uma aplicação HPC precisa de baixa latência e alta taxa de transferência entre instâncias em uma AZ. Qual recurso usar?",
+      "choices": {
+        "A": "Spread Placement Group",
+        "B": "Cluster Placement Group",
+        "C": "Partition Placement Group",
+        "D": "Auto Scaling Group multi-região"
+      },
+      "correct": ["B"],
+      "explanation": "Cluster placement group posiciona instâncias próximas para baixa latência e alta throughput.",
+      "choice_explanations": {
+        "A": "Spread separa instâncias para reduzir falhas correlatas, não otimiza latência.",
+        "B": "Correto: Cluster otimiza rede para HPC.",
+        "C": "Partition isola falhas por partição, mais comum em big data distribuído.",
+        "D": "Multi-região aumenta latência e não atende HPC."
+      }
+    },
+    {
+      "id": "SAA-015",
+      "topic": "storage",
+      "tags": ["efs", "shared", "linux"],
+      "question": "Várias instâncias Linux em diferentes AZs precisam montar um sistema de arquivos compartilhado e elástico. Melhor opção?",
+      "choices": {
+        "A": "EBS gp3 anexado em cada instância",
+        "B": "Amazon EFS",
+        "C": "S3 com mount direto como filesystem POSIX",
+        "D": "Instance Store"
+      },
+      "correct": ["B"],
+      "explanation": "EFS é NFS gerenciado, multi-AZ, escalável e compartilhado para Linux.",
+      "choice_explanations": {
+        "A": "EBS é por instância (salvo casos específicos), não é compartilhado multi-AZ de forma simples.",
+        "B": "Correto: EFS atende filesystem compartilhado e elástico.",
+        "C": "S3 não é POSIX filesystem nativo; soluções de mount têm limitações.",
+        "D": "Instance Store é efêmero e não compartilhado."
+      }
+    },
+    {
+      "id": "SAA-016",
+      "topic": "rds",
+      "tags": ["rds", "multi-az", "ha"],
+      "question": "Um banco relacional precisa de alta disponibilidade com failover automático dentro da mesma região. Qual recurso usar?",
+      "choices": {
+        "A": "RDS Read Replica",
+        "B": "RDS Multi-AZ",
+        "C": "Snapshot diário apenas",
+        "D": "Aurora Global Database"
+      },
+      "correct": ["B"],
+      "explanation": "RDS Multi-AZ mantém standby sincronizado em outra AZ com failover automático.",
+      "choice_explanations": {
+        "A": "Read replica é para leitura e DR, não garante failover automático de escrita (depende do engine).",
+        "B": "Correto: Multi-AZ é HA intra-região.",
+        "C": "Snapshot não fornece HA em tempo real.",
+        "D": "Global Database é multi-região, mais para DR/latência global."
+      }
+    },
+    {
+      "id": "SAA-017",
+      "topic": "rds",
+      "tags": ["rds", "read-replica", "scaling"],
+      "question": "Uma aplicação relacional está sofrendo gargalo em leituras. Você precisa escalar leituras sem alterar muito a aplicação. Melhor opção?",
+      "choices": {
+        "A": "Aumentar o storage do RDS",
+        "B": "Criar RDS Read Replicas e rotear leituras para elas",
+        "C": "Habilitar Multi-AZ",
+        "D": "Mover para DynamoDB sem mudanças"
+      },
+      "correct": ["B"],
+      "explanation": "Read replicas escalam leituras e reduzem carga do primário.",
+      "choice_explanations": {
+        "A": "Storage maior não resolve gargalo de CPU/queries de leitura.",
+        "B": "Correto: Read replicas são para scale-out de leitura.",
+        "C": "Multi-AZ é HA, não scale de leitura (standby não serve leitura).",
+        "D": "Migração para DynamoDB exige re-arquitetura."
+      }
+    },
+    {
+      "id": "SAA-018",
+      "topic": "dynamodb",
+      "tags": ["dynamodb", "performance", "partition-key"],
+      "question": "Uma tabela DynamoDB tem hot partition por usar uma partition key com baixa cardinalidade. Como mitigar com menor esforço?",
+      "choices": {
+        "A": "Aumentar WCU/RCU infinitamente",
+        "B": "Reprojetar a partition key para distribuir melhor (ex: adicionar sufixo/hash)",
+        "C": "Mover para RDS imediatamente",
+        "D": "Habilitar Multi-AZ na tabela"
+      },
+      "correct": ["B"],
+      "explanation": "DynamoDB escala por partições; boa distribuição da partition key é essencial para throughput.",
+      "choice_explanations": {
+        "A": "Aumentar capacidade não resolve hot partition se a distribuição não muda.",
+        "B": "Correto: melhorar distribuição da chave reduz hotspots.",
+        "C": "RDS pode ser opção, mas não é a mitigação mais direta.",
+        "D": "DynamoDB já é multi-AZ gerenciado; não existe esse toggle como solução."
+      }
+    },
+    {
+      "id": "SAA-019",
+      "topic": "dynamodb",
+      "tags": ["dynamodb", "ttl", "cost"],
+      "question": "Itens de uma tabela DynamoDB devem expirar automaticamente após 30 dias para reduzir custo. Qual recurso usar?",
+      "choices": {
+        "A": "DynamoDB Streams",
+        "B": "TTL (Time to Live)",
+        "C": "Global Tables",
+        "D": "DAX"
+      },
+      "correct": ["B"],
+      "explanation": "TTL remove itens automaticamente após timestamp definido.",
+      "choice_explanations": {
+        "A": "Streams captura mudanças, não expira itens.",
+        "B": "Correto: TTL é feito para expiração automática.",
+        "C": "Global Tables replicam, não expiram.",
+        "D": "DAX é cache, não expiração."
+      }
+    },
+    {
+      "id": "SAA-020",
+      "topic": "lambda",
+      "tags": ["lambda", "sqs", "retry"],
+      "question": "Você precisa processar eventos com retry automático e buffering para absorver picos, usando serverless. Melhor combinação?",
+      "choices": {
+        "A": "Lambda acionada por SQS",
+        "B": "Lambda acionada por SNS diretamente",
+        "C": "EC2 cron job",
+        "D": "CloudFront Functions"
+      },
+      "correct": ["A"],
+      "explanation": "SQS fornece fila/buffering e Lambda com event source mapping lida com retry e escala de consumidores.",
+      "choice_explanations": {
+        "A": "Correto: SQS + Lambda é padrão para filas e picos.",
+        "B": "SNS é pub/sub e não é fila; pode perder controle fino de backlog.",
+        "C": "EC2 cron não é serverless e não escala bem com picos.",
+        "D": "CloudFront Functions é para edge logic, não processamento de fila."
+      }
+    },
+
+    {
+      "id": "SAA-021",
+      "topic": "sqs",
+      "tags": ["sqs", "fifo", "ordering"],
+      "question": "Um sistema exige processamento exatamente na ordem e sem duplicatas por grupo de mensagens. Qual tipo de fila usar?",
+      "choices": {
+        "A": "SQS Standard",
+        "B": "SQS FIFO com MessageGroupId",
+        "C": "SNS Topic",
+        "D": "Kinesis Data Firehose"
+      },
+      "correct": ["B"],
+      "explanation": "FIFO garante ordenação e deduplicação (dentro das regras), e MessageGroupId permite paralelismo por grupo.",
+      "choice_explanations": {
+        "A": "Standard é at-least-once e não garante ordem.",
+        "B": "Correto: FIFO atende ordem e deduplicação.",
+        "C": "SNS não é fila e não garante ordenação.",
+        "D": "Firehose é para entrega de streams/ETL, não garantia FIFO por grupo."
+      }
+    },
+    {
+      "id": "SAA-022",
+      "topic": "eventbridge",
+      "tags": ["eventbridge", "integration", "routing"],
+      "question": "Você quer rotear eventos de múltiplos serviços AWS para diferentes alvos com regras e filtros, sem gerenciar infraestrutura. Melhor serviço?",
+      "choices": {
+        "A": "Amazon EventBridge",
+        "B": "Amazon S3",
+        "C": "Amazon EBS",
+        "D": "AWS Direct Connect"
+      },
+      "correct": ["A"],
+      "explanation": "EventBridge fornece barramento de eventos com regras de roteamento e integração nativa.",
+      "choice_explanations": {
+        "A": "Correto: EventBridge é feito para roteamento e regras.",
+        "B": "S3 é storage, não barramento de eventos generalista.",
+        "C": "EBS é bloco para EC2, não eventos.",
+        "D": "Direct Connect é conectividade, não roteamento de eventos."
+      }
+    },
+    {
+      "id": "SAA-023",
+      "topic": "kms",
+      "tags": ["kms", "envelope-encryption"],
+      "question": "Você quer criptografar dados em aplicação com chaves gerenciadas no KMS sem expor a CMK diretamente ao código. Qual padrão usar?",
+      "choices": {
+        "A": "SSE-C",
+        "B": "Envelope encryption (GenerateDataKey)",
+        "C": "Public key encryption com CloudFront",
+        "D": "Apenas base64"
+      },
+      "correct": ["B"],
+      "explanation": "Envelope encryption usa data keys geradas pelo KMS para criptografar dados localmente, mantendo CMK protegida.",
+      "choice_explanations": {
+        "A": "SSE-C é para S3 e depende de chave fornecida pelo cliente.",
+        "B": "Correto: GenerateDataKey + envelope encryption é o padrão.",
+        "C": "Não resolve gestão de chaves com KMS para dados em app.",
+        "D": "Base64 não é criptografia."
+      }
+    },
+    {
+      "id": "SAA-024",
+      "topic": "cloudwatch",
+      "tags": ["cloudwatch", "alarms", "autoscaling"],
+      "question": "Você quer escalar um ASG com base em CPU média acima de 60% por 5 minutos. Qual mecanismo usar?",
+      "choices": {
+        "A": "CloudWatch Alarm + policy de scaling no ASG",
+        "B": "S3 Lifecycle",
+        "C": "IAM Access Analyzer",
+        "D": "CloudTrail Insights"
+      },
+      "correct": ["A"],
+      "explanation": "ASG scaling policies podem ser acionadas por CloudWatch alarms.",
+      "choice_explanations": {
+        "A": "Correto: alarme + scaling policy faz autoscaling baseado em métrica.",
+        "B": "Lifecycle é para objetos S3.",
+        "C": "Access Analyzer é para IAM/resource sharing.",
+        "D": "CloudTrail Insights detecta anomalias de API, não autoscaling."
+      }
+    },
+    {
+      "id": "SAA-025",
+      "topic": "cloudtrail",
+      "tags": ["cloudtrail", "audit", "security"],
+      "question": "Você precisa registrar e auditar chamadas de API em todas as contas da organização e centralizar logs. Melhor abordagem?",
+      "choices": {
+        "A": "CloudTrail organization trail enviando para um bucket central",
+        "B": "Somente VPC Flow Logs",
+        "C": "Somente CloudWatch Logs de aplicações",
+        "D": "Somente AWS Config sem CloudTrail"
+      },
+      "correct": ["A"],
+      "explanation": "Organization trail registra APIs em contas/regions e centraliza no S3/CloudWatch.",
+      "choice_explanations": {
+        "A": "Correto: Organization trail cobre auditoria de API em escala.",
+        "B": "Flow logs são rede, não auditam chamadas de API.",
+        "C": "Logs de app não substituem auditoria de API AWS.",
+        "D": "Config rastreia mudanças de configuração, não todas as chamadas de API."
+      }
+    },
+    {
+      "id": "SAA-026",
+      "topic": "security",
+      "tags": ["waf", "ddos", "cloudfront"],
+      "question": "Um site estático atrás de CloudFront sofre ataques de camada 7 (HTTP floods) e precisa bloquear padrões maliciosos. Melhor solução?",
+      "choices": {
+        "A": "AWS WAF associado ao CloudFront",
+        "B": "Security Group no S3",
+        "C": "NACL somente",
+        "D": "EBS encryption"
+      },
+      "correct": ["A"],
+      "explanation": "WAF protege aplicações web com regras L7 e integra com CloudFront/ALB.",
+      "choice_explanations": {
+        "A": "Correto: WAF é o serviço para filtragem L7.",
+        "B": "S3 não usa SG diretamente; e SG não faz L7 rules.",
+        "C": "NACL é L3/L4, não filtra padrões HTTP.",
+        "D": "Criptografia EBS não tem relação com ataque HTTP."
+      }
+    },
+    {
+      "id": "SAA-027",
+      "topic": "dr",
+      "tags": ["dr", "rto", "rpo"],
+      "question": "Uma aplicação precisa de RTO de minutos e RPO baixo, mas custo deve ser moderado. Qual estratégia DR é mais apropriada?",
+      "choices": {
+        "A": "Backup & Restore",
+        "B": "Pilot Light",
+        "C": "Warm Standby",
+        "D": "Multi-site Active-Active"
+      },
+      "correct": ["C"],
+      "explanation": "Warm standby mantém ambiente reduzido pronto para escalar rapidamente, equilibrando custo e rapidez.",
+      "choice_explanations": {
+        "A": "Backup/restore tende a ter RTO maior (horas).",
+        "B": "Pilot light é mais barato, porém RTO geralmente maior que warm standby.",
+        "C": "Correto: warm standby equilibra custo e RTO baixo.",
+        "D": "Active-active é o mais caro e complexo."
+      }
+    },
+    {
+      "id": "SAA-028",
+      "topic": "ec2",
+      "tags": ["ssm", "no-ssh"],
+      "question": "Você quer administrar instâncias EC2 sem abrir SSH/RDP e com auditoria central. Melhor solução?",
+      "choices": {
+        "A": "Bastion Host com IP público",
+        "B": "AWS Systems Manager Session Manager",
+        "C": "Abrir 22/3389 para 0.0.0.0/0",
+        "D": "Route 53 failover"
+      },
+      "correct": ["B"],
+      "explanation": "SSM Session Manager permite acesso seguro sem portas abertas, com logs/auditoria.",
+      "choice_explanations": {
+        "A": "Bastion é opção, mas ainda envolve portas e gestão de host.",
+        "B": "Correto: Session Manager elimina necessidade de SSH/RDP expostos.",
+        "C": "Inseguro e não recomendado.",
+        "D": "Route 53 não é ferramenta de administração."
+      }
+    },
+    {
+      "id": "SAA-029",
+      "topic": "ecr-ecs",
+      "tags": ["ecs", "fargate", "containers"],
+      "question": "Você quer rodar containers sem gerenciar servidores, com escala automática e integração com ALB. Melhor opção?",
+      "choices": {
+        "A": "ECS on EC2 com capacity manual",
+        "B": "ECS Fargate",
+        "C": "EC2 com Docker manual",
+        "D": "Lightsail apenas"
+      },
+      "correct": ["B"],
+      "explanation": "Fargate é serverless para containers, sem gestão de instâncias.",
+      "choice_explanations": {
+        "A": "Funciona, mas exige gestão de nós EC2.",
+        "B": "Correto: Fargate reduz operação e escala bem.",
+        "C": "Mais operação e menos integração/gerenciamento.",
+        "D": "Lightsail é mais simples, mas não é o padrão corporativo para ECS/ALB."
+      }
+    },
+    {
+      "id": "SAA-030",
+      "topic": "s3",
+      "tags": ["s3", "replication", "dr"],
+      "question": "Dados críticos em S3 precisam ser replicados automaticamente para outra região para DR. Qual recurso usar?",
+      "choices": {
+        "A": "S3 Cross-Region Replication (CRR)",
+        "B": "S3 Transfer Acceleration",
+        "C": "S3 Select",
+        "D": "EFS replication"
+      },
+      "correct": ["A"],
+      "explanation": "CRR replica objetos para bucket em outra região de forma assíncrona.",
+      "choice_explanations": {
+        "A": "Correto: CRR é o mecanismo oficial.",
+        "B": "Acelera transferências, não replica automaticamente.",
+        "C": "Select é query em objeto.",
+        "D": "EFS replication é para EFS, não S3."
+      }
+    },
+
+    {
+      "id": "SAA-031",
+      "topic": "apigw",
+      "tags": ["api-gateway", "lambda", "auth"],
+      "question": "Você precisa expor uma API serverless com autenticação e throttling para proteger backend Lambda. Melhor escolha?",
+      "choices": {
+        "A": "API Gateway + Lambda",
+        "B": "S3 static website hosting",
+        "C": "NLB + EC2",
+        "D": "EFS + CloudFront"
+      },
+      "correct": ["A"],
+      "explanation": "API Gateway fornece auth, throttling, API keys/usage plans e integra com Lambda.",
+      "choice_explanations": {
+        "A": "Correto: API Gateway resolve autenticação e limites.",
+        "B": "S3 site não oferece API + auth/throttling.",
+        "C": "NLB+EC2 é pesado para serverless e não tem recursos nativos de API management.",
+        "D": "Não é arquitetura de API."
+      }
+    },
+    {
+      "id": "SAA-032",
+      "topic": "vpc",
+      "tags": ["vpc", "flow-logs", "troubleshooting"],
+      "question": "Você precisa investigar tráfego aceito/negado em ENIs de uma VPC para troubleshooting. Qual recurso usar?",
+      "choices": {
+        "A": "CloudTrail",
+        "B": "VPC Flow Logs",
+        "C": "AWS Budgets",
+        "D": "Route 53 Resolver"
+      },
+      "correct": ["B"],
+      "explanation": "Flow Logs capturam metadados de tráfego de rede para ENI/Subnet/VPC.",
+      "choice_explanations": {
+        "A": "CloudTrail registra APIs, não fluxo de rede.",
+        "B": "Correto: Flow Logs para tráfego aceito/negado (metadados).",
+        "C": "Budgets é custo, não rede.",
+        "D": "Resolver é DNS, não logs de tráfego."
+      }
+    },
+    {
+      "id": "SAA-033",
+      "topic": "efs-fsx",
+      "tags": ["fsx", "windows", "shared"],
+      "question": "Um workload Windows precisa de filesystem compartilhado com SMB e integração com AD. Melhor serviço?",
+      "choices": {
+        "A": "Amazon EFS",
+        "B": "Amazon FSx for Windows File Server",
+        "C": "S3 Standard",
+        "D": "EBS io2"
+      },
+      "correct": ["B"],
+      "explanation": "FSx for Windows oferece SMB gerenciado e integração com Microsoft AD.",
+      "choice_explanations": {
+        "A": "EFS é NFS para Linux; SMB/AD não é o caso.",
+        "B": "Correto: FSx Windows é o serviço apropriado.",
+        "C": "S3 não é SMB filesystem nativo.",
+        "D": "EBS é por instância, não compartilhado SMB gerenciado."
+      }
+    },
+    {
+      "id": "SAA-034",
+      "topic": "aurora",
+      "tags": ["aurora", "serverless", "bursty"],
+      "question": "Uma aplicação tem tráfego imprevisível e quer banco relacional com auto-scaling de capacidade sem administrar instâncias. Melhor opção?",
+      "choices": {
+        "A": "RDS MySQL single-AZ",
+        "B": "Aurora Serverless v2",
+        "C": "DynamoDB sem alterações",
+        "D": "EC2 rodando MySQL"
+      },
+      "correct": ["B"],
+      "explanation": "Aurora Serverless v2 ajusta capacidade de forma contínua para workloads variáveis.",
+      "choice_explanations": {
+        "A": "Single-AZ não é HA e não escala automaticamente.",
+        "B": "Correto: Aurora Serverless v2 atende elasticidade.",
+        "C": "DynamoDB exige re-arquitetura se você precisa SQL/relacional.",
+        "D": "Gerenciar MySQL em EC2 aumenta operação e não é elástico por padrão."
+      }
+    },
+    {
+      "id": "SAA-035",
+      "topic": "s3",
+      "tags": ["s3", "access-points", "multi-team"],
+      "question": "Vários times precisam de políticas diferentes de acesso ao mesmo bucket S3 sem criar buckets separados. Qual recurso ajuda a simplificar?",
+      "choices": {
+        "A": "S3 Access Points",
+        "B": "S3 Select",
+        "C": "S3 Inventory",
+        "D": "S3 Object Lock (Governance mode)"
+      },
+      "correct": ["A"],
+      "explanation": "Access Points permitem endpoints/policies por aplicação/time para o mesmo bucket.",
+      "choice_explanations": {
+        "A": "Correto: Access Points simplificam políticas por consumidor.",
+        "B": "Select é consulta em objeto.",
+        "C": "Inventory é listagem/relatório de objetos.",
+        "D": "Object Lock é para retenção/imutabilidade."
+      }
+    },
+    {
+      "id": "SAA-036",
+      "topic": "s3",
+      "tags": ["s3", "object-lock", "compliance"],
+      "question": "Uma empresa precisa armazenar registros com retenção imutável por 5 anos (WORM) para compliance. Qual recurso usar?",
+      "choices": {
+        "A": "S3 Object Lock (Compliance mode)",
+        "B": "S3 Transfer Acceleration",
+        "C": "S3 Static Website",
+        "D": "S3 Requester Pays"
+      },
+      "correct": ["A"],
+      "explanation": "Object Lock em compliance impede deleção/alteração até o fim da retenção.",
+      "choice_explanations": {
+        "A": "Correto: WORM via Object Lock.",
+        "B": "Aceleração não tem relação com imutabilidade.",
+        "C": "Website hosting é sobre servir conteúdo.",
+        "D": "Requester Pays é billing."
+      }
+    },
+    {
+      "id": "SAA-037",
+      "topic": "networking",
+      "tags": ["direct-connect", "hybrid", "latency"],
+      "question": "Uma empresa precisa de conectividade híbrida estável e previsível (latência consistente) entre on-premises e AWS. Melhor opção?",
+      "choices": {
+        "A": "VPN site-to-site apenas",
+        "B": "AWS Direct Connect",
+        "C": "Internet Gateway",
+        "D": "VPC Peering"
+      },
+      "correct": ["B"],
+      "explanation": "Direct Connect oferece link dedicado com latência mais previsível e throughput consistente.",
+      "choice_explanations": {
+        "A": "VPN é pela internet e pode variar latência/throughput.",
+        "B": "Correto: DX é link dedicado para híbrido.",
+        "C": "IGW é para internet, não ligação dedicada on-prem.",
+        "D": "Peering é entre VPCs na AWS, não on-prem."
+      }
+    },
+    {
+      "id": "SAA-038",
+      "topic": "networking",
+      "tags": ["vpn", "hybrid", "backup"],
+      "question": "Você tem Direct Connect, mas precisa de redundância caso o link dedicado caia. Melhor complemento?",
+      "choices": {
+        "A": "Outra VPC na mesma região",
+        "B": "VPN site-to-site como backup",
+        "C": "S3 Transfer Acceleration",
+        "D": "CloudFront"
+      },
+      "correct": ["B"],
+      "explanation": "Padrão é Direct Connect + VPN como backup (failover).",
+      "choice_explanations": {
+        "A": "Outra VPC não cria conectividade on-prem automaticamente.",
+        "B": "Correto: VPN complementa DX como redundância.",
+        "C": "Aceleração não é conectividade híbrida.",
+        "D": "CloudFront é CDN."
+      }
+    },
+    {
+      "id": "SAA-039",
+      "topic": "ecs-eks",
+      "tags": ["eks", "managed", "kubernetes"],
+      "question": "Um time precisa rodar Kubernetes gerenciado na AWS com controle de cluster e integração IAM. Melhor serviço?",
+      "choices": {
+        "A": "Amazon EKS",
+        "B": "Amazon ECS",
+        "C": "AWS Batch",
+        "D": "AWS Glue"
+      },
+      "correct": ["A"],
+      "explanation": "EKS é Kubernetes gerenciado; ECS é orquestrador próprio.",
+      "choice_explanations": {
+        "A": "Correto: EKS é Kubernetes gerenciado na AWS.",
+        "B": "ECS é alternativa a Kubernetes, não é Kubernetes.",
+        "C": "Batch é para jobs em lote.",
+        "D": "Glue é ETL."
+      }
+    },
+    {
+      "id": "SAA-040",
+      "topic": "backup",
+      "tags": ["aws-backup", "policy", "central"],
+      "question": "Você quer padronizar e automatizar backups de EBS, RDS e DynamoDB com políticas centralizadas. Melhor opção?",
+      "choices": {
+        "A": "Scripts cron em EC2",
+        "B": "AWS Backup",
+        "C": "Somente snapshots manuais",
+        "D": "CloudFormation em todas as contas"
+      },
+      "correct": ["B"],
+      "explanation": "AWS Backup centraliza políticas e automatiza backups cross-service.",
+      "choice_explanations": {
+        "A": "Funciona, mas é manutenção alta e frágil.",
+        "B": "Correto: AWS Backup é desenhado para isso.",
+        "C": "Manual não escala e é sujeito a erro.",
+        "D": "IaC ajuda, mas não substitui serviço de backup/políticas."
+      }
+    },
+
+    {
+      "id": "SAA-041",
+      "topic": "elb",
+      "tags": ["nlb", "tcp", "low-latency"],
+      "question": "Você precisa balancear tráfego TCP/UDP com altíssima performance e IP estático. Qual LB usar?",
+      "choices": {
+        "A": "Application Load Balancer",
+        "B": "Network Load Balancer",
+        "C": "Classic Load Balancer",
+        "D": "CloudFront"
+      },
+      "correct": ["B"],
+      "explanation": "NLB é L4, alta performance e suporta IP estático (Elastic IP).",
+      "choice_explanations": {
+        "A": "ALB é L7 (HTTP/HTTPS) e não é ideal para UDP.",
+        "B": "Correto: NLB é o padrão para TCP/UDP e IP estático.",
+        "C": "CLB é legado.",
+        "D": "CloudFront é CDN L7."
+      }
+    },
+    {
+      "id": "SAA-042",
+      "topic": "s3",
+      "tags": ["s3", "presigned-url", "upload"],
+      "question": "Usuários externos precisam fazer upload de arquivos direto para S3, sem passar pelo servidor da aplicação. Melhor solução?",
+      "choices": {
+        "A": "Abrir o bucket como público para PUT",
+        "B": "Usar URLs pré-assinadas (pre-signed URLs) para upload",
+        "C": "Usar EBS e copiar via SCP",
+        "D": "Usar Route 53 weighted routing"
+      },
+      "correct": ["B"],
+      "explanation": "Pre-signed URLs permitem upload seguro e temporário direto ao S3 com permissões controladas.",
+      "choice_explanations": {
+        "A": "Público para PUT é inseguro.",
+        "B": "Correto: pre-signed URLs são a prática recomendada.",
+        "C": "EBS/SCP não atende upload direto e escala pior.",
+        "D": "Route 53 não lida com autorização de upload."
+      }
+    },
+    {
+      "id": "SAA-043",
+      "topic": "rds",
+      "tags": ["rds", "encryption", "snapshot"],
+      "question": "Você precisa habilitar criptografia em um RDS já existente que não foi criado criptografado. Qual caminho é o mais comum?",
+      "choices": {
+        "A": "Habilitar criptografia com um toggle no instance settings",
+        "B": "Criar snapshot, copiar snapshot com criptografia, restaurar em nova instância",
+        "C": "Apenas habilitar SSL para conexões",
+        "D": "Mover os dados para S3"
+      },
+      "correct": ["B"],
+      "explanation": "RDS não permite habilitar criptografia em instância existente; o padrão é snapshot -> copy encrypted -> restore.",
+      "choice_explanations": {
+        "A": "Não é suportado para instâncias já existentes.",
+        "B": "Correto: esse é o procedimento padrão.",
+        "C": "SSL protege em trânsito, não em repouso.",
+        "D": "S3 não é banco relacional; migração é complexa e não é requisito."
+      }
+    },
+    {
+      "id": "SAA-044",
+      "topic": "ec2",
+      "tags": ["ami", "autoscaling", "golden-image"],
+      "question": "Você quer reduzir tempo de bootstrap do ASG e padronizar configuração das instâncias. Melhor abordagem?",
+      "choices": {
+        "A": "Rodar tudo via user-data em cada launch",
+        "B": "Criar uma AMI 'golden' pré-configurada e usar no Launch Template",
+        "C": "Usar instâncias maiores",
+        "D": "Armazenar binários em /tmp"
+      },
+      "correct": ["B"],
+      "explanation": "Golden AMI reduz bootstrap e aumenta consistência e previsibilidade.",
+      "choice_explanations": {
+        "A": "User-data extensivo aumenta tempo e risco de falhas.",
+        "B": "Correto: golden AMI acelera e padroniza.",
+        "C": "Tamanho de instância não resolve setup/consistência.",
+        "D": "/tmp é efêmero e não é estratégia de bootstrap."
+      }
+    },
+    {
+      "id": "SAA-045",
+      "topic": "lambda",
+      "tags": ["lambda", "vpc", "rds"],
+      "question": "Uma função Lambda precisa acessar um RDS em subnet privada. O que é necessário?",
+      "choices": {
+        "A": "Colocar Lambda em uma VPC (subnets) e configurar Security Groups",
+        "B": "Habilitar Internet Gateway no RDS",
+        "C": "Criar bucket S3 intermediário",
+        "D": "Mover o RDS para subnet pública"
+      },
+      "correct": ["A"],
+      "explanation": "Para acessar recursos privados em VPC, Lambda deve ter VPC config (subnets/SG) apropriada.",
+      "choice_explanations": {
+        "A": "Correto: VPC config + SG permite conexão ao RDS privado.",
+        "B": "IGW não é aplicado ao RDS dessa forma e exporia recursos.",
+        "C": "S3 não resolve conexão direta a banco relacional.",
+        "D": "Subnet pública aumenta risco e não é requisito."
+      }
+    },
+    {
+      "id": "SAA-046",
+      "topic": "s3",
+      "tags": ["s3", "block-public-access", "security"],
+      "question": "Você quer garantir que nenhum bucket S3 em uma conta fique público acidentalmente. Qual controle ajuda mais?",
+      "choices": {
+        "A": "S3 Block Public Access (account level)",
+        "B": "S3 Requester Pays",
+        "C": "S3 Select",
+        "D": "S3 Inventory"
+      },
+      "correct": ["A"],
+      "explanation": "Block Public Access em nível de conta evita configurações públicas mesmo com policies/ACLs erradas.",
+      "choice_explanations": {
+        "A": "Correto: é o controle preventivo recomendado.",
+        "B": "Billing, não segurança.",
+        "C": "Consulta em objeto, não segurança.",
+        "D": "Relatórios, não bloqueio preventivo."
+      }
+    },
+    {
+      "id": "SAA-047",
+      "topic": "ec2",
+      "tags": ["spot", "cost", "interruptions"],
+      "question": "Você quer reduzir custo em workloads tolerantes a interrupções (batch) e aceitar terminações. Melhor opção?",
+      "choices": {
+        "A": "On-Demand apenas",
+        "B": "Reserved Instances apenas",
+        "C": "Spot Instances",
+        "D": "Dedicated Hosts"
+      },
+      "correct": ["C"],
+      "explanation": "Spot oferece grande desconto, mas pode interromper; ideal para workloads tolerantes.",
+      "choice_explanations": {
+        "A": "Mais caro para batch.",
+        "B": "RI é para uso previsível e contínuo; batch pode ser mais flexível com Spot.",
+        "C": "Correto: Spot atende custo baixo e tolerância a interrupção.",
+        "D": "Dedicated Hosts aumentam custo e atendem compliance/licenças."
+      }
+    },
+    {
+      "id": "SAA-048",
+      "topic": "s3",
+      "tags": ["s3", "multipart-upload", "large-objects"],
+      "question": "Você precisa fazer upload confiável de arquivos muito grandes (dezenas de GB) para S3 com reenvio parcial em falhas. Qual técnica usar?",
+      "choices": {
+        "A": "Single PUT request",
+        "B": "Multipart Upload",
+        "C": "S3 Select",
+        "D": "S3 Object Lock"
+      },
+      "correct": ["B"],
+      "explanation": "Multipart Upload permite enviar partes e retomar sem recomeçar do zero.",
+      "choice_explanations": {
+        "A": "Uma falha exige recomeçar; menos confiável para arquivos grandes.",
+        "B": "Correto: multipart é padrão para grandes objetos.",
+        "C": "Select é consulta, não upload.",
+        "D": "Lock é retenção/imutabilidade."
+      }
+    },
+    {
+      "id": "SAA-049",
+      "topic": "vpc",
+      "tags": ["tgw", "hub-spoke", "multi-vpc"],
+      "question": "Você tem dezenas de VPCs e precisa conectá-las com topologia hub-and-spoke, incluindo on-premises, com roteamento central. Melhor serviço?",
+      "choices": {
+        "A": "VPC Peering em malha completa",
+        "B": "Transit Gateway",
+        "C": "Internet Gateway",
+        "D": "NAT Gateway"
+      },
+      "correct": ["B"],
+      "explanation": "Transit Gateway simplifica conectividade em escala (hub) entre VPCs e on-prem.",
+      "choice_explanations": {
+        "A": "Peering em malha completa não escala (n^2) e não é transitivo.",
+        "B": "Correto: TGW é o padrão para muitas VPCs/híbrido.",
+        "C": "IGW é internet, não backbone entre VPCs.",
+        "D": "NAT é egress, não conectividade entre VPCs."
+      }
+    },
+    {
+      "id": "SAA-050",
+      "topic": "vpc",
+      "tags": ["nacl", "sg", "stateless"],
+      "question": "Qual afirmação descreve corretamente a diferença entre Security Groups e NACLs?",
+      "choices": {
+        "A": "Security Groups são stateless e NACLs são stateful",
+        "B": "Security Groups são stateful e NACLs são stateless",
+        "C": "Ambos são stateless",
+        "D": "Ambos são stateful"
+      },
+      "correct": ["B"],
+      "explanation": "SG é stateful (retorno permitido automaticamente); NACL é stateless (precisa regras de entrada e saída).",
+      "choice_explanations": {
+        "A": "Invertido.",
+        "B": "Correto: SG stateful, NACL stateless.",
+        "C": "Não: SG é stateful.",
+        "D": "Não: NACL é stateless."
+      }
+    },
+
+    {
+      "id": "SAA-051",
+      "topic": "s3",
+      "tags": ["s3", "event", "lambda"],
+      "question": "Você quer acionar automaticamente processamento quando um objeto é criado em um bucket S3. Qual opção é mais direta?",
+      "choices": {
+        "A": "S3 Event Notifications para Lambda",
+        "B": "EBS snapshots",
+        "C": "Route 53 health checks",
+        "D": "CloudFront invalidations"
+      },
+      "correct": ["A"],
+      "explanation": "S3 pode disparar eventos para Lambda/SNS/SQS ao criar objetos.",
+      "choice_explanations": {
+        "A": "Correto: evento do S3 para Lambda é padrão.",
+        "B": "Snapshots não têm relação com S3 eventos.",
+        "C": "Health checks são DNS/endpoint health.",
+        "D": "Invalidation é cache de CDN."
+      }
+    },
+    {
+      "id": "SAA-052",
+      "topic": "monitoring",
+      "tags": ["cloudwatch", "logs", "insights"],
+      "question": "Você quer pesquisar rapidamente logs (strings, padrões) e gerar métricas ad hoc sem montar stack ELK. Melhor recurso?",
+      "choices": {
+        "A": "CloudWatch Logs Insights",
+        "B": "AWS Budgets",
+        "C": "AWS Artifact",
+        "D": "AWS Shield Advanced"
+      },
+      "correct": ["A"],
+      "explanation": "Logs Insights permite consultas interativas e agregações nos logs do CloudWatch.",
+      "choice_explanations": {
+        "A": "Correto: Logs Insights é o serviço de query em logs.",
+        "B": "Budgets é custo.",
+        "C": "Artifact é compliance documentos.",
+        "D": "Shield é proteção DDoS."
+      }
+    },
+    {
+      "id": "SAA-053",
+      "topic": "sqs",
+      "tags": ["sqs", "dlq", "poison-pill"],
+      "question": "Algumas mensagens falham repetidamente e você quer isolá-las para análise sem bloquear a fila principal. Qual recurso usar?",
+      "choices": {
+        "A": "FIFO queue",
+        "B": "Dead-Letter Queue (DLQ)",
+        "C": "S3 Lifecycle",
+        "D": "CloudFront Origin Shield"
+      },
+      "correct": ["B"],
+      "explanation": "DLQ armazena mensagens que excedem o maxReceiveCount, evitando travar o fluxo principal.",
+      "choice_explanations": {
+        "A": "FIFO é sobre ordem/dedup, não isolamento de falhas.",
+        "B": "Correto: DLQ é para mensagens 'poison pill'.",
+        "C": "Lifecycle é S3.",
+        "D": "Origin Shield é CloudFront."
+      }
+    },
+    {
+      "id": "SAA-054",
+      "topic": "lambda",
+      "tags": ["lambda", "concurrency", "throttling"],
+      "question": "Uma função Lambda está sendo throttled por excesso de invocações concorrentes. O que pode ajudar diretamente?",
+      "choices": {
+        "A": "Aumentar reserved concurrency para a função",
+        "B": "Ativar S3 Transfer Acceleration",
+        "C": "Aumentar o tamanho do EBS",
+        "D": "Trocar para NACLs"
+      },
+      "correct": ["A"],
+      "explanation": "Reserved concurrency controla e pode reservar capacidade (ou aumentar limites via conta, se necessário).",
+      "choice_explanations": {
+        "A": "Correto: ajustar reserved concurrency/limites reduz throttling.",
+        "B": "Não relacionado a Lambda concorrência.",
+        "C": "Lambda não usa EBS.",
+        "D": "NACL é rede VPC, não concorrência Lambda."
+      }
+    },
+    {
+      "id": "SAA-055",
+      "topic": "s3",
+      "tags": ["s3", "static-website", "dns"],
+      "question": "Você quer hospedar um site estático simples com S3 e usar um domínio próprio. Qual combinação é comum?",
+      "choices": {
+        "A": "S3 Static Website + Route 53",
+        "B": "EBS + Route 53",
+        "C": "RDS + Route 53",
+        "D": "EFS + Direct Connect"
+      },
+      "correct": ["A"],
+      "explanation": "S3 static website hosting + Route 53 (e geralmente CloudFront para HTTPS/caching) é padrão.",
+      "choice_explanations": {
+        "A": "Correto: é a arquitetura típica para site estático.",
+        "B": "EBS não hospeda site por si só.",
+        "C": "RDS não é site.",
+        "D": "Não faz sentido para site estático simples."
+      }
+    },
+    {
+      "id": "SAA-056",
+      "topic": "iam",
+      "tags": ["iam", "mfa", "best-practice"],
+      "question": "Qual prática é mais recomendada para usuários IAM humanos com acesso ao console?",
+      "choices": {
+        "A": "Usar access keys compartilhadas",
+        "B": "Habilitar MFA e evitar chaves longas quando possível",
+        "C": "Dar AdministratorAccess para todos",
+        "D": "Desabilitar CloudTrail"
+      },
+      "correct": ["B"],
+      "explanation": "MFA e mínimo privilégio são boas práticas básicas; preferir roles/federação quando aplicável.",
+      "choice_explanations": {
+        "A": "Compartilhar keys é inseguro.",
+        "B": "Correto: MFA + boas práticas de credenciais.",
+        "C": "Excesso de permissões aumenta risco.",
+        "D": "CloudTrail é essencial para auditoria."
+      }
+    },
+    {
+      "id": "SAA-057",
+      "topic": "compute",
+      "tags": ["batch", "jobs", "spot"],
+      "question": "Você tem processamento em lote com filas e dependências de jobs. Quer usar Spot quando possível e gerenciar execução. Melhor serviço?",
+      "choices": {
+        "A": "AWS Batch",
+        "B": "CloudFront",
+        "C": "Route 53",
+        "D": "AWS Glue Data Catalog"
+      },
+      "correct": ["A"],
+      "explanation": "AWS Batch gerencia filas, compute environments (incluindo Spot) e scheduling de jobs.",
+      "choice_explanations": {
+        "A": "Correto: Batch é feito para jobs em lote com filas/compute.",
+        "B": "CDN.",
+        "C": "DNS.",
+        "D": "Catálogo/metadata, não execução de batch."
+      }
+    },
+    {
+      "id": "SAA-058",
+      "topic": "storage",
+      "tags": ["storage-gateway", "hybrid"],
+      "question": "Uma empresa quer expor um volume iSCSI on-prem que armazena dados como objetos no S3, com cache local. Qual serviço atende?",
+      "choices": {
+        "A": "AWS Storage Gateway (Volume Gateway)",
+        "B": "Amazon EFS",
+        "C": "Amazon FSx for Lustre",
+        "D": "Amazon CloudFront"
+      },
+      "correct": ["A"],
+      "explanation": "Volume Gateway apresenta volumes iSCSI e armazena dados no S3 com cache local.",
+      "choice_explanations": {
+        "A": "Correto: Volume Gateway é a solução híbrida adequada.",
+        "B": "EFS é NFS na AWS, não iSCSI on-prem.",
+        "C": "FSx Lustre é HPC filesystem.",
+        "D": "CDN."
+      }
+    },
+    {
+      "id": "SAA-059",
+      "topic": "s3",
+      "tags": ["s3", "cost", "intelligent-tiering"],
+      "question": "Você quer reduzir custo de objetos S3 com padrão de acesso imprevisível, sem mexer em regras de lifecycle detalhadas. Melhor opção?",
+      "choices": {
+        "A": "S3 Intelligent-Tiering",
+        "B": "S3 One Zone-IA fixo",
+        "C": "Sempre Glacier Deep Archive",
+        "D": "EBS gp2"
+      },
+      "correct": ["A"],
+      "explanation": "Intelligent-Tiering move automaticamente entre tiers conforme acesso, reduzindo custo para padrões imprevisíveis.",
+      "choice_explanations": {
+        "A": "Correto: é o serviço para acesso imprevisível.",
+        "B": "Pode ser mais barato, mas não se adapta; e reduz resiliência.",
+        "C": "Deep Archive aumenta latência de recuperação e pode não servir para acessos ocasionais.",
+        "D": "EBS não é para objetos e tende a ser mais caro."
+      }
+    },
+    {
+      "id": "SAA-060",
+      "topic": "architecture",
+      "tags": ["decoupling", "sns", "sqs"],
+      "question": "Você quer desacoplar produtores e múltiplos consumidores, garantindo que cada consumidor tenha sua própria fila e possa processar no seu ritmo. Qual padrão é melhor?",
+      "choices": {
+        "A": "SNS topic assinando múltiplas filas SQS (fanout)",
+        "B": "Uma fila SQS compartilhada por todos os consumidores",
+        "C": "Um bucket S3 por consumidor",
+        "D": "Um Security Group por consumidor"
+      },
+      "correct": ["A"],
+      "explanation": "SNS + SQS fanout permite múltiplas filas independentes por consumidor, isolando ritmo e falhas.",
+      "choice_explanations": {
+        "A": "Correto: fanout é o padrão para múltiplos consumidores independentes.",
+        "B": "Fila compartilhada mistura consumo e pode complicar isolamento/reprocessamento.",
+        "C": "S3 não é mecanismo de mensageria/fanout nativo para esse caso.",
+        "D": "SG não tem relação com desacoplamento por mensageria."
+      }
+    }
+  ]
+}

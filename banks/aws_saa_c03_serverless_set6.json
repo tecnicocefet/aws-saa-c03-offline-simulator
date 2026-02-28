@@ -1,0 +1,204 @@
+{
+  "questions": [
+    {
+      "id": "SAA-SRV-091",
+      "topic": "serverless",
+      "question": "Uma função Lambda é acionada por SQS Standard. Em picos de carga, mensagens estão sendo processadas duas vezes. O código não é idempotente. Qual é a melhor prática arquitetural para evitar impacto?",
+      "choices": {
+        "A": "Aumentar timeout da Lambda",
+        "B": "Tornar a função idempotente",
+        "C": "Trocar para SNS",
+        "D": "Desativar retries"
+      },
+      "correct": ["B"],
+      "explanation": "SQS Standard oferece at-least-once delivery. Funções devem ser idempotentes para evitar efeitos colaterais em reprocessamentos.",
+      "choice_explanations": {
+        "A": "❌ Timeout não resolve duplicação.",
+        "B": "✅ Idempotência é a prática correta.",
+        "C": "❌ SNS também pode gerar duplicações dependendo do fluxo.",
+        "D": "❌ Desativar retry pode causar perda de mensagem."
+      },
+      "tags": ["lambda", "sqs", "idempotency", "reliability"]
+    },
+    {
+      "id": "SAA-SRV-092",
+      "topic": "serverless",
+      "question": "Você precisa garantir ordem estrita de processamento de mensagens. Qual serviço é mais apropriado?",
+      "choices": {
+        "A": "SQS Standard",
+        "B": "SQS FIFO",
+        "C": "SNS Standard",
+        "D": "EventBridge"
+      },
+      "correct": ["B"],
+      "explanation": "SQS FIFO garante ordenação e exatamente-once processing dentro do grupo de mensagens.",
+      "choice_explanations": {
+        "A": "❌ Standard não garante ordem.",
+        "B": "✅ FIFO garante ordem por MessageGroupId.",
+        "C": "❌ SNS não garante ordem.",
+        "D": "❌ EventBridge não garante ordem estrita."
+      },
+      "tags": ["sqs", "fifo", "ordering"]
+    },
+    {
+      "id": "SAA-SRV-093",
+      "topic": "serverless",
+      "question": "Uma API precisa proteger backend Lambda contra picos inesperados e abuso. Qual combinação ajuda diretamente?",
+      "choices": {
+        "A": "API Gateway com throttling + usage plans",
+        "B": "Aumentar memória da Lambda",
+        "C": "Colocar NAT Gateway",
+        "D": "Desativar logs"
+      },
+      "correct": ["A"],
+      "explanation": "API Gateway oferece throttling, quotas e usage plans para proteger backend.",
+      "choice_explanations": {
+        "A": "✅ Controle de taxa e proteção.",
+        "B": "❌ Não protege contra abuso.",
+        "C": "❌ Irrelevante.",
+        "D": "❌ Reduz observabilidade."
+      },
+      "tags": ["apigw", "throttling", "lambda", "protection"]
+    },
+    {
+      "id": "SAA-SRV-094",
+      "topic": "serverless",
+      "question": "Uma função Lambda falha repetidamente ao processar mensagens SQS. Você quer evitar loop infinito e isolar mensagens problemáticas. O que usar?",
+      "choices": {
+        "A": "Dead Letter Queue (DLQ)",
+        "B": "Aumentar concurrency",
+        "C": "Trocar para EC2",
+        "D": "Desabilitar retry"
+      },
+      "correct": ["A"],
+      "explanation": "DLQ captura mensagens que excedem o número máximo de tentativas.",
+      "choice_explanations": {
+        "A": "✅ Evita retry infinito e isola erro.",
+        "B": "❌ Não resolve erro lógico.",
+        "C": "❌ Overkill.",
+        "D": "❌ Pode causar perda silenciosa."
+      },
+      "tags": ["lambda", "sqs", "dlq", "error-handling"]
+    },
+    {
+      "id": "SAA-SRV-095",
+      "topic": "serverless",
+      "question": "Você precisa orquestrar múltiplas funções Lambda com decisões condicionais e tratamento de erro complexo. Qual serviço é mais adequado?",
+      "choices": {
+        "A": "SNS",
+        "B": "Step Functions",
+        "C": "CloudFront",
+        "D": "Auto Scaling"
+      },
+      "correct": ["B"],
+      "explanation": "Step Functions fornece orquestração com estados, branches e retries controlados.",
+      "choice_explanations": {
+        "A": "❌ SNS é pub/sub.",
+        "B": "✅ Orquestração visual e controlada.",
+        "C": "❌ CDN.",
+        "D": "❌ Não é orquestrador."
+      },
+      "tags": ["step-functions", "lambda", "orchestration"]
+    },
+    {
+      "id": "SAA-SRV-096",
+      "topic": "serverless",
+      "question": "Uma aplicação precisa enviar o mesmo evento para múltiplos sistemas desacoplados. Qual padrão é mais apropriado?",
+      "choices": {
+        "A": "SQS apenas",
+        "B": "SNS fanout para múltiplas filas SQS",
+        "C": "EC2 multicast",
+        "D": "Single Lambda"
+      },
+      "correct": ["B"],
+      "explanation": "SNS pode enviar mensagem para múltiplas filas SQS (fanout pattern).",
+      "choice_explanations": {
+        "A": "❌ SQS não faz fanout nativo.",
+        "B": "✅ Padrão clássico pub/sub.",
+        "C": "❌ Não aplicável.",
+        "D": "❌ Não escala."
+      },
+      "tags": ["sns", "fanout", "sqs", "pubsub"]
+    },
+    {
+      "id": "SAA-SRV-097",
+      "topic": "serverless",
+      "question": "Você quer desacoplar microserviços e permitir que produtores e consumidores evoluam independentemente. Qual serviço é mais apropriado?",
+      "choices": {
+        "A": "EventBridge",
+        "B": "EC2 Auto Scaling",
+        "C": "RDS Multi-AZ",
+        "D": "NAT Gateway"
+      },
+      "correct": ["A"],
+      "explanation": "EventBridge permite arquitetura orientada a eventos com baixo acoplamento.",
+      "choice_explanations": {
+        "A": "✅ Event-driven e desacoplado.",
+        "B": "❌ Não é mensageria.",
+        "C": "❌ Banco.",
+        "D": "❌ Rede."
+      },
+      "tags": ["eventbridge", "event-driven", "microservices"]
+    },
+    {
+      "id": "SAA-SRV-098",
+      "topic": "serverless",
+      "question": "Uma função Lambda sofre cold starts frequentes em tráfego variável. Qual recurso pode reduzir latência previsivelmente?",
+      "choices": {
+        "A": "Provisioned Concurrency",
+        "B": "Aumentar timeout",
+        "C": "SQS FIFO",
+        "D": "NAT Gateway"
+      },
+      "correct": ["A"],
+      "explanation": "Provisioned Concurrency mantém ambientes prontos para execução.",
+      "choice_explanations": {
+        "A": "✅ Reduz cold start.",
+        "B": "❌ Timeout não resolve cold start.",
+        "C": "❌ Irrelevante.",
+        "D": "❌ Irrelevante."
+      },
+      "tags": ["lambda", "cold-start", "provisioned-concurrency"]
+    },
+    {
+      "id": "SAA-SRV-099",
+      "topic": "serverless",
+      "question": "Você precisa expor API privada apenas para recursos dentro da VPC. Qual configuração usar no API Gateway?",
+      "choices": {
+        "A": "Edge-optimized endpoint",
+        "B": "Private API com VPC endpoint",
+        "C": "Regional público",
+        "D": "CloudFront obrigatório"
+      },
+      "correct": ["B"],
+      "explanation": "Private API é acessível apenas via VPC endpoint.",
+      "choice_explanations": {
+        "A": "❌ Público.",
+        "B": "✅ Restrito à VPC.",
+        "C": "❌ Público.",
+        "D": "❌ Não obrigatório."
+      },
+      "tags": ["apigw", "private-api", "vpc-endpoint"]
+    },
+    {
+      "id": "SAA-SRV-100",
+      "topic": "serverless",
+      "question": "Uma aplicação precisa processar eventos com garantia de pelo menos uma tentativa, tolerando duplicação. Qual modelo melhor descreve SQS Standard?",
+      "choices": {
+        "A": "Exactly-once delivery",
+        "B": "At-most-once delivery",
+        "C": "At-least-once delivery",
+        "D": "Ordered guaranteed delivery"
+      },
+      "correct": ["C"],
+      "explanation": "SQS Standard garante at-least-once delivery.",
+      "choice_explanations": {
+        "A": "❌ Apenas FIFO com deduplication.",
+        "B": "❌ Pode duplicar.",
+        "C": "✅ Modelo correto.",
+        "D": "❌ Não garante ordem."
+      },
+      "tags": ["sqs", "delivery-model"]
+    }
+  ]
+}

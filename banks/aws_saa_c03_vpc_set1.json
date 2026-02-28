@@ -1,0 +1,407 @@
+{
+  "version": "1.0",
+  "exam": "AWS-SAA-C03",
+  "language": "pt-BR",
+  "questions": [
+    {
+      "id": "SAA-VPC-001",
+      "topic": "vpc",
+      "tags": ["vpc", "routing", "igw", "nat", "private-subnet", "public-subnet"],
+      "question": "Uma aplicação web roda em um Auto Scaling Group atrás de um ALB em subnets públicas. Os servidores de aplicação (EC2) devem ficar em subnets privadas e precisam acessar a internet apenas para baixar atualizações e dependências (saída). A equipe de segurança exige que nenhuma instância em subnet privada receba conexões de entrada da internet. Qual arquitetura atende melhor esses requisitos?",
+      "choices": {
+        "A": "Anexar um Internet Gateway (IGW) à VPC e associar rotas 0.0.0.0/0 diretamente às subnets privadas.",
+        "B": "Criar um NAT Gateway em uma subnet pública e adicionar rota 0.0.0.0/0 nas tabelas de rota das subnets privadas apontando para o NAT Gateway.",
+        "C": "Criar um NAT Instance em uma subnet privada e adicionar rota 0.0.0.0/0 das subnets privadas apontando para essa instância.",
+        "D": "Colocar as instâncias de aplicação em subnets públicas e controlar acesso apenas com Security Groups."
+      },
+      "correct": ["B"],
+      "explanation": "Subnets privadas não devem ter rota direta para IGW. O padrão correto para saída à internet sem exposição de entrada é NAT Gateway (ou NAT Instance, mas NAT Gateway é gerenciado e recomendado).",
+      "choice_explanations": {
+        "A": "Errado. Subnet privada com rota para IGW vira efetivamente pública. Além disso, instâncias com IP público poderiam receber tráfego de entrada (dependendo de SG/NACL).",
+        "B": "Certo. NAT Gateway fica em subnet pública (com rota para IGW) e as subnets privadas apontam 0.0.0.0/0 para o NAT para saída, sem permitir entrada iniciada da internet.",
+        "C": "Errado. NAT Instance precisa ficar em subnet pública para ter caminho ao IGW e também exige desabilitar source/destination check e gestão operacional. Em subnet privada, não resolve o caminho para a internet.",
+        "D": "Errado. Mesmo com SG restritivo, instância em subnet pública é exposta por desenho (tem rota para IGW). O requisito pede subnets privadas para aplicação."
+      }
+    },
+    {
+      "id": "SAA-VPC-002",
+      "topic": "vpc",
+      "tags": ["vpc", "endpoints", "s3", "private-access", "routing"],
+      "question": "Você tem instâncias em subnets privadas que precisam acessar um bucket S3 para ler e gravar objetos. A empresa não permite tráfego saindo para a internet e quer evitar NAT Gateway por custo. Qual é a melhor solução para acesso privado ao S3 a partir da VPC?",
+      "choices": {
+        "A": "Criar um VPC Endpoint do tipo Gateway para S3 e atualizar a tabela de rotas das subnets privadas.",
+        "B": "Criar um VPC Endpoint do tipo Interface para S3 e associar um Security Group liberando 443 para 0.0.0.0/0.",
+        "C": "Criar um PrivateLink para S3 e publicar um NLB na conta do bucket.",
+        "D": "Habilitar VPC Peering com uma VPC da AWS que possua internet e roteamento para S3."
+      },
+      "correct": ["A"],
+      "explanation": "Para S3 (e DynamoDB) o padrão é VPC Endpoint do tipo Gateway, que adiciona rotas na tabela e mantém tráfego na rede da AWS sem NAT/IGW.",
+      "choice_explanations": {
+        "A": "Certo. Gateway Endpoint para S3 é a solução mais simples, barata e feita para isso, com rotas na tabela e policies de endpoint.",
+        "B": "Errado. S3 não é normalmente consumido via Interface Endpoint como padrão principal (além de exigir DNS e é mais caro). E liberar 0.0.0.0/0 no SG não faz sentido para endpoint privado.",
+        "C": "Errado. PrivateLink é para expor serviços próprios via NLB para outras VPCs/contas. S3 é serviço gerenciado com endpoint próprio.",
+        "D": "Errado. Peering não “dá internet” e não resolve acesso privado ao S3. Além disso, peering não é transitive e não substitui endpoints."
+      }
+    },
+    {
+      "id": "SAA-VPC-003",
+      "topic": "security",
+      "tags": ["security-group", "nacl", "stateless", "stateful", "vpc"],
+      "question": "Um time quer bloquear tráfego de entrada de um intervalo de IPs maliciosos em nível de subnet, sem alterar regras de Security Groups de múltiplas instâncias. Eles também precisam de uma forma explícita de negar (deny) esse tráfego. O que atende melhor?",
+      "choices": {
+        "A": "Adicionar regras de deny no Security Group das instâncias.",
+        "B": "Adicionar regras de deny no Network ACL (NACL) associado à subnet.",
+        "C": "Criar uma rota blackhole na tabela de rotas para o CIDR malicioso.",
+        "D": "Usar apenas regras de allow no NACL, porque deny não é suportado."
+      },
+      "correct": ["B"],
+      "explanation": "NACL é stateless e suporta regras de allow e deny aplicadas na subnet. Security Group é stateful e não tem deny explícito.",
+      "choice_explanations": {
+        "A": "Errado. Security Groups não suportam deny explícito; eles são apenas allow e stateful.",
+        "B": "Certo. NACL permite negar explicitamente e atua no nível de subnet, afetando recursos ali.",
+        "C": "Errado. Tabela de rotas não é mecanismo de filtragem de tráfego por origem (e pode causar efeitos colaterais).",
+        "D": "Errado. NACL suporta deny e allow; a ordem das regras e o 'default deny' importam."
+      }
+    },
+    {
+      "id": "SAA-VPC-004",
+      "topic": "vpc",
+      "tags": ["vpc-peering", "transit-gateway", "routing", "multi-vpc"],
+      "question": "Você possui 12 VPCs em múltiplas contas e regiões que precisam se comunicar entre si de forma escalável. A equipe quer evitar uma malha completa de VPC Peering (full mesh) devido à complexidade de rotas e manutenção. Qual é a melhor abordagem?",
+      "choices": {
+        "A": "Criar VPC Peering entre todas as VPCs (full mesh) e propagar rotas automaticamente.",
+        "B": "Usar AWS Transit Gateway e conectar as VPCs como attachments, controlando rotas por route tables do TGW.",
+        "C": "Usar VPC Peering em cadeia (A faz peering com B, B com C) para obter transitividade.",
+        "D": "Criar uma única VPC central e mover todos os recursos para ela para evitar conectividade."
+      },
+      "correct": ["B"],
+      "explanation": "Transit Gateway é feito para topologias hub-and-spoke/multi-VPC em escala, com route tables e attachments. VPC Peering não é transitivo.",
+      "choice_explanations": {
+        "A": "Errado. Full mesh explode em conexões e rotas; além disso, VPC Peering exige manutenção e não resolve governança fácil.",
+        "B": "Certo. TGW reduz complexidade, permite segmentação via route tables e escala bem entre VPCs/contas.",
+        "C": "Errado. VPC Peering NÃO é transitivo. Encadear peering não permite que A fale com C via B.",
+        "D": "Errado. Migrar tudo para uma VPC única raramente é viável e cria blast radius enorme."
+      }
+    },
+    {
+      "id": "SAA-VPC-005",
+      "topic": "dns",
+      "tags": ["route53-resolver", "dns", "on-premises", "vpn", "dx"],
+      "question": "Uma empresa tem DNS on-premises e precisa que instâncias em uma VPC resolvam nomes internos (ex: corp.local). Há conectividade via VPN Site-to-Site. Eles querem uma solução gerenciada e centralizada para encaminhar consultas DNS da VPC para o DNS on-prem. Qual opção é a melhor?",
+      "choices": {
+        "A": "Criar um servidor DNS EC2 em subnet pública e configurar /etc/resolv.conf de todas as instâncias.",
+        "B": "Usar Route 53 Resolver endpoints (inbound/outbound) e regras de forwarding para o DNS on-premises.",
+        "C": "Usar VPC Peering com a rede on-premises e habilitar DNS hostnames.",
+        "D": "Configurar um Gateway Endpoint para Route 53."
+      },
+      "correct": ["B"],
+      "explanation": "Route 53 Resolver endpoints permitem integração DNS híbrida (VPC <-> on-prem) de forma gerenciada, com regras e forwarding.",
+      "choice_explanations": {
+        "A": "Errado. Funciona, mas é operacionalmente frágil e não é a solução gerenciada recomendada.",
+        "B": "Certo. Resolver endpoints e regras atendem o cenário híbrido com governança e escalabilidade.",
+        "C": "Errado. Peering é VPC-VPC, não on-prem, e não resolve encaminhamento DNS híbrido por si só.",
+        "D": "Errado. Não existe Gateway Endpoint “para Route 53” com esse objetivo."
+      }
+    },
+    {
+      "id": "SAA-VPC-006",
+      "topic": "vpc",
+      "tags": ["private-subnet", "interface-endpoint", "ssm", "no-ssh", "security"],
+      "question": "Instâncias EC2 em subnets privadas não podem ter SSH aberto nem bastion host, e não podem sair para a internet. Ainda assim, o time precisa acessar as instâncias para comandos e troubleshooting de forma auditável. Qual solução atende melhor?",
+      "choices": {
+        "A": "Habilitar SSH somente a partir do IP do escritório e usar um Elastic IP no EC2.",
+        "B": "Usar AWS Systems Manager Session Manager e criar Interface Endpoints (PrivateLink) para SSM/EC2Messages/SSMMessages.",
+        "C": "Criar um NAT Gateway para permitir que o SSM funcione via internet.",
+        "D": "Colocar as instâncias em subnets públicas com Security Group restrito."
+      },
+      "correct": ["B"],
+      "explanation": "Session Manager + Interface Endpoints permite gestão sem internet e sem SSH, com auditoria (CloudTrail/Logs).",
+      "choice_explanations": {
+        "A": "Errado. Ainda abre SSH e expõe superfície de ataque; além de violar requisito de não usar SSH.",
+        "B": "Certo. Solução recomendada e auditável, mantendo tudo privado via endpoints.",
+        "C": "Errado. NAT dá saída à internet, mas o requisito diz que não pode sair para internet. Endpoints resolvem sem NAT.",
+        "D": "Errado. Subnet pública contradiz a exigência de isolamento e aumenta risco."
+      }
+    },
+    {
+      "id": "SAA-VPC-007",
+      "topic": "vpc",
+      "tags": ["ipv6", "egress-only-igw", "private-subnet", "security"],
+      "question": "Você habilitou IPv6 na VPC. Instâncias em subnets privadas precisam acessar recursos IPv6 na internet (somente saída), e você deve impedir conexões iniciadas da internet para essas instâncias. Qual componente atende isso para IPv6?",
+      "choices": {
+        "A": "Internet Gateway (IGW)",
+        "B": "Egress-Only Internet Gateway",
+        "C": "NAT Gateway",
+        "D": "VPC Endpoint do tipo Gateway"
+      },
+      "correct": ["B"],
+      "explanation": "Para IPv6, NAT não é usado. O componente para saída-only sem permitir entrada iniciada é o Egress-Only Internet Gateway.",
+      "choice_explanations": {
+        "A": "Errado. IGW permite tráfego bidirecional; não atende o requisito de impedir conexões iniciadas da internet.",
+        "B": "Certo. Egress-only IGW permite somente tráfego de saída iniciado de dentro para IPv6.",
+        "C": "Errado. NAT Gateway é para IPv4. IPv6 não usa NAT da mesma forma.",
+        "D": "Errado. Gateway Endpoint é para serviços específicos (S3/DynamoDB), não para internet IPv6 geral."
+      }
+    },
+    {
+      "id": "SAA-VPC-008",
+      "topic": "routing",
+      "tags": ["route-tables", "longest-prefix", "blackhole", "tgw"],
+      "question": "Em uma VPC, você tem duas rotas que poderiam corresponder ao mesmo destino: 10.0.0.0/8 aponta para um Transit Gateway e 10.1.0.0/16 aponta para VPC Peering. Para tráfego destinado a 10.1.20.5, qual rota será usada?",
+      "choices": {
+        "A": "A rota 10.0.0.0/8, pois foi criada primeiro.",
+        "B": "A rota 10.1.0.0/16, pois é a correspondência mais específica (longest prefix match).",
+        "C": "A rota depende do AZ da instância de origem.",
+        "D": "A AWS faz load balancing entre as duas rotas."
+      },
+      "correct": ["B"],
+      "explanation": "AWS usa longest prefix match: a rota mais específica vence.",
+      "choice_explanations": {
+        "A": "Errado. Ordem de criação não define precedência.",
+        "B": "Certo. /16 é mais específico que /8, então é escolhido para 10.1.20.5.",
+        "C": "Errado. Seleção é por rota mais específica, não por AZ.",
+        "D": "Errado. Não há balanceamento entre rotas concorrentes na tabela."
+      }
+    },
+    {
+      "id": "SAA-VPC-009",
+      "topic": "connectivity",
+      "tags": ["vpn", "dx", "bgp", "redundancy", "hybrid"],
+      "question": "Uma empresa precisa de conectividade híbrida altamente disponível entre on-premises e AWS. Eles querem latência previsível e throughput consistente, com failover automático. Qual combinação atende melhor?",
+      "choices": {
+        "A": "Um único VPN Site-to-Site com uma conexão para a VPC.",
+        "B": "AWS Direct Connect com uma única conexão e sem VPN de backup.",
+        "C": "Duas conexões Direct Connect em locais diferentes + VPN Site-to-Site como backup (ou DX resiliente com BGP), usando Transit Gateway/VGW.",
+        "D": "VPC Peering com outra VPC que tenha internet, para então alcançar on-prem."
+      },
+      "correct": ["C"],
+      "explanation": "DX oferece previsibilidade, e redundância real vem com múltiplas conexões/locais. VPN como backup cobre falhas de DX/última milha.",
+      "choice_explanations": {
+        "A": "Errado. Um único VPN não dá alta disponibilidade robusta e pode ter variabilidade de latência.",
+        "B": "Errado. Uma única conexão DX é ponto único de falha.",
+        "C": "Certo. Melhor prática: DX redundante (múltiplos links/locais) e VPN de backup, com roteamento dinâmico (BGP).",
+        "D": "Errado. Peering não dá conectividade on-prem e não é mecanismo de rede híbrida."
+      }
+    },
+    {
+      "id": "SAA-VPC-010",
+      "topic": "security",
+      "tags": ["security-group", "reference", "alb", "least-privilege"],
+      "question": "Você tem um ALB em subnets públicas e instâncias EC2 em subnets privadas. Quer permitir que apenas o ALB acesse as instâncias na porta 443, sem liberar a porta para a internet ou para a VPC inteira. Qual é a melhor prática no Security Group das instâncias?",
+      "choices": {
+        "A": "Permitir inbound 443 de 0.0.0.0/0.",
+        "B": "Permitir inbound 443 do CIDR da subnet pública do ALB.",
+        "C": "Permitir inbound 443 referenciando o Security Group do ALB como origem.",
+        "D": "Permitir inbound 443 do endereço IP privado do ALB."
+      },
+      "correct": ["C"],
+      "explanation": "Referenciar SG como origem aplica least privilege e funciona mesmo com IPs dinâmicos do ALB.",
+      "choice_explanations": {
+        "A": "Errado. Exposição desnecessária e insegura.",
+        "B": "Parcial/ruim. Funciona, mas abre para qualquer recurso na subnet pública, não apenas o ALB.",
+        "C": "Certo. SG reference é a forma correta para limitar ao ALB.",
+        "D": "Errado. ALB não tem IP fixo único; muda e usa múltiplos IPs."
+      }
+    },
+    {
+      "id": "SAA-VPC-011",
+      "topic": "vpc",
+      "tags": ["privatelink", "interface-endpoint", "saas", "multi-account"],
+      "question": "Uma equipe quer consumir um serviço interno (HTTPS) publicado em outra conta AWS, sem abrir o serviço para a internet e sem permitir roteamento amplo entre VPCs. Eles querem a menor superfície possível: apenas o acesso ao serviço, nada de acesso à rede inteira da outra conta. Qual solução é a melhor?",
+      "choices": {
+        "A": "VPC Peering entre as VPCs e rotas para os CIDRs completos.",
+        "B": "AWS PrivateLink (Endpoint Service com NLB) na conta provedora e Interface Endpoint na conta consumidora.",
+        "C": "Publicar o serviço atrás de um ALB público e restringir por IP.",
+        "D": "Usar Transit Gateway e anexar ambas as VPCs com rotas propagadas."
+      },
+      "correct": ["B"],
+      "explanation": "PrivateLink fornece conectividade privada por serviço, sem roteamento geral entre VPCs e com isolamento forte.",
+      "choice_explanations": {
+        "A": "Errado. Peering dá conectividade de rede (CIDR), aumentando superfície e risco.",
+        "B": "Certo. PrivateLink é por serviço e mantém rede isolada.",
+        "C": "Errado. Continua exposto à internet e IP allowlist é frágil.",
+        "D": "Errado. TGW também é conectividade de rede ampla; não é a menor superfície por serviço."
+      }
+    },
+    {
+      "id": "SAA-VPC-012",
+      "topic": "vpc",
+      "tags": ["vpc-peering", "dns", "resolution", "private-hosted-zone"],
+      "question": "Duas VPCs na mesma região estão conectadas via VPC Peering. Aplicações na VPC-A precisam resolver nomes de uma Private Hosted Zone do Route 53 associada à VPC-B. Qual é a forma correta de habilitar resolução DNS através do peering?",
+      "choices": {
+        "A": "Não é possível resolver DNS entre VPCs via peering; é necessário Transit Gateway.",
+        "B": "Habilitar as opções de DNS resolution no VPC Peering e associar a Private Hosted Zone às duas VPCs (ou usar autorização cross-account quando aplicável).",
+        "C": "Criar um Internet Gateway e usar DNS público.",
+        "D": "Adicionar regra de NACL permitindo UDP 53 e TCP 53 para 0.0.0.0/0."
+      },
+      "correct": ["B"],
+      "explanation": "DNS via peering requer habilitar DNS resolution no peering e a zona privada precisa estar associada às VPCs que devem resolver.",
+      "choice_explanations": {
+        "A": "Errado. Dá para habilitar resolução DNS via peering (com configurações apropriadas).",
+        "B": "Certo. É o caminho correto: configuração no peering + associação da zona às VPCs necessárias.",
+        "C": "Errado. IGW e DNS público não atendem o requisito de zona privada interna.",
+        "D": "Errado. Abrir portas DNS na subnet não resolve associação/encaminhamento do Route 53 Private Hosted Zone."
+      }
+    },
+    {
+      "id": "SAA-VPC-013",
+      "topic": "monitoring",
+      "tags": ["vpc-flow-logs", "cloudwatch", "s3", "troubleshooting"],
+      "question": "Uma aplicação em EC2 não consegue alcançar um endpoint em outra subnet. Você suspeita de bloqueio por NACL, Security Group ou tabela de rotas. Qual recurso fornece visibilidade do tráfego aceito/negado ao nível de interface/subnet/VPC para ajudar a diagnosticar?",
+      "choices": {
+        "A": "CloudTrail",
+        "B": "VPC Flow Logs",
+        "C": "AWS Config",
+        "D": "Elastic Load Balancer access logs"
+      },
+      "correct": ["B"],
+      "explanation": "VPC Flow Logs registram metadados de fluxo (accept/reject) ajudando a identificar bloqueios e caminhos.",
+      "choice_explanations": {
+        "A": "Errado. CloudTrail é trilha de API calls, não tráfego de rede.",
+        "B": "Certo. Flow Logs é a ferramenta padrão para analisar tráfego e rejeições.",
+        "C": "Errado. AWS Config avalia conformidade/configuração, não pacotes/fluxos.",
+        "D": "Errado. Logs do ELB são apenas do load balancer, não do tráfego geral entre subnets."
+      }
+    },
+    {
+      "id": "SAA-VPC-014",
+      "topic": "vpc",
+      "tags": ["tgw", "segmentation", "route-tables", "shared-services"],
+      "question": "Você usa Transit Gateway para conectar várias VPCs. Existe uma VPC de 'shared services' (AD/DNS/monitoring) que deve ser acessível por todas as outras VPCs, mas as VPCs de aplicações NÃO podem se comunicar entre si. Qual design no Transit Gateway atende melhor?",
+      "choices": {
+        "A": "Usar uma única route table no TGW e propagar todas as rotas para todos os attachments.",
+        "B": "Criar múltiplas route tables no TGW: uma para attachments das aplicações apontando apenas para shared-services e outra para shared-services apontando para todas as aplicações.",
+        "C": "Trocar Transit Gateway por VPC Peering full mesh para ter mais controle.",
+        "D": "Colocar todas as VPCs no mesmo CIDR e remover roteamento."
+      },
+      "correct": ["B"],
+      "explanation": "Segmentação no TGW é feita via route tables e associações/propagações diferentes por attachment.",
+      "choice_explanations": {
+        "A": "Errado. Isso permite comunicação lateral (east-west) entre todas as VPCs.",
+        "B": "Certo. Route tables separadas implementam hub-and-spoke com bloqueio entre spokes.",
+        "C": "Errado. Peering aumenta complexidade e não é melhor para segmentação em escala.",
+        "D": "Errado. Mesmo CIDR não faz sentido e causaria conflitos; não resolve isolamento."
+      }
+    },
+    {
+      "id": "SAA-VPC-015",
+      "topic": "routing",
+      "tags": ["nat-gateway", "ha", "multi-az", "best-practices"],
+      "question": "Você tem subnets privadas em duas AZs. Para alta disponibilidade e melhor prática, como deve posicionar NAT Gateways para acesso à internet (saída) dessas subnets?",
+      "choices": {
+        "A": "Um único NAT Gateway em uma AZ, e todas as subnets privadas apontam para ele.",
+        "B": "Um NAT Gateway por AZ, e cada subnet privada aponta para o NAT Gateway na mesma AZ.",
+        "C": "Um NAT Gateway em subnet privada, sem IGW.",
+        "D": "Trocar NAT Gateway por Internet Gateway em subnets privadas."
+      },
+      "correct": ["B"],
+      "explanation": "NAT Gateway é por AZ (escopo), e o design resiliente é um por AZ com rotas locais, evitando dependência inter-AZ e SPOF.",
+      "choice_explanations": {
+        "A": "Errado. Cria SPOF e dependência entre AZs (custo/latência e falha de AZ).",
+        "B": "Certo. Melhor prática: um NAT por AZ e rotas por AZ.",
+        "C": "Errado. NAT Gateway precisa estar em subnet pública com rota para IGW.",
+        "D": "Errado. Subnet privada não deve apontar para IGW diretamente."
+      }
+    },
+    {
+      "id": "SAA-VPC-016",
+      "topic": "security",
+      "tags": ["nacl", "ephemeral-ports", "stateless", "troubleshooting"],
+      "question": "Após endurecimento de segurança, conexões HTTPS (443) iniciadas de instâncias em subnet privada para a internet começaram a falhar. O Security Group permite saída 443. A NACL foi configurada para permitir somente inbound 443 e outbound 443. Qual é a causa mais provável?",
+      "choices": {
+        "A": "Security Groups não permitem tráfego de saída.",
+        "B": "NACL é stateless e precisa permitir portas efêmeras (ephemeral ports) de retorno, não apenas 443.",
+        "C": "NAT Gateway exige porta 80 aberta também.",
+        "D": "A tabela de rotas da subnet privada deve apontar 0.0.0.0/0 para IGW."
+      },
+      "correct": ["B"],
+      "explanation": "Como NACL é stateless, o tráfego de retorno usa portas efêmeras e precisa ser explicitamente permitido.",
+      "choice_explanations": {
+        "A": "Errado. SG permite e nesse caso já está permitindo saída 443.",
+        "B": "Certo. Falha clássica: permitir só 443 em NACL quebra retorno nas portas efêmeras.",
+        "C": "Errado. NAT não exige 80. O problema é retorno/estado.",
+        "D": "Errado. Subnet privada deve apontar para NAT, não IGW."
+      }
+    },
+    {
+      "id": "SAA-VPC-017",
+      "topic": "vpc",
+      "tags": ["vpc-sharing", "ram", "multi-account", "governance"],
+      "question": "Uma organização quer centralizar a gestão de rede (VPC, subnets, route tables) em uma conta de rede, mas permitir que equipes de aplicação em outras contas lancem recursos (EC2, RDS) em subnets compartilhadas, mantendo governança e isolamento por conta. Qual recurso atende melhor?",
+      "choices": {
+        "A": "VPC Peering entre a conta de rede e todas as contas de aplicação.",
+        "B": "AWS Resource Access Manager (RAM) com VPC Sharing para compartilhar subnets.",
+        "C": "Criar uma única conta para tudo e usar IAM roles por time.",
+        "D": "Usar Internet Gateway em cada conta e NAT centralizado por peering."
+      },
+      "correct": ["B"],
+      "explanation": "VPC Sharing via AWS RAM permite conta central de rede e contas consumidoras lançando recursos em subnets compartilhadas, com governança.",
+      "choice_explanations": {
+        "A": "Errado. Peering conecta redes, mas não permite “lançar recursos em subnets da outra conta” como um modelo compartilhado de VPC.",
+        "B": "Certo. RAM + VPC Sharing é o modelo padrão multi-conta para centralizar rede.",
+        "C": "Errado. Perde governança multi-conta e aumenta blast radius.",
+        "D": "Errado. Complexo, frágil e não é abordagem recomendada para governança."
+      }
+    },
+    {
+      "id": "SAA-VPC-018",
+      "topic": "connectivity",
+      "tags": ["reachability-analyzer", "troubleshooting", "routing", "sg", "nacl"],
+      "question": "Você precisa diagnosticar de forma determinística por que uma instância em subnet privada não consegue se conectar a um endpoint interno (ex: RDS) em outra subnet. Você quer uma ferramenta que analise o caminho de rede e indique onde o tráfego é bloqueado (SG, NACL, rotas). Qual ferramenta AWS atende melhor?",
+      "choices": {
+        "A": "AWS Reachability Analyzer",
+        "B": "AWS Trusted Advisor",
+        "C": "Amazon Inspector",
+        "D": "AWS Budgets"
+      },
+      "correct": ["A"],
+      "explanation": "Reachability Analyzer avalia o caminho de rede e aponta impedimentos (rotas, SG, NACL, etc.).",
+      "choice_explanations": {
+        "A": "Certo. É feito para análise de conectividade e troubleshooting de rede.",
+        "B": "Errado. Trusted Advisor é recomendações gerais de custo/segurança/limites, não análise de caminho.",
+        "C": "Errado. Inspector é vulnerabilidade/segurança em instâncias e imagens, não caminho de rede.",
+        "D": "Errado. Budgets é controle de custo."
+      }
+    },
+    {
+      "id": "SAA-VPC-019",
+      "topic": "vpc",
+      "tags": ["subnetting", "ip-planning", "rds", "eks", "scaling"],
+      "question": "Você planeja uma VPC para suportar crescimento significativo: múltiplos clusters (EKS), RDS, autoscaling e endpoints. O time teve problemas no passado por falta de IPs em subnets. Qual prática de design é MAIS apropriada para reduzir risco de esgotamento de IPs e facilitar expansão?",
+      "choices": {
+        "A": "Criar subnets mínimas (/28) para economizar IPs e reduzir custos.",
+        "B": "Planejar CIDR maior para a VPC e subnets maiores (ex: /20 ou /21) conforme necessidade, evitando ranges muito pequenos.",
+        "C": "Usar apenas uma subnet por VPC para simplificar.",
+        "D": "Evitar VPC Endpoints para não consumir IPs."
+      },
+      "correct": ["B"],
+      "explanation": "Esgotamento de IPs é um problema real, especialmente com EKS e endpoints. O melhor é planejar CIDR/subnets adequadas desde o início e evitar subnets pequenas demais.",
+      "choice_explanations": {
+        "A": "Errado. /28 é pequeno e rapidamente esgota (EKS e endpoints consomem IPs).",
+        "B": "Certo. Planejamento de endereçamento é crítico; subnets maiores reduzem risco e evitam rework.",
+        "C": "Errado. Uma subnet só reduz resiliência (AZ) e escalabilidade.",
+        "D": "Errado. Endpoints aumentam segurança e reduzem dependência de NAT; evitar por IP é trade-off ruim."
+      }
+    },
+    {
+      "id": "SAA-VPC-020",
+      "topic": "vpc",
+      "tags": ["endpoints", "kms", "private-access", "interface-endpoint", "encryption"],
+      "question": "Uma aplicação em subnets privadas precisa chamar a API do AWS KMS para criptografar/decriptografar dados. A empresa bloqueia acesso à internet e quer manter chamadas dentro da rede AWS. Qual configuração é a melhor?",
+      "choices": {
+        "A": "Criar um Gateway Endpoint para KMS e atualizar a tabela de rotas.",
+        "B": "Criar um Interface Endpoint (VPC Endpoint) para KMS e garantir DNS e Security Group apropriados.",
+        "C": "Criar um NAT Gateway e permitir saída para kms.*.amazonaws.com.",
+        "D": "Mover a aplicação para subnets públicas e restringir com Security Group."
+      },
+      "correct": ["B"],
+      "explanation": "KMS usa Interface Endpoint (PrivateLink). Gateway Endpoints são tipicamente S3/DynamoDB.",
+      "choice_explanations": {
+        "A": "Errado. KMS não é atendido por Gateway Endpoint nesse modelo; para KMS o padrão é Interface Endpoint.",
+        "B": "Certo. Interface Endpoint mantém tráfego privado e atende requisito de sem internet.",
+        "C": "Errado. NAT daria saída à internet (ou ao menos caminho externo), contrariando requisito e aumentando superfície.",
+        "D": "Errado. Subnet pública não é necessária e aumenta risco."
+      }
+    }
+  ]
+}

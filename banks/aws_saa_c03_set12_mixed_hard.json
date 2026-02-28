@@ -1,0 +1,312 @@
+{
+  "meta": {
+    "exam": "AWS SAA-C03",
+    "language": "pt-BR",
+    "difficulty": "hard",
+    "set": 12,
+    "focus": ["serverless", "messaging", "observability", "governance", "cost", "edge"],
+    "notes": "Questões longas e situacionais, com justificativa por alternativa."
+  },
+  "questions": [
+    {
+      "id": "SAA-1201",
+      "topic": "serverless",
+      "tags": ["lambda", "apigw", "auth", "throttling", "waf"],
+      "question": "Uma empresa expõe uma API pública para clientes e precisa proteger backends Lambda de abuso. Requisitos: autenticação por tokens, throttling por cliente e bloqueio de padrões de ataque comuns (OWASP). A solução deve exigir pouca operação contínua. Qual arquitetura atende melhor?",
+      "choices": {
+        "A": "API Gateway REST API com Usage Plans + API Keys, Authorizer (JWT/Cognito) e AWS WAF associado ao API Gateway",
+        "B": "Application Load Balancer com Target Group Lambda e regras de rate limit no Security Group",
+        "C": "CloudFront com S3 e Lambda@Edge para validar tokens e limitar requisições",
+        "D": "NLB na frente do Lambda com IAM authentication e WAF no NLB"
+      },
+      "correct": ["A"],
+      "explanation": "API Gateway fornece throttling/quotas via Usage Plans, autenticação via Authorizer (JWT/Cognito) e pode ser integrado ao AWS WAF para mitigação de ataques com baixa operação.",
+      "choice_explanations": {
+        "A": "Correta: entrega throttling por cliente, autenticação e WAF com serviços gerenciados e pouco esforço operacional.",
+        "B": "Incorreta: Security Group não faz rate limiting; ALB não oferece quotas por cliente como o API Gateway.",
+        "C": "Incorreta: CloudFront pode ajudar, mas autenticação + quotas por cliente fica mais complexa; S3 não é backend de API e o controle vira custom.",
+        "D": "Incorreta: NLB não integra WAF e não fornece autenticação/quotas nativas."
+      }
+    },
+    {
+      "id": "SAA-1202",
+      "topic": "messaging",
+      "tags": ["sqs", "sns", "fanout", "dlq", "retry"],
+      "question": "Um sistema precisa processar eventos de pedidos e enviar cópias para três consumidores independentes: faturamento, logística e analytics. Requisitos: desacoplamento, reprocessamento seguro, e cada consumidor deve ter sua própria fila e DLQ. Qual solução é mais adequada?",
+      "choices": {
+        "A": "SNS topic com três assinaturas SQS (uma fila por consumidor) + DLQ por fila",
+        "B": "Uma única fila SQS standard consumida pelos três serviços em paralelo",
+        "C": "Kinesis Data Streams com um único shard e três aplicações lendo em paralelo",
+        "D": "EventBridge rule enviando direto para três Lambdas sem filas"
+      },
+      "correct": ["A"],
+      "explanation": "SNS + SQS fan-out entrega um evento para filas independentes, permitindo retries/dlq e isolamento por consumidor.",
+      "choice_explanations": {
+        "A": "Correta: fan-out clássico. Cada serviço consome sua fila, com DLQ própria e reprocessamento controlado.",
+        "B": "Incorreta: consumidores competem pela mesma mensagem; não garante que todos recebam cópia.",
+        "C": "Incorreta: é possível, mas requer design de consumidores e checkpoints; DLQ por consumidor não é nativo e fica mais complexo.",
+        "D": "Incorreta: sem filas, você perde buffer, retries controlados e isolamento. Pode servir, mas não atende bem os requisitos."
+      }
+    },
+    {
+      "id": "SAA-1203",
+      "topic": "observability",
+      "tags": ["cloudwatch", "xray", "logs", "tracing"],
+      "question": "Uma arquitetura distribuída com API Gateway, Lambda e DynamoDB apresenta picos de latência. O time precisa identificar onde o tempo está sendo gasto sem instrumentação manual extensa e com correlação entre requisições. Qual abordagem é a melhor?",
+      "choices": {
+        "A": "Habilitar AWS X-Ray no API Gateway e Lambdas e usar Service Map/Traces para identificar gargalos",
+        "B": "Aumentar log level no CloudTrail para capturar tempos de execução e correlacionar por usuário",
+        "C": "Criar métricas customizadas no CloudWatch Logs com filtros e calcular percentis manualmente",
+        "D": "Ativar VPC Flow Logs para medir latência entre API Gateway e DynamoDB"
+      },
+      "correct": ["A"],
+      "explanation": "X-Ray fornece tracing distribuído e correlação ponta a ponta com baixo esforço (ativação + SDK quando necessário).",
+      "choice_explanations": {
+        "A": "Correta: tracing distribuído é a ferramenta certa para localizar latência por segmento.",
+        "B": "Incorreta: CloudTrail é auditoria de API calls, não tracing de latência por request.",
+        "C": "Incorreta: possível, mas mais trabalhoso e não dá visão ponta a ponta facilmente.",
+        "D": "Incorreta: Flow Logs mostram tráfego na VPC; API Gateway (edge/managed) não é medido dessa forma e DynamoDB não se encaixa."
+      }
+    },
+    {
+      "id": "SAA-1204",
+      "topic": "security",
+      "tags": ["kms", "secrets-manager", "ssm-parameter-store"],
+      "question": "Um aplicativo em ECS precisa acessar credenciais de um banco de dados. Requisitos: rotação automática, auditoria e não armazenar segredos em variáveis de ambiente no task definition. Qual opção atende melhor?",
+      "choices": {
+        "A": "AWS Secrets Manager com rotação habilitada e task role permitindo leitura do secret",
+        "B": "SSM Parameter Store Standard com string em texto puro e permissões via IAM",
+        "C": "Armazenar o segredo no ECR como arquivo e ler durante o build do container",
+        "D": "Colocar as credenciais em User Data da instância EC2 do cluster ECS"
+      },
+      "correct": ["A"],
+      "explanation": "Secrets Manager é desenhado para segredos com rotação e integração com serviços, além de auditoria e controle por IAM.",
+      "choice_explanations": {
+        "A": "Correta: rotação automática + controle via IAM + auditoria (CloudTrail) e integração com ECS.",
+        "B": "Incorreta: Parameter Store pode criptografar com KMS, mas rotação não é nativa como no Secrets Manager.",
+        "C": "Incorreta: péssima prática e aumenta risco, além de difícil rotação.",
+        "D": "Incorreta: expõe segredos e não atende rotação/auditoria adequadas."
+      }
+    },
+    {
+      "id": "SAA-1205",
+      "topic": "edge",
+      "tags": ["cloudfront", "s3", "oac", "origin-access-control"],
+      "question": "Um site estático hospedado em S3 deve ser acessado apenas via CloudFront. Requisitos: bloquear acesso público direto ao bucket e usar abordagem recomendada atual. Qual configuração é a mais correta?",
+      "choices": {
+        "A": "S3 bucket privado + CloudFront com OAC (Origin Access Control) + policy permitindo somente o principal do CloudFront",
+        "B": "S3 bucket público + CloudFront com signed cookies",
+        "C": "S3 bucket privado + CloudFront usando acesso por IP allowlist do bucket",
+        "D": "S3 bucket privado + ALB como origin do CloudFront"
+      },
+      "correct": ["A"],
+      "explanation": "OAC é o padrão recomendado para manter S3 privado e permitir acesso apenas via CloudFront com autorização no origin.",
+      "choice_explanations": {
+        "A": "Correta: bucket privado e acesso somente pelo CloudFront de forma segura e moderna.",
+        "B": "Incorreta: bucket público permite bypass; signed cookies não impede acesso direto ao S3.",
+        "C": "Incorreta: S3 não é controlado por IP allowlist de forma simples/robusta para esse caso; e CloudFront IPs mudam.",
+        "D": "Incorreta: desnecessário e complexo; ALB não resolve o requisito principal (S3-only via CloudFront)."
+      }
+    },
+    {
+      "id": "SAA-1206",
+      "topic": "cost",
+      "tags": ["s3", "lifecycle", "intelligent-tiering", "glacier"],
+      "question": "Um data lake em S3 recebe 50 TB/mês. A maior parte dos dados é acessada muito pouco após 30 dias, mas alguns objetos voltam a ser consultados de forma imprevisível. Requisitos: reduzir custo sem prejudicar acessos ocasionais e minimizar operação. O que escolher?",
+      "choices": {
+        "A": "S3 Intelligent-Tiering para o prefixo do data lake + lifecycle mínimo (opcional) para expiração",
+        "B": "Mover tudo após 30 dias para S3 Glacier Deep Archive via lifecycle",
+        "C": "Usar S3 Standard apenas e habilitar compressão no lado do cliente",
+        "D": "Migrar o data lake para EFS IA"
+      },
+      "correct": ["A"],
+      "explanation": "Intelligent-Tiering otimiza custos automaticamente para padrões imprevisíveis sem penalizar acessos eventuais (comparado a Glacier).",
+      "choice_explanations": {
+        "A": "Correta: melhor para acesso imprevisível com baixa operação.",
+        "B": "Incorreta: Deep Archive tem restore lento e custos/latência de recuperação, atrapalhando acessos inesperados.",
+        "C": "Incorreta: não ataca o problema de custo de armazenamento por classe.",
+        "D": "Incorreta: EFS é para POSIX/file workloads; custo e escala não são ideais para data lake."
+      }
+    },
+    {
+      "id": "SAA-1207",
+      "topic": "resilience",
+      "tags": ["route53", "failover", "health-check", "multiregion"],
+      "question": "Uma aplicação web roda em duas regiões. A empresa quer failover automático em nível DNS quando a região primária ficar indisponível. Requisitos: verificação de saúde e roteamento automático sem intervenção humana. Qual opção atende?",
+      "choices": {
+        "A": "Route 53 Failover Routing com Health Checks apontando para endpoints primário e secundário",
+        "B": "Route 53 Weighted Routing 50/50 sem health check",
+        "C": "CloudFront sem origins múltiplos",
+        "D": "ALB com cross-region targets no mesmo target group"
+      },
+      "correct": ["A"],
+      "explanation": "Failover routing com health checks permite DNS apontar automaticamente para o secundário quando o primário falhar.",
+      "choice_explanations": {
+        "A": "Correta: é exatamente o caso de uso de failover DNS gerenciado.",
+        "B": "Incorreta: sem health check, o tráfego continua indo para endpoint quebrado.",
+        "C": "Incorreta: CloudFront pode ajudar, mas a pergunta pede failover via DNS com health checks.",
+        "D": "Incorreta: ALB não faz target cross-region dessa forma; e não substitui failover entre regiões."
+      }
+    },
+    {
+      "id": "SAA-1208",
+      "topic": "containers",
+      "tags": ["ecs", "fargate", "autoscaling", "sqs"],
+      "question": "Um serviço em ECS Fargate consome mensagens de uma fila SQS. Em horários de pico, a fila cresce rapidamente. Requisitos: escalar workers com base no backlog e manter custo sob controle. Qual estratégia é mais apropriada?",
+      "choices": {
+        "A": "Application Auto Scaling no ECS Service usando métrica de CloudWatch da fila (ApproximateNumberOfMessagesVisible) como target tracking",
+        "B": "Aumentar manualmente a desired count em cada pico",
+        "C": "Trocar SQS por SNS para reduzir backlog",
+        "D": "Executar os workers em instâncias on-demand fixas sem autoscaling"
+      },
+      "correct": ["A"],
+      "explanation": "Escalar consumidores com base no backlog da SQS via métricas do CloudWatch é padrão e automatiza custo/performance.",
+      "choice_explanations": {
+        "A": "Correta: scaling por backlog é o método recomendado para consumers.",
+        "B": "Incorreta: manual não atende e é frágil.",
+        "C": "Incorreta: SNS não é fila; não elimina necessidade de processamento.",
+        "D": "Incorreta: desperdício de custo e não reage ao pico."
+      }
+    },
+    {
+      "id": "SAA-1209",
+      "topic": "networking",
+      "tags": ["vpc", "endpoints", "s3", "dynamodb", "private"],
+      "question": "Uma aplicação em subnets privadas precisa acessar S3 e DynamoDB sem usar NAT Gateway (para reduzir custo) e sem trafegar pela internet pública. Qual solução é a mais adequada?",
+      "choices": {
+        "A": "Criar VPC Gateway Endpoints para S3 e DynamoDB e remover dependência de NAT para esses acessos",
+        "B": "Criar VPC Interface Endpoints para S3 e DynamoDB e desativar rotas locais",
+        "C": "Usar Internet Gateway nas subnets privadas",
+        "D": "Colocar um NAT Instance para economizar e expor a subnet ao IGW"
+      },
+      "correct": ["A"],
+      "explanation": "S3 e DynamoDB suportam Gateway Endpoints, eliminando NAT para esses serviços e mantendo tráfego privado.",
+      "choice_explanations": {
+        "A": "Correta: Gateway Endpoint é o caminho certo e barato para S3/DynamoDB.",
+        "B": "Incorreta: S3 pode usar interface endpoint em alguns cenários, mas o padrão e mais econômico é gateway; DynamoDB também usa gateway endpoint como principal.",
+        "C": "Incorreta: subnet privada não deve ter rota para IGW.",
+        "D": "Incorreta: NAT Instance é operacionalmente pior e pode virar gargalo; ainda é saída para internet."
+      }
+    },
+    {
+      "id": "SAA-1210",
+      "topic": "databases",
+      "tags": ["dynamodb", "ttl", "streams", "gsis"],
+      "question": "Uma equipe usa DynamoDB para sessões de usuários e precisa expirar automaticamente itens após 24 horas. Além disso, quer disparar processamento quando sessões expirarem para atualizar métricas. Qual desenho atende melhor?",
+      "choices": {
+        "A": "Habilitar TTL na tabela e usar DynamoDB Streams + Lambda para processar eventos de remoção/expiração",
+        "B": "Executar um cron diário no EC2 varrendo a tabela e deletando itens manualmente",
+        "C": "Mover as sessões para RDS e usar job SQL para apagar e trigger para métricas",
+        "D": "Criar GSI por data e remover itens via scan contínuo"
+      },
+      "correct": ["A"],
+      "explanation": "TTL remove automaticamente e Streams permitem reagir a mudanças (incluindo remoções) com Lambda, mantendo solução serverless.",
+      "choice_explanations": {
+        "A": "Correta: simples, escalável e gerenciada.",
+        "B": "Incorreta: scan em EC2 é caro/operacional e não escala bem.",
+        "C": "Incorreta: possível, mas foge do requisito de simplicidade e aumenta operação.",
+        "D": "Incorreta: scan contínuo é caro e desnecessário com TTL."
+      }
+    },
+    {
+      "id": "SAA-1211",
+      "topic": "hadr",
+      "tags": ["rds", "aurora", "multi-az", "read-replica"],
+      "question": "Uma aplicação precisa de banco relacional com alta disponibilidade e failover automático dentro da região. O workload é principalmente leitura com picos. Qual combinação é mais adequada para resiliência e performance?",
+      "choices": {
+        "A": "Aurora Multi-AZ com Reader Endpoint + Auto Scaling de read replicas",
+        "B": "RDS Single-AZ com snapshots diários e restore em caso de falha",
+        "C": "RDS Multi-AZ com uma única instância e sem read replicas",
+        "D": "DynamoDB on-demand com transações SQL"
+      },
+      "correct": ["A"],
+      "explanation": "Aurora fornece HA com failover e read scaling com réplicas e reader endpoint.",
+      "choice_explanations": {
+        "A": "Correta: HA + scaling de leitura com melhor UX de endpoint.",
+        "B": "Incorreta: snapshot/restore não é failover automático nem HA.",
+        "C": "Incorreta: Multi-AZ dá HA, mas sem read scaling para picos de leitura.",
+        "D": "Incorreta: DynamoDB não é relacional/SQL no mesmo sentido."
+      }
+    },
+    {
+      "id": "SAA-1212",
+      "topic": "governance",
+      "tags": ["organizations", "scp", "guardrails"],
+      "question": "Uma empresa quer impedir que qualquer conta crie recursos fora de duas regiões aprovadas, exceto uma conta de auditoria. O controle deve ser centralizado e difícil de burlar. Qual solução atende melhor?",
+      "choices": {
+        "A": "AWS Organizations com SCP negando ações fora das regiões permitidas, com exceção por OU/conta",
+        "B": "IAM policy em cada usuário final negando chamadas em regiões não aprovadas",
+        "C": "Security Groups bloqueando tráfego para endpoints regionais não aprovados",
+        "D": "CloudTrail com alarmes quando alguém cria recursos em região errada"
+      },
+      "correct": ["A"],
+      "explanation": "SCP em Organizations fornece guardrails centralizados e aplicados a contas (não usuários), sendo o método correto para restrições amplas.",
+      "choice_explanations": {
+        "A": "Correta: guardrail centralizado, aplicado a nível de conta/OU.",
+        "B": "Incorreta: frágil, depende de padronização; usuários/roles podem escapar com outras roles.",
+        "C": "Incorreta: não impede criação via API; e muitos serviços não dependem de tráfego controlado por SG.",
+        "D": "Incorreta: detecta depois, não previne."
+      }
+    },
+    {
+      "id": "SAA-1213",
+      "topic": "serverless",
+      "tags": ["step-functions", "lambda", "retry", "saga"],
+      "question": "Um fluxo de pedidos exige orquestração com múltiplas etapas, retries com backoff, timeout por etapa e compensação (undo) quando uma etapa falha após etapas anteriores terem sido concluídas. Qual serviço é mais apropriado?",
+      "choices": {
+        "A": "AWS Step Functions (Standard) com states de retry/catch e passos de compensação",
+        "B": "Uma única Lambda longa com while loop e sleeps para aguardar dependências",
+        "C": "SQS FIFO com dedup e consumidores encadeados manualmente",
+        "D": "EventBridge apenas com rules e targets diretos"
+      },
+      "correct": ["A"],
+      "explanation": "Step Functions é desenhado para orquestração, retries, timeouts e padrões de compensação (saga) de forma gerenciada.",
+      "choice_explanations": {
+        "A": "Correta: é a solução nativa e mais limpa para orquestração complexa.",
+        "B": "Incorreta: Lambda longa é anti-pattern e pode estourar timeout/custo/observabilidade.",
+        "C": "Incorreta: dá para montar, mas o controle de estado/compensação fica complexo e manual.",
+        "D": "Incorreta: EventBridge é ótimo para eventos, mas não para orquestração com estado e compensação."
+      }
+    },
+    {
+      "id": "SAA-1214",
+      "topic": "security",
+      "tags": ["iam", "sts", "cross-account", "role-assume"],
+      "question": "Um time de segurança precisa acessar logs e relatórios em contas diferentes sem criar usuários IAM em cada conta. Requisito: acesso temporário e auditável. Qual abordagem atende melhor?",
+      "choices": {
+        "A": "AssumeRole (STS) cross-account com roles nas contas-alvo e trust policy para a conta central",
+        "B": "Criar usuários IAM idênticos em todas as contas e compartilhar a mesma senha",
+        "C": "Copiar os logs manualmente por SCP e acessar via root de cada conta",
+        "D": "Colocar tudo em uma única VPC e permitir acesso por Security Group"
+      },
+      "correct": ["A"],
+      "explanation": "AssumeRole com STS fornece credenciais temporárias, com auditoria (CloudTrail) e sem precisar usuários duplicados.",
+      "choice_explanations": {
+        "A": "Correta: padrão recomendado para acesso cross-account temporário e auditável.",
+        "B": "Incorreta: inseguro e não escalável.",
+        "C": "Incorreta: root é proibitivo e inseguro; SCP não é para isso.",
+        "D": "Incorreta: VPC/SG não resolvem identidade e acesso a recursos em contas."
+      }
+    },
+    {
+      "id": "SAA-1215",
+      "topic": "cost",
+      "tags": ["ec2", "ri", "savings-plans", "spot"],
+      "question": "Uma aplicação web tem baseline estável de CPU 24/7 e picos diários previsíveis. A empresa quer reduzir custo mantendo disponibilidade. Qual combinação é mais adequada?",
+      "choices": {
+        "A": "Savings Plans (Compute) para baseline + Auto Scaling com instâncias Spot para picos com fallback On-Demand",
+        "B": "Somente On-Demand para evitar complexidade",
+        "C": "Somente Spot para tudo, inclusive baseline",
+        "D": "Reserved Instances para picos e On-Demand para baseline"
+      },
+      "correct": ["A"],
+      "explanation": "Baseline previsível encaixa bem em Savings Plans/RI; picos podem usar Spot para economia com estratégia de fallback.",
+      "choice_explanations": {
+        "A": "Correta: otimiza custo sem sacrificar o baseline.",
+        "B": "Incorreta: deixa dinheiro na mesa.",
+        "C": "Incorreta: Spot pode interromper; arriscado para baseline.",
+        "D": "Incorreta: RI para picos é desperdício; baseline é que é previsível."
+      }
+    }
+  ]
+}

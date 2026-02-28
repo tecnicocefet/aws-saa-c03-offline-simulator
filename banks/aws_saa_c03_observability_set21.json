@@ -1,0 +1,207 @@
+{
+  "exam": "AWS SAA-C03",
+  "set": "21",
+  "focus": ["observability", "cloudwatch", "xray", "cloudtrail", "monitoring", "failure-analysis"],
+  "questions": [
+    {
+      "id": "SAA-21-001",
+      "topic": "observability",
+      "tags": ["cloudwatch", "metrics", "monitoring", "ec2"],
+      "question": "Uma aplicação EC2 apresenta picos intermitentes de CPU. Você precisa ser alertado automaticamente quando CPU ultrapassar 80% por 5 minutos. Qual solução usar?",
+      "choices": {
+        "A": "CloudWatch Metric + Alarm",
+        "B": "AWS Config",
+        "C": "CloudTrail",
+        "D": "Trusted Advisor"
+      },
+      "correct": ["A"],
+      "explanation": "CloudWatch monitora métricas e permite criação de alarmes baseados em thresholds.",
+      "choice_explanations": {
+        "A": "Correta: métricas + alarmes são padrão para monitoramento.",
+        "B": "Config monitora conformidade, não métricas em tempo real.",
+        "C": "CloudTrail registra APIs.",
+        "D": "Trusted Advisor não é monitoramento contínuo."
+      }
+    },
+    {
+      "id": "SAA-21-002",
+      "topic": "observability",
+      "tags": ["xray", "tracing", "microservices", "latency"],
+      "question": "Você precisa identificar qual microserviço está causando aumento de latência em arquitetura distribuída. Qual serviço ajuda com tracing distribuído?",
+      "choices": {
+        "A": "CloudWatch Logs",
+        "B": "AWS X-Ray",
+        "C": "S3 Access Logs",
+        "D": "IAM Access Analyzer"
+      },
+      "correct": ["B"],
+      "explanation": "AWS X-Ray fornece tracing distribuído e análise de latência entre serviços.",
+      "choice_explanations": {
+        "A": "Logs ajudam, mas não fornecem tracing visual distribuído.",
+        "B": "Correta: X-Ray permite rastrear requisições ponta a ponta.",
+        "C": "Não é para tracing.",
+        "D": "Analisa permissões."
+      }
+    },
+    {
+      "id": "SAA-21-003",
+      "topic": "monitoring",
+      "tags": ["cloudtrail", "audit", "security"],
+      "question": "Você precisa saber quem deletou um recurso na AWS. Qual serviço fornece histórico de chamadas de API?",
+      "choices": {
+        "A": "CloudWatch",
+        "B": "CloudTrail",
+        "C": "SNS",
+        "D": "VPC Flow Logs"
+      },
+      "correct": ["B"],
+      "explanation": "CloudTrail registra chamadas de API incluindo Delete*.",
+      "choice_explanations": {
+        "A": "CloudWatch monitora métricas.",
+        "B": "Correta: CloudTrail audita ações de API.",
+        "C": "SNS é mensageria.",
+        "D": "Flow logs são tráfego de rede."
+      }
+    },
+    {
+      "id": "SAA-21-004",
+      "topic": "observability",
+      "tags": ["cloudwatch-logs", "central-logging", "multi-account"],
+      "question": "Você quer centralizar logs de múltiplas contas AWS para análise. Qual abordagem é mais escalável?",
+      "choices": {
+        "A": "Logs locais em cada conta",
+        "B": "CloudWatch Logs + Subscription Filter para conta central",
+        "C": "Download manual de logs",
+        "D": "Enviar por email"
+      },
+      "correct": ["B"],
+      "explanation": "Subscription Filters permitem encaminhar logs para destino centralizado.",
+      "choice_explanations": {
+        "A": "Não centraliza.",
+        "B": "Correta: padrão para centralização de logs.",
+        "C": "Manual não escala.",
+        "D": "Não confiável."
+      }
+    },
+    {
+      "id": "SAA-21-005",
+      "topic": "observability",
+      "tags": ["cloudwatch", "anomaly-detection", "metrics"],
+      "question": "Você quer detectar comportamento anômalo em métricas sem definir threshold fixo. Qual recurso usar?",
+      "choices": {
+        "A": "Static alarm",
+        "B": "CloudWatch Anomaly Detection",
+        "C": "SQS DLQ",
+        "D": "IAM Policy"
+      },
+      "correct": ["B"],
+      "explanation": "Anomaly Detection usa ML para detectar desvios em métricas.",
+      "choice_explanations": {
+        "A": "Threshold fixo pode não capturar variações.",
+        "B": "Correta: detecção dinâmica baseada em histórico.",
+        "C": "Fila não é monitoramento.",
+        "D": "Permissão não monitora métricas."
+      }
+    },
+    {
+      "id": "SAA-21-006",
+      "topic": "monitoring",
+      "tags": ["vpc-flow-logs", "networking", "security"],
+      "question": "Você precisa investigar tráfego suspeito entre instâncias em uma VPC. Qual recurso usar?",
+      "choices": {
+        "A": "CloudTrail",
+        "B": "VPC Flow Logs",
+        "C": "SNS",
+        "D": "Route 53 logs"
+      },
+      "correct": ["B"],
+      "explanation": "VPC Flow Logs registram tráfego IP na VPC.",
+      "choice_explanations": {
+        "A": "CloudTrail não registra tráfego de rede.",
+        "B": "Correta: Flow Logs capturam tráfego.",
+        "C": "SNS não monitora rede.",
+        "D": "DNS não mostra tráfego IP."
+      }
+    },
+    {
+      "id": "SAA-21-007",
+      "topic": "observability",
+      "tags": ["cloudwatch", "autoscaling", "alarms"],
+      "question": "Você quer escalar automaticamente instâncias EC2 com base em requisições por segundo. Qual integração usar?",
+      "choices": {
+        "A": "CloudWatch Alarm + Auto Scaling Group",
+        "B": "CloudTrail",
+        "C": "IAM",
+        "D": "S3"
+      },
+      "correct": ["A"],
+      "explanation": "CloudWatch Alarms acionam políticas de Auto Scaling.",
+      "choice_explanations": {
+        "A": "Correta: padrão de escalabilidade baseada em métrica.",
+        "B": "Não aciona scaling.",
+        "C": "Permissões não escalam.",
+        "D": "Storage não escala compute."
+      }
+    },
+    {
+      "id": "SAA-21-008",
+      "topic": "observability",
+      "tags": ["structured-logging", "cloudwatch-logs", "analysis"],
+      "question": "Para facilitar análise e busca eficiente em logs, qual prática é recomendada?",
+      "choices": {
+        "A": "Logs não estruturados",
+        "B": "Logs estruturados em JSON",
+        "C": "Logs apenas binários",
+        "D": "Excluir logs antigos"
+      },
+      "correct": ["B"],
+      "explanation": "Logs estruturados permitem consultas eficientes e filtros.",
+      "choice_explanations": {
+        "A": "Difícil consulta.",
+        "B": "Correta: JSON facilita parsing.",
+        "C": "Binário não é amigável.",
+        "D": "Excluir não ajuda análise."
+      }
+    },
+    {
+      "id": "SAA-21-009",
+      "topic": "observability",
+      "tags": ["cloudwatch", "dashboard", "operations"],
+      "question": "Você precisa visualizar métricas críticas de múltiplos serviços em um único painel. Qual recurso usar?",
+      "choices": {
+        "A": "CloudWatch Dashboard",
+        "B": "CloudTrail",
+        "C": "IAM",
+        "D": "AWS Backup"
+      },
+      "correct": ["A"],
+      "explanation": "CloudWatch Dashboards permitem visualização centralizada de métricas.",
+      "choice_explanations": {
+        "A": "Correta: consolida métricas visualmente.",
+        "B": "CloudTrail é auditoria.",
+        "C": "IAM não monitora.",
+        "D": "Backup não monitora."
+      }
+    },
+    {
+      "id": "SAA-21-010",
+      "topic": "observability",
+      "tags": ["health-check", "route53", "resilience"],
+      "question": "Você precisa redirecionar tráfego automaticamente quando endpoint falhar. Qual recurso monitora saúde do endpoint?",
+      "choices": {
+        "A": "IAM Role",
+        "B": "Route 53 Health Check",
+        "C": "CloudTrail",
+        "D": "S3 Lifecycle"
+      },
+      "correct": ["B"],
+      "explanation": "Route 53 Health Checks detectam indisponibilidade para failover.",
+      "choice_explanations": {
+        "A": "Permissão não monitora.",
+        "B": "Correta: monitora saúde para failover.",
+        "C": "Auditoria não monitora disponibilidade.",
+        "D": "Lifecycle não é monitoramento."
+      }
+    }
+  ]
+}

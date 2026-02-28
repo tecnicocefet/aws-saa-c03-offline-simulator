@@ -1,0 +1,204 @@
+{
+  "questions": [
+    {
+      "id": "SAA-HADR-111",
+      "topic": "hadr",
+      "question": "Uma aplicação global precisa de baixa latência e alta disponibilidade. O backend é multi-região e você quer rotear usuários para a região mais saudável. Qual serviço atende melhor?",
+      "choices": {
+        "A": "Route 53 com health checks e políticas Failover/Latency",
+        "B": "IAM Roles",
+        "C": "S3 Transfer Acceleration",
+        "D": "AWS Config"
+      },
+      "correct": ["A"],
+      "explanation": "Route 53 oferece roteamento por latência e failover baseado em health checks, ideal para HA multi-região com DNS.",
+      "choice_explanations": {
+        "A": "✅ DNS inteligente com health checks e políticas.",
+        "B": "❌ IAM é identidade.",
+        "C": "❌ Ajuda upload para S3, não roteamento multi-região para app.",
+        "D": "❌ Compliance."
+      },
+      "tags": ["route53", "multi-region", "failover", "latency"]
+    },
+    {
+      "id": "SAA-HADR-112",
+      "topic": "hadr",
+      "question": "Você precisa de DR com RTO de minutos e RPO muito baixo para um banco relacional gerenciado. Qual abordagem é mais adequada?",
+      "choices": {
+        "A": "RDS Multi-AZ",
+        "B": "RDS Read Replica na mesma AZ",
+        "C": "Backup manual mensal",
+        "D": "Snapshot apenas antes de deploy"
+      },
+      "correct": ["A"],
+      "explanation": "RDS Multi-AZ fornece failover automático e replica síncrona para alta disponibilidade (RPO baixo e RTO curto).",
+      "choice_explanations": {
+        "A": "✅ HA com failover automático.",
+        "B": "❌ Read replica é assíncrona e não é o mecanismo principal de failover.",
+        "C": "❌ RPO/RTO péssimos.",
+        "D": "❌ Não atende DR real."
+      },
+      "tags": ["rds", "multi-az", "rto", "rpo"]
+    },
+    {
+      "id": "SAA-HADR-113",
+      "topic": "hadr",
+      "question": "Uma empresa quer DR multi-região com custo menor que active-active. Eles aceitam RTO de horas e RPO de algumas horas. Qual estratégia é a mais aderente?",
+      "choices": {
+        "A": "Backup e restore (pilot light/backup restore)",
+        "B": "Active-active em duas regiões",
+        "C": "Multi-AZ somente",
+        "D": "Desabilitar DR e confiar em snapshots locais"
+      },
+      "correct": ["A"],
+      "explanation": "Quando RTO/RPO podem ser maiores, estratégia de backup/restore ou pilot light reduz custo versus active-active.",
+      "choice_explanations": {
+        "A": "✅ Menor custo com trade-off de tempo de recuperação.",
+        "B": "❌ Maior custo e complexidade.",
+        "C": "❌ Multi-AZ não protege contra desastre de região.",
+        "D": "❌ DR inexistente."
+      },
+      "tags": ["dr", "pilot-light", "backup-restore", "cost"]
+    },
+    {
+      "id": "SAA-HADR-114",
+      "topic": "hadr",
+      "question": "Uma aplicação stateless roda em ECS/EC2 atrás de ALB. Você quer alta disponibilidade dentro de uma região. Qual arquitetura é mais correta?",
+      "choices": {
+        "A": "Rodar tudo em uma AZ para reduzir custo",
+        "B": "Distribuir instâncias em múltiplas AZs com Auto Scaling + ALB",
+        "C": "Usar apenas instâncias Spot",
+        "D": "Colocar tudo em subnet pública sem ALB"
+      },
+      "correct": ["B"],
+      "explanation": "HA regional normalmente significa multi-AZ com balanceamento e auto scaling.",
+      "choice_explanations": {
+        "A": "❌ Single-AZ é ponto único de falha.",
+        "B": "✅ Melhor prática de HA.",
+        "C": "❌ Spot pode interromper e não é estratégia única de HA.",
+        "D": "❌ Arquitetura insegura e frágil."
+      },
+      "tags": ["ha", "multi-az", "alb", "autoscaling"]
+    },
+    {
+      "id": "SAA-HADR-115",
+      "topic": "hadr",
+      "question": "Você quer replicação contínua de objetos entre regiões para DR e baixa RPO no S3. Qual recurso usar?",
+      "choices": {
+        "A": "S3 Cross-Region Replication (CRR)",
+        "B": "S3 Lifecycle para Glacier",
+        "C": "EFS replication",
+        "D": "CloudFront caching"
+      },
+      "correct": ["A"],
+      "explanation": "CRR replica objetos do S3 para outra região automaticamente (com requisitos como versioning).",
+      "choice_explanations": {
+        "A": "✅ Replicação entre regiões é CRR.",
+        "B": "❌ Lifecycle é tiering/retention, não DR multi-região.",
+        "C": "❌ Outro serviço.",
+        "D": "❌ Cache, não DR."
+      },
+      "tags": ["s3", "crr", "multi-region", "dr"]
+    },
+    {
+      "id": "SAA-HADR-116",
+      "topic": "hadr",
+      "question": "Um workload precisa sobreviver a falha total de uma AZ. O banco é Aurora. Qual opção oferece HA dentro da região com failover gerenciado?",
+      "choices": {
+        "A": "Aurora com instâncias em múltiplas AZs",
+        "B": "Aurora single instance em uma AZ",
+        "C": "DynamoDB sem backups",
+        "D": "S3 sem versioning"
+      },
+      "correct": ["A"],
+      "explanation": "Aurora é projetado para HA, com storage distribuído e failover para réplicas em outras AZs.",
+      "choice_explanations": {
+        "A": "✅ HA e failover gerenciado.",
+        "B": "❌ Single-AZ é SPOF.",
+        "C": "❌ Não responde ao cenário e ainda é má prática.",
+        "D": "❌ Irrelevante."
+      },
+      "tags": ["aurora", "multi-az", "failover"]
+    },
+    {
+      "id": "SAA-HADR-117",
+      "topic": "hadr",
+      "question": "Você quer DR multi-região para DynamoDB com baixa latência global e replicação automática. Qual recurso usar?",
+      "choices": {
+        "A": "DynamoDB Global Tables",
+        "B": "DynamoDB Streams apenas",
+        "C": "Snapshot manual e restore",
+        "D": "RDS Read Replica"
+      },
+      "correct": ["A"],
+      "explanation": "Global Tables replicam automaticamente entre regiões para leitura/escrita multi-região (dependendo da versão/config).",
+      "choice_explanations": {
+        "A": "✅ Multi-região nativo para DynamoDB.",
+        "B": "❌ Streams não é DR multi-região por si só.",
+        "C": "❌ RTO/RPO maiores.",
+        "D": "❌ Serviço errado."
+      },
+      "tags": ["dynamodb", "global-tables", "dr", "multi-region"]
+    },
+    {
+      "id": "SAA-HADR-118",
+      "topic": "hadr",
+      "question": "Uma empresa quer reduzir blast radius e melhorar recuperação: contas separadas por ambiente, logging central e guardrails. Qual abordagem é mais alinhada?",
+      "choices": {
+        "A": "Tudo em uma conta só",
+        "B": "AWS Organizations com estratégia multi-conta (landing zone)",
+        "C": "Somente tags",
+        "D": "Apenas snapshots"
+      },
+      "correct": ["B"],
+      "explanation": "Multi-conta com Organizations melhora governança, separação e limita blast radius, além de facilitar padrões de logging e segurança.",
+      "choice_explanations": {
+        "A": "❌ Blast radius maior.",
+        "B": "✅ Governança e isolamento.",
+        "C": "❌ Tags ajudam, mas não isolam contas.",
+        "D": "❌ Snapshots não são governança."
+      },
+      "tags": ["organizations", "multi-account", "governance", "blast-radius"]
+    },
+    {
+      "id": "SAA-HADR-119",
+      "topic": "hadr",
+      "question": "Você precisa de uma estratégia de DR com RTO baixo e custos moderados: manter componentes mínimos rodando na região secundária e escalar em desastre. Qual padrão é esse?",
+      "choices": {
+        "A": "Backup and Restore",
+        "B": "Pilot Light",
+        "C": "Warm Standby",
+        "D": "Active-Active"
+      },
+      "correct": ["B"],
+      "explanation": "Pilot Light mantém o 'mínimo vital' em outra região (ex: infraestrutura base e dados), e escala sob demanda durante desastre.",
+      "choice_explanations": {
+        "A": "❌ Geralmente maior RTO.",
+        "B": "✅ Definição clássica do padrão.",
+        "C": "❌ Warm standby mantém mais capacidade já ativa (mais caro).",
+        "D": "❌ Mais caro e complexo."
+      },
+      "tags": ["dr", "pilot-light", "rto", "patterns"]
+    },
+    {
+      "id": "SAA-HADR-120",
+      "topic": "hadr",
+      "question": "Você quer que um serviço volte rapidamente após falha e evitar mudanças manuais. Qual prática é mais alinhada a resiliência e recuperação?",
+      "choices": {
+        "A": "Infra como código (IaC) + automação de recuperação",
+        "B": "Anotações manuais do procedimento",
+        "C": "Acesso root compartilhado para emergências",
+        "D": "Executar tudo no laptop do admin"
+      },
+      "correct": ["A"],
+      "explanation": "IaC e automação reduzem erro humano e aceleram recuperação, tornando DR repetível e testável.",
+      "choice_explanations": {
+        "A": "✅ Recuperação consistente, rápida e testável.",
+        "B": "❌ Manual = lento e sujeito a erro.",
+        "C": "❌ Péssima prática de segurança.",
+        "D": "❌ Inviável e inseguro."
+      },
+      "tags": ["iac", "automation", "resilience", "dr"]
+    }
+  ]
+}
