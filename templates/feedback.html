@@ -2,7 +2,6 @@
 {% block content %}
 <div class="card">
   <h2 class="{{ 'ok' if ok else 'bad' }}">{{ '✅ Correto!' if ok else '❌ Incorreto' }}</h2>
-
   <p><strong>Sua resposta:</strong> {{ selected_str }}</p>
   <p><strong>Correta:</strong> {{ correct_str }}</p>
 

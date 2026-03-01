@@ -1,27 +1,99 @@
 {% extends "base.html" %}
+
+{% block top_right %}
+  {% if timer_enabled %}
+    <div class="pill timerBox">⏳ <span id="timer_top">--:--</span></div>
+  {% endif %}
+  <div class="pill">
+    {% if exam_mode %}modo prova{% else %}modo estudo{% endif %}
+  </div>
+  <div class="pill muted">q {{ idx+1 }}/{{ total }}</div>
+{% endblock %}
+
 {% block content %}
 <div class="card">
   <div class="muted">
-    Questão {{ idx+1 }}/{{ total }}
     <span class="pill">ID {{ q.id }}</span>
     <span class="pill">tópico: {{ q.topic }}</span>
-    {% for t in q.tags %}<span class="pill">{{ t }}</span>{% endfor %}
-    {% if exam_mode %}<span class="pill">🧪 modo prova</span>{% endif %}
+    {% for t in q.tags %}
+      <span class="pill">{{ t }}</span>
+    {% endfor %}
+
+    {# Debug opcional:
+    <span class="pill muted">timer={{ 1 if timer_enabled else 0 }} rem={{ timer_remaining }}</span>
+    #}
   </div>
+
+  {% if timer_enabled %}
+    {# Fallback: se por algum motivo o top_right não estiver sendo renderizado no base.html,
+       o timer ainda aparece aqui dentro do card #}
+    <div class="muted" style="margin-top:10px;">
+      <span class="pill">⏳ <span id="timer_inline">--:--</span></span>
+    </div>
+  {% endif %}
 
   <h2 style="margin-top:10px;">{{ q.question }}</h2>
 
   <form method="post" action="/answer" class="choices">
     {% for k in keys %}
-      <label>
+      <label style="display:block; padding:8px 10px; border-radius:10px;">
         <input type="{{ input_type }}" name="ans" value="{{ k }}" />
         <strong>{{ k }})</strong> {{ q.choices[k] }}
       </label>
     {% endfor %}
+
     <div style="margin-top:14px;">
       <button type="submit">Responder</button>
       <a href="/result" style="margin-left:10px;">Encerrar</a>
     </div>
   </form>
 </div>
+
+{% if timer_enabled %}
+<script>
+(function(){
+  // segundos restantes (vem do backend)
+  let remaining = {{ timer_remaining|int }};
+
+  const elTop = document.getElementById("timer_top");
+  const elInline = document.getElementById("timer_inline");
+
+  function fmt(sec){
+    sec = Math.max(0, sec);
+
+    const h = Math.floor(sec / 3600);
+    const m = Math.floor((sec % 3600) / 60);
+    const s = sec % 60;
+
+    // Se tiver mais de 1h, mostra HH:MM:SS, senão MM:SS
+    if (h > 0) {
+      return String(h).padStart(2,"0") + ":" +
+             String(m).padStart(2,"0") + ":" +
+             String(s).padStart(2,"0");
+    }
+    return String(m).padStart(2,"0") + ":" + String(s).padStart(2,"0");
+  }
+
+  function paint(){
+    const text = fmt(remaining);
+    if (elTop) elTop.textContent = text;
+    if (elInline) elInline.textContent = text;
+  }
+
+  function tick(){
+    paint();
+
+    if (remaining <= 0){
+      window.location.href = "/result";
+      return;
+    }
+
+    remaining -= 1;
+    setTimeout(tick, 1000);
+  }
+
+  tick();
+})();
+</script>
+{% endif %}
 {% endblock %}

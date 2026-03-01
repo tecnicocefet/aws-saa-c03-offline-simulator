@@ -3,39 +3,27 @@
 <div class="card">
   <h2>Resultado</h2>
 
-  <p><strong>Score:</strong> {{ score }}/{{ total }} ({{ "%.1f"|format(pct) }}%)</p>
-
-  {% if wrong and wrong|length > 0 %}
-    <p><strong>Erradas (IDs):</strong> {{ ", ".join(wrong) }}</p>
+  <p><strong>Score:</strong> {{ stats.score }}/{{ stats.total }} ({{ "%.1f"|format(stats.pct) }}%)</p>
+  {% if stats.exam_mode %}
+    <p class="muted">
+      <span class="pill">modo prova</span>
+      <span class="pill">tempo usado: {{ (stats.elapsed_sec//60)|int }}m {{ (stats.elapsed_sec%60)|int }}s</span>
+    </p>
   {% else %}
-    <p class="ok">Nenhuma errada. Brabo! 😄</p>
+    <p class="muted"><span class="pill">modo estudo</span></p>
   {% endif %}
 
-  {# ---- BLOCO DE STATS (não quebra se stats não vier) ---- #}
-  {% if stats is defined and stats %}
-    <hr style="border:0;border-top:1px solid #333; margin:16px 0; opacity:.25;">
-
-    {% set topics = stats.get("topics", []) %}
-    {% if topics and topics|length > 0 %}
-      <h3>Distribuição por tópicos</h3>
-      <div class="muted" style="margin-bottom:10px;">(acertos/total por tópico)</div>
-      <ul>
-        {% for k, v in topics %}
-          <li><strong>{{ k }}</strong>: {{ v }}</li>
-        {% endfor %}
-      </ul>
-    {% endif %}
-
-    {% set tags = stats.get("tags", []) %}
-    {% if tags and tags|length > 0 %}
-      <h3>Distribuição por tags</h3>
-      <div class="muted" style="margin-bottom:10px;">(top 20)</div>
-      <ul>
-        {% for k, v in tags %}
-          <li><strong>{{ k }}</strong>: {{ v }}</li>
-        {% endfor %}
-      </ul>
-    {% endif %}
+  {% if wrong %}
+    <p><strong>Erradas (IDs):</strong> {{ ", ".join(wrong) }}</p>
+    <div style="margin-top:12px;">
+      <a href="/review"><button>Revisar erradas</button></a>
+      <a href="/explanations" style="margin-left:10px;"><button>Ver explicações (todas)</button></a>
+    </div>
+  {% else %}
+    <p class="ok">Nenhuma errada. Brabo! 😄</p>
+    <div style="margin-top:12px;">
+      <a href="/explanations"><button>Ver explicações (todas)</button></a>
+    </div>
   {% endif %}
 
   <div style="margin-top:14px;">

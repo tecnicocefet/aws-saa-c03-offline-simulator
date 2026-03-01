@@ -8,8 +8,6 @@
     body { font-family: system-ui, sans-serif; margin: 24px; max-width: 980px; }
     .card { border: 1px solid #ddd; border-radius: 14px; padding: 16px; margin: 16px 0; }
     .muted { color: #666; font-size: 0.95rem; }
-    .choices label { display: block; padding: 8px 10px; border-radius: 10px; }
-    .choices label:hover { background: #f6f6f6; }
     .pill { display:inline-block; padding: 2px 10px; border-radius: 999px; background: #f0f0f0; margin-right: 6px; }
     .ok { color: #0a7; font-weight: 700; }
     .bad { color: #c22; font-weight: 700; }
@@ -19,8 +17,9 @@
     .row { display: grid; gap: 12px; grid-template-columns: 1fr 1fr; }
     @media (max-width: 800px) { .row { grid-template-columns: 1fr; } }
     .explain { border-left: 4px solid #ddd; padding-left: 12px; margin-top: 10px; }
-    .topbar { display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap; }
-    .timer { font-variant-numeric: tabular-nums; padding: 6px 10px; border: 1px solid #ddd; border-radius: 999px; background:#fafafa; }
+    .topbar { display:flex; align-items:center; justify-content:space-between; gap: 12px; }
+    .right { display:flex; align-items:center; gap: 10px; flex-wrap: wrap; justify-content:flex-end; }
+    .timerBox { font-weight:700; }
     a { color: inherit; }
   </style>
 </head>
@@ -28,28 +27,13 @@
   <div class="topbar">
     <div>
       <h1 style="margin:0;">Simulador Offline 🧠</h1>
-      <div class="muted">Banco: <code>{{ bank_path }}</code></div>
+      <div class="muted" style="margin-top:6px;">
+        {% if session_mode == "weighted65" %}<span class="pill">modo: 65 ponderada</span>{% endif %}
+      </div>
     </div>
-    {% if timer_enabled %}
-      <div class="timer" id="timer-pill">⏳ --:--</div>
-      <script>
-        (function(){
-          let remaining = {{ timer_remaining|int }};
-          function fmt(s){
-            const m = Math.floor(s/60);
-            const r = s % 60;
-            return String(m).padStart(2,'0') + ":" + String(r).padStart(2,'0');
-          }
-          const el = document.getElementById("timer-pill");
-          function tick(){
-            el.textContent = "⏳ " + fmt(Math.max(0, remaining));
-            remaining = Math.max(0, remaining - 1);
-          }
-          tick();
-          setInterval(tick, 1000);
-        })();
-      </script>
-    {% endif %}
+    <div class="right">
+      {% block top_right %}{% endblock %}
+    </div>
   </div>
 
   {% block content %}{% endblock %}

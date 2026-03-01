@@ -1,48 +1,43 @@
 {% extends "base.html" %}
 {% block content %}
 <div class="card">
-  <h2>Explicações completas da sessão</h2>
+  <h2>Explicações completas (sessão atual)</h2>
 
-  <p class="muted">Total: <strong>{{ session_questions|length }}</strong></p>
-
-  {% for q in session_questions %}
-    <div style="margin-bottom: 26px; padding-bottom: 18px; border-bottom: 1px solid #eee;">
-      <div class="muted">
-        <span class="pill">ID {{ q.id }}</span>
-        <span class="pill">tópico: {{ q.topic }}</span>
-        {% for t in q.tags %}<span class="pill">{{ t }}</span>{% endfor %}
-      </div>
-
-      <h3 style="margin-top:10px;">{{ q.question }}</h3>
-      <p><strong>Correta:</strong> {{ ", ".join(q.correct) }}</p>
-
-      {% if q.explanation %}
-        <div class="explain">
-          <h4>Explicação (geral)</h4>
-          <p>{{ q.explanation }}</p>
+  {% if not session_questions %}
+    <p class="muted">Sem sessão ativa. Comece um simulado.</p>
+    <a href="/"><button>Configurar</button></a>
+  {% else %}
+    {% for q in session_questions %}
+      <div style="margin:18px 0;padding-top:10px;border-top:1px solid #eee;">
+        <div class="muted">
+          <span class="pill">{{ q.id }}</span>
+          <span class="pill">tópico: {{ q.topic }}</span>
+          {% for t in q.tags %}<span class="pill">{{ t }}</span>{% endfor %}
         </div>
-      {% endif %}
 
-      <div class="explain">
-        <h4>Por alternativa</h4>
-        <ul>
-          {% for k in keys %}
-            <li>
-              <strong>{{ k }})</strong> {{ q.choices[k] }}
-              {% if k in q.correct %}<span class="pill">✅ correta</span>{% endif %}
-              <div class="muted" style="margin-top:4px;">
-                {{ q.choice_explanations.get(k, "") or "(sem explicação cadastrada)" }}
-              </div>
-            </li>
-          {% endfor %}
-        </ul>
+        <h3 style="margin-top:10px;">{{ q.question }}</h3>
+
+        <p><strong>Correta:</strong> {{ ", ".join(q.correct) }}</p>
+
+        {% if q.explanation %}
+          <div class="explain"><p>{{ q.explanation }}</p></div>
+        {% endif %}
+
+        <div class="explain">
+          <h4>Por alternativa</h4>
+          <ul>
+            {% for k in keys %}
+              <li><strong>{{ k }})</strong> {{ q.choice_explanations.get(k, '') or '(sem explicação cadastrada)' }}</li>
+            {% endfor %}
+          </ul>
+        </div>
       </div>
-    </div>
-  {% endfor %}
+    {% endfor %}
 
-  <div style="margin-top: 14px;">
-    <a href="/result"><button>Voltar ao resultado</button></a>
-    <a href="/" style="margin-left:10px;">Nova sessão</a>
-  </div>
+    <div style="margin-top:14px;">
+      <a href="/result"><button>Voltar ao resultado</button></a>
+      <a href="/" style="margin-left:10px;"><button>Nova sessão</button></a>
+    </div>
+  {% endif %}
 </div>
 {% endblock %}
